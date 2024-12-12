@@ -46,6 +46,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Error Reporting Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the error reporting settings.
+    |
+    */
+    'error_reporting' => E_ALL & ~E_DEPRECATED,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Disable Deprecation Warnings
+    |--------------------------------------------------------------------------
+    |
+    | This value determines if deprecation warnings should be shown.
+    | Set to false to hide deprecation warnings.
+    |
+    */
+    'ignore_deprecations' => true,
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

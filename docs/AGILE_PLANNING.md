@@ -127,6 +127,63 @@ Stories:
    - Interface attribution
 ```
 
+## État d'Avancement
+
+### Sprint 2 (Semaines 3-4)
+```progress
+✅ Terminé:
+- Configuration de Filament
+- Mise en place des rôles et permissions
+- CRUD utilisateurs de base
+
+🔄 En cours:
+- Tests des ressources Activity
+- Migrations de la base de données
+
+⏭️ Planifié:
+- Documentation technique
+- Préparation du sprint 3
+```
+
+## Rétrospectives
+
+### Sprint 2 - 12/12/2024
+```retrospective
+✅ Succès:
+- Mise en place réussie du système de rôles et permissions avec Spatie
+- Configuration de Filament pour l'interface admin
+- Implémentation des tests pour les ressources Activity
+
+🔄 En cours:
+- Correction des tests pour les activités
+- Migration des colonnes manquantes dans la table activities
+
+📝 À améliorer:
+- Documentation des migrations et des changements de schéma
+- Couverture des tests pour les nouvelles fonctionnalités
+
+⏭️ Prochaines étapes:
+- Finaliser les tests des activités
+- Implémenter les filtres avancés
+- Commencer le module de gestion des prospects
+```
+
+### Points à Évaluer
+```retro
+1. Vélocité équipe
+2. Qualité code
+3. Communication
+4. Satisfaction client
+```
+
+### Actions d'Amélioration
+```improve
+1. Review code systématique
+2. Documentation continue
+3. Tests automatisés
+4. Feedback utilisateurs
+```
+
 ## Estimation des Risques
 
 ### Risques Techniques
@@ -196,22 +253,4 @@ Features:
 - Analytics avancés
 - Automatisations
 - API complète
-```
-
-## Rétrospectives
-
-### Points à Évaluer
-```retro
-1. Vélocité équipe
-2. Qualité code
-3. Communication
-4. Satisfaction client
-```
-
-### Actions d'Amélioration
-```improve
-1. Review code systématique
-2. Documentation continue
-3. Tests automatisés
-4. Feedback utilisateurs
 ```
