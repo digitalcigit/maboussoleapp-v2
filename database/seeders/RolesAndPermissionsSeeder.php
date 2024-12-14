@@ -122,9 +122,10 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::create(['name' => $permission]);
         }
 
-        // Création des rôles avec leurs permissions
-        // Super Administrateur
+        // Create the Super Admin role first
         $superAdmin = Role::create(['name' => 'super-admin']);
+
+        // Give all permissions to super-admin
         $superAdmin->givePermissionTo(Permission::all());
 
         // Manager
@@ -204,6 +205,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'email' => 'admin@maboussole.ci',
             'password' => Hash::make('password'),
         ]);
+
+        // Assign the super-admin role
         $superAdminUser->assignRole('super-admin');
     }
 }

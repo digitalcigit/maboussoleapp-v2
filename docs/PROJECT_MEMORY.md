@@ -271,6 +271,38 @@ maboussole-crm-v2/
    - Étape 2
 ```
 
+### Migration Fixes (2024-12-12)
+
+#### Issue
+Multiple migrations were attempting to modify the `activities` table structure, causing conflicts and failed migrations due to duplicate column additions.
+
+#### Solution
+1. Created a consolidated migration `2024_12_12_225000_finalize_activities_table.php` that:
+   - Safely checks for column existence before adding
+   - Handles all necessary columns in one place
+   - Properly sets up foreign key relationships
+   - Implements polymorphic relationships
+   - Configures proper enum values for status
+
+2. Converted problematic migrations to no-ops to maintain history:
+   - `2024_12_12_224500_add_subject_fields_to_activities_table.php`
+   - `2024_12_12_224600_fix_activities_table_columns.php`
+
+#### Final Table Structure
+The `activities` table now includes:
+- `id` (primary key)
+- `title` (string, nullable)
+- `type` (string)
+- `status` (enum: 'planifié', 'en_cours', 'terminé', 'annulé')
+- `subject_type` and `subject_id` (polymorphic relationship)
+- `client_id` (foreign key to clients table)
+- `prospect_id` (foreign key to prospects table)
+
+#### Key Learnings
+- When dealing with multiple migrations affecting the same table, consolidate changes into a single, comprehensive migration
+- Use column existence checks to prevent duplicate column errors
+- Maintain migration history by converting problematic migrations to no-ops instead of deleting them
+
 ### Session du 12/12/2024 - 09:39 à 12:12
 
 1. Actions Chronologiques:
@@ -1094,3 +1126,54 @@ Cascade: *Affiche progression détaillée*
 - Mettre à jour chronologiquement les actions réalisées
 - Documenter les décisions importantes
 - Noter les problèmes rencontrés et solutions appliquées
+
+
+Session du 2024-12-13
+État du Sprint
+Sprint: 1 - Fondations
+Progression: 60% complété
+Points: 34/47 points
+Contexte Actuel
+Problèmes d'authentification avec Filament
+Mise à jour de la version de Filament dans composer.json
+Tâche Courante
+Story: Tests et Permissions
+Points: 13
+Status: En cours
+Sous-tâches:
+[x] Création d'un middleware personnalisé pour Filament
+[x] Mise à jour de la configuration d'authentification
+[x] Ajout de logs pour le débogage
+[x] Mise à jour de Filament à la version 3.1
+Actions de la Session
+Correction de la méthode panel dans AdminPanelProvider.php
+Ajout de logs pour suivre l'authentification
+Mise à jour et optimisation des caches
+Métriques
+Temps passé: Plusieurs heures
+Stories complétées: 0
+Points réalisés: 0
+
+
+Session du 2024-12-14
+État du Sprint
+
+Sprint: 1 - Fondations
+Progression: 70% complété
+Points: 40/47 points
+Contexte Actuel
+
+Problèmes d'authentification avec Filament résolus
+Mise à jour des routes de connexion pour l'authentification des administrateurs
+Modifications Récentes
+
+Routes de Connexion
+Ajout des routes /admin/login pour gérer la connexion des administrateurs dans routes/web.php.
+Importation du LoginController pour assurer la gestion correcte des connexions.
+Correction du Modèle User
+Modification de la méthode canAccessPanel pour utiliser Filament\Panel comme type de paramètre.
+Tâche Courante
+
+Story: Tests et Permissions
+Points: 13
+Status: En cours
