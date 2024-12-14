@@ -1127,8 +1127,7 @@ Cascade: *Affiche progression détaillée*
 - Documenter les décisions importantes
 - Noter les problèmes rencontrés et solutions appliquées
 
-
-Session du 2024-12-13
+### Session du 14/12/2023
 État du Sprint
 Sprint: 1 - Fondations
 Progression: 60% complété
@@ -1154,15 +1153,12 @@ Temps passé: Plusieurs heures
 Stories complétées: 0
 Points réalisés: 0
 
-
-Session du 2024-12-14
+### Session du 14/12/2023
 État du Sprint
-
 Sprint: 1 - Fondations
 Progression: 70% complété
 Points: 40/47 points
 Contexte Actuel
-
 Problèmes d'authentification avec Filament résolus
 Mise à jour des routes de connexion pour l'authentification des administrateurs
 Modifications Récentes
@@ -1177,3 +1173,4 @@ Tâche Courante
 Story: Tests et Permissions
 Points: 13
 Status: En cours
+```
