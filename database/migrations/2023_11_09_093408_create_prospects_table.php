@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('source')->nullable();
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->string('commercial_code')->nullable();
-            $table->foreignId('partner_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('partner_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('last_action_at')->nullable();
             $table->timestamp('analysis_deadline')->nullable();
             $table->timestamps();
