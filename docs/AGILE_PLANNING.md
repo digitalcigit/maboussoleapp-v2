@@ -107,7 +107,23 @@ Stories:
    - Créer middleware auth
    - Tests unitaires
 
-2. Interface Admin [5 points]
+2. Tests d'Intégration [13 points]
+   - Tests des interactions entre composants
+     ├── Auth & Permissions
+     ├── Workflow Prospect-Client
+     └── Interactions Base de données
+
+   - Tests des flux complets
+     ├── Parcours utilisateur
+     ├── API endpoints
+     └── Events & Listeners
+
+   - Tests de performance
+     ├── Temps de réponse
+     ├── Charge base de données
+     └── Optimisation requêtes
+
+3. Interface Admin [5 points]
    - Setup Filament
    - Dashboard base
    - CRUD utilisateurs

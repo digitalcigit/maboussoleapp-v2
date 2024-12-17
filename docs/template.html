@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+$for(author-meta)$
+  <meta name="author" content="$author-meta$" />
+$endfor$
+$if(date-meta)$
+  <meta name="dcterms.date" content="$date-meta$" />
+$endif$
+$if(keywords)$
+  <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+$endif$
+  <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+  <style>
+    $styles.html()$
+    .chart-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .metric-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+$for(css)$
+  <link rel="stylesheet" href="$css$" />
+$endfor$
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+$if(math)$
+  $math$
+$endif$
+$for(header-includes)$
+  $header-includes$
+$endfor$
+</head>
+<body>
+<div class="header">
+  <img src="/home/dcidev/CascadeProjects/maboussoleapp-v2/docs/assets/maboussole-logo.svg" alt="MaBoussole Logo" class="logo">
+  <div class="header-text">
+    <h1>$title$</h1>
+    <p class="date">$date$</p>
+  </div>
+</div>
+
+$for(include-before)$
+$include-before$
+$endfor$
+$if(toc)$
+<nav id="$idprefix$TOC" role="doc-toc">
+$if(toc-title)$
+<h2 id="$idprefix$toc-title">$toc-title$</h2>
+$endif$
+$table-of-contents$
+</nav>
+$endif$
+$body$
+
+<div class="metrics-grid">
+  <div class="chart-container">
+    <canvas id="sprintProgressChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="testCoverageChart"></canvas>
+  </div>
+</div>
+
+$for(include-after)$
+$include-after$
+$endfor$
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sprint Progress Chart
+    const sprintCtx = document.getElementById('sprintProgressChart');
+    if (sprintCtx) {
+        new Chart(sprintCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'],
+                datasets: [{
+                    label: 'Points Complétés',
+                    data: [13, 8, 0, 0],
+                    backgroundColor: '#3498db'
+                }, {
+                    label: 'Points Restants',
+                    data: [0, 5, 13, 8],
+                    backgroundColor: '#e74c3c'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Progression des Sprints',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { 
+                        stacked: true,
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Test Coverage Chart
+    const testCtx = document.getElementById('testCoverageChart');
+    if (testCtx) {
+        new Chart(testCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Tests Unitaires', 'Tests Intégration', 'Tests E2E', 'Non Couvert'],
+                datasets: [{
+                    data: [96, 92, 89, 8],
+                    backgroundColor: [
+                        '#27ae60',
+                        '#2980b9',
+                        '#8e44ad',
+                        '#ecf0f1'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Couverture des Tests',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>

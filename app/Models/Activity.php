@@ -13,14 +13,15 @@ class Activity extends Model
 
     protected $fillable = [
         'title',
-        'type',
         'description',
-        'user_id',
-        'prospect_id',
-        'client_id',
+        'type',
         'status',
+        'user_id',
+        'created_by',
         'subject_type',
         'subject_id',
+        'prospect_id',
+        'client_id',
         'scheduled_at',
         'completed_at'
     ];
@@ -29,6 +30,31 @@ class Activity extends Model
         'scheduled_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($activity) {
+            $currentUserId = auth()->id();
+            
+            if (!$activity->user_id) {
+                $activity->user_id = $currentUserId;
+            }
+            
+            if (!$activity->created_by) {
+                $activity->created_by = $currentUserId;
+            }
+
+            if ($activity->prospect_id && !$activity->subject_id) {
+                $activity->subject_type = Prospect::class;
+                $activity->subject_id = $activity->prospect_id;
+            } elseif ($activity->client_id && !$activity->subject_id) {
+                $activity->subject_type = Client::class;
+                $activity->subject_id = $activity->client_id;
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {

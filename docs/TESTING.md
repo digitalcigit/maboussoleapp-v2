@@ -61,6 +61,56 @@ class ResourceTest extends TestCase
 }
 ```
 
+## Gestion des Bases de Données de Test
+
+### Configuration
+
+L'application utilise deux bases de données distinctes :
+
+1. **Base de Production/Développement**
+   - Nom : `maboussole_crm`
+   - Configuration : fichier `.env`
+   - Usage : développement et production
+   - Protection : ne jamais modifier directement pendant les tests
+
+2. **Base de Test**
+   - Nom : `maboussole_crm_testing`
+   - Configuration : fichier `phpunit.xml`
+   - Usage : tests automatisés uniquement
+   - Comportement : réinitialisée à chaque suite de tests
+
+### ⚠️ Important : Commandes de Test
+
+Pour éviter toute modification accidentelle de la base de production, TOUJOURS utiliser le flag `--env=testing` pour les commandes liées aux tests :
+
+```bash
+# Exécuter les tests
+php artisan test --env=testing
+
+# Rafraîchir la base de test
+php artisan migrate:fresh --seed --env=testing
+
+# Autres commandes artisan en contexte de test
+php artisan [commande] --env=testing
+```
+
+### Sécurité et Isolation
+
+1. **Trait RefreshDatabase**
+   - Utilisé dans les classes de test
+   - Réinitialise la base UNIQUEMENT pendant l'exécution des tests
+   - Ne protège PAS contre les commandes artisan manuelles
+
+2. **Vérifications de Sécurité**
+   - Toujours vérifier la base ciblée avant les migrations
+   - Ne jamais exécuter `migrate:fresh` sans `--env=testing`
+   - Maintenir les configurations séparées et à jour
+
+3. **Bonnes Pratiques**
+   - Documenter toute modification du schéma de base de données
+   - Tester les migrations dans les deux sens (up/down)
+   - Vérifier régulièrement l'isolation des environnements
+
 ## Factories
 
 ### Conventions pour les Factories

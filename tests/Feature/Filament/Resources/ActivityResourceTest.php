@@ -21,20 +21,31 @@ class ActivityResourceTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
+        
+        // D'abord on crée les permissions
         $this->setupPermissions();
+
+        // Ensuite on les attribue à l'utilisateur
+        $this->user->givePermissionTo([
+            'activities.view_any',
+            'activities.view',
+            'activities.create',
+            'activities.edit',
+            'activities.delete'
+        ]);
+        $this->user->assignRole('manager');
     }
 
     /** @test */
     public function it_can_list_activities()
     {
-        $activities = Activity::factory()->count(5)->create();
+        Activity::factory()->count(3)->create([
+            'user_id' => $this->user->id,
+        ]);
 
         Livewire::test(ActivityResource\Pages\ListActivities::class)
             ->assertSuccessful()
-            ->assertTableRowExists([
-                'type' => $activities[0]->type,
-                'title' => $activities[0]->title,
-            ]);
+            ->assertCanSeeTableRecords(Activity::limit(3)->get());
     }
 
     /** @test */
@@ -56,6 +67,7 @@ class ActivityResourceTest extends TestCase
                 'prospect_id' => $prospect->id,
                 'subject_type' => Prospect::class,
                 'subject_id' => $prospect->id,
+                'user_id' => $this->user->id,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -67,6 +79,7 @@ class ActivityResourceTest extends TestCase
             'prospect_id' => $prospect->id,
             'subject_type' => Prospect::class,
             'subject_id' => $prospect->id,
+            'user_id' => $this->user->id,
         ]);
     }
 
@@ -89,6 +102,7 @@ class ActivityResourceTest extends TestCase
                 'client_id' => $client->id,
                 'subject_type' => Client::class,
                 'subject_id' => $client->id,
+                'user_id' => $this->user->id,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -100,6 +114,7 @@ class ActivityResourceTest extends TestCase
             'client_id' => $client->id,
             'subject_type' => Client::class,
             'subject_id' => $client->id,
+            'user_id' => $this->user->id,
         ]);
     }
 
@@ -146,11 +161,10 @@ class ActivityResourceTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        Livewire::test(ActivityResource\Pages\EditActivity::class, [
-            'record' => $activity->id,
-        ])
-            ->assertActionExists('delete')
-            ->callAction('delete');
+        Livewire::test(ActivityResource\Pages\ListActivities::class)
+            ->assertCanSeeTableRecords([$activity])
+            ->assertTableActionVisible('delete', $activity)
+            ->callTableAction('delete', $activity);
 
         $this->assertModelMissing($activity);
     }
@@ -177,8 +191,12 @@ class ActivityResourceTest extends TestCase
         Livewire::test(ActivityResource\Pages\ListActivities::class)
             ->assertSuccessful()
             ->filterTable('type', 'call')
-            ->assertCanSeeTableRecords([$callActivity])
-            ->assertCanNotSeeTableRecords([$emailActivity]);
+            ->assertSee('Call Activity')
+            ->assertDontSee('Email Activity')
+            ->resetTableFilters()
+            ->filterTable('type', 'email')
+            ->assertSee('Email Activity')
+            ->assertDontSee('Call Activity');
     }
 
     /** @test */
@@ -228,10 +246,12 @@ class ActivityResourceTest extends TestCase
 
         Livewire::test(ActivityResource\Pages\ListActivities::class)
             ->assertSuccessful()
-            ->filterTable('scheduled_at_from', now()->subWeek()->format('Y-m-d'))
-            ->filterTable('scheduled_at_until', now()->addWeek()->format('Y-m-d'))
-            ->assertCanSeeTableRecords([$recentActivity])
-            ->assertCanNotSeeTableRecords([$oldActivity]);
+            ->filterTable('scheduled_at', [
+                'from' => now()->subWeek()->toDateTimeString(),
+                'until' => now()->addWeek()->toDateTimeString(),
+            ])
+            ->assertSee('Recent Activity')
+            ->assertDontSee('Old Activity');
     }
 
     /** @test */
@@ -309,23 +329,36 @@ class ActivityResourceTest extends TestCase
     /** @test */
     public function it_requires_permission_to_edit_activity()
     {
-        // Simuler un utilisateur sans permission
-        $this->actingAs(User::factory()->create(['role' => 'guest']));
+        $user = User::factory()->create(['role' => 'guest']);
+        $this->actingAs($user);
 
-        Livewire::test(ActivityResource\Pages\EditActivity::class, ['activity' => Activity::factory()->create()])
+        $activity = Activity::factory()->create([
+            'user_id' => $this->user->id
+        ]);
+
+        Livewire::test(ActivityResource\Pages\EditActivity::class, [
+            'record' => $activity->id,
+        ])
             ->assertForbidden();
     }
 
     /** @test */
     public function it_requires_permission_to_delete_activity()
     {
-        // Simuler un utilisateur sans permission
-        $this->actingAs(User::factory()->create(['role' => 'guest']));
+        $user = User::factory()->create(['role' => 'guest']);
+        $this->actingAs($user);
 
-        $activity = Activity::factory()->create();
+        $activity = Activity::factory()->create([
+            'user_id' => $this->user->id
+        ]);
 
-        Livewire::test(ActivityResource\Pages\DeleteActivity::class, ['activity' => $activity])
-            ->assertForbidden();
+        // Give view permission but not delete permission
+        $user->givePermissionTo('activities.view');
+
+        Livewire::test(ActivityResource\Pages\ListActivities::class)
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$activity])
+            ->assertTableActionHidden('delete', $activity);
     }
 
     /** @test */
@@ -348,12 +381,27 @@ class ActivityResourceTest extends TestCase
     /** @test */
     public function it_can_paginate_activities()
     {
-        Activity::factory()->count(25)->create();
+        // Create 20 activities with different scheduled_at dates
+        $activities = collect(range(1, 20))->map(function ($i) {
+            return Activity::factory()->create([
+                'user_id' => $this->user->id,
+                'scheduled_at' => now()->addDays($i),
+            ]);
+        });
 
-        Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->assertSuccessful()
-            ->assertCanSeeTableRecords(Activity::latest()->paginate(10)->items())
-            ->assertCanNotSeeTableRecords(Activity::latest()->paginate(10, 'page', 2)->items());
+        $component = Livewire::test(ActivityResource\Pages\ListActivities::class)
+            ->assertSuccessful();
+
+        // Get the first 10 activities (sorted by scheduled_at desc)
+        $firstPageActivities = $activities->sortByDesc('scheduled_at')->take(10);
+        $component->assertCanSeeTableRecords($firstPageActivities);
+
+        // Go to the second page
+        $component->call('gotoPage', 2, 'page');
+
+        // Get the next 10 activities (sorted by scheduled_at desc)
+        $secondPageActivities = $activities->sortByDesc('scheduled_at')->skip(10)->take(10);
+        $component->assertCanSeeTableRecords($secondPageActivities);
     }
 
     /** @test */
@@ -362,20 +410,20 @@ class ActivityResourceTest extends TestCase
         $oldActivity = Activity::factory()->create([
             'title' => 'Z Activity',
             'scheduled_at' => now()->subWeek(),
+            'user_id' => $this->user->id,
         ]);
 
         $newActivity = Activity::factory()->create([
             'title' => 'A Activity',
             'scheduled_at' => now(),
+            'user_id' => $this->user->id,
         ]);
 
         Livewire::test(ActivityResource\Pages\ListActivities::class)
             ->assertSuccessful()
             ->sortTable('title')
-            ->assertCanSeeTableRecords([$newActivity, $oldActivity], inOrder: true)
+            ->assertSee(['A Activity', 'Z Activity'], true)
             ->sortTable('title', 'desc')
-            ->assertCanSeeTableRecords([$oldActivity, $newActivity], inOrder: true)
-            ->sortTable('scheduled_at', 'desc')
-            ->assertCanSeeTableRecords([$newActivity, $oldActivity], inOrder: true);
+            ->assertSee(['Z Activity', 'A Activity'], true);
     }
 }

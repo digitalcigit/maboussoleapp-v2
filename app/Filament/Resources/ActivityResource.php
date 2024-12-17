@@ -67,6 +67,7 @@ class ActivityResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
+                            ->default(fn () => auth()->id())
                             ->label('Utilisateur'),
                         Forms\Components\Select::make('prospect_id')
                             ->relationship('prospect', 'email')
@@ -162,33 +163,32 @@ class ActivityResource extends Resource
                         \App\Models\Client::class => 'Client',
                     ])
                     ->label('Type de sujet'),
-                Tables\Filters\Filter::make('scheduled_at_from')
+                Tables\Filters\Filter::make('scheduled_at')
                     ->form([
-                        Forms\Components\DatePicker::make('scheduled_at_from')
+                        Forms\Components\DateTimePicker::make('from')
                             ->label('Date de début'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['scheduled_at_from'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('scheduled_at', '>=', $date),
-                        );
-                    }),
-                Tables\Filters\Filter::make('scheduled_at_until')
-                    ->form([
-                        Forms\Components\DatePicker::make('scheduled_at_until')
+                        Forms\Components\DateTimePicker::make('until')
                             ->label('Date de fin'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['scheduled_at_until'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('scheduled_at', '<=', $date),
-                        );
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date): Builder => $query->where('scheduled_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->where('scheduled_at', '<=', $date),
+                            );
                     }),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->requiresConfirmation()
+                        ->visible(fn (Activity $record) => auth()->user()->can('delete', $record)),
                 ])
             ])
             ->bulkActions([

@@ -236,4 +236,123 @@ class ProspectResourceTest extends TestCase
             'phone' => $prospect->phone,
         ]);
     }
+
+    /** @test */
+    public function it_can_paginate_prospects()
+    {
+        // Créer plus de prospects que la limite par page
+        $prospects = Prospect::factory()->count(25)->create();
+
+        // Vérifier la première page
+        $response = $this->get(ProspectResource::getUrl('index'));
+        $response->assertSuccessful();
+        $response->assertSee($prospects[0]->reference_number);
+        $response->assertDontSee($prospects[24]->reference_number);
+
+        // Vérifier la deuxième page
+        $response = $this->get(ProspectResource::getUrl('index', ['page' => 2]));
+        $response->assertSuccessful();
+        $response->assertSee($prospects[24]->reference_number);
+    }
+
+    /** @test */
+    public function it_can_manage_related_activities()
+    {
+        $prospect = Prospect::factory()->create();
+        $activity = Activity::factory()->make([
+            'subject_type' => Prospect::class,
+            'subject_id' => $prospect->id,
+        ]);
+
+        // Créer une activité
+        $response = $this->post(ProspectResource::getUrl('edit', ['record' => $prospect]) . '/activities', [
+            'title' => $activity->title,
+            'type' => $activity->type,
+            'scheduled_at' => $activity->scheduled_at,
+            'status' => $activity->status,
+            'description' => $activity->description,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('activities', [
+            'title' => $activity->title,
+            'subject_id' => $prospect->id,
+            'subject_type' => Prospect::class,
+        ]);
+    }
+
+    /** @test */
+    public function it_requires_permission_to_access_prospects()
+    {
+        $this->user->revokePermissionTo('prospects.view_any');
+        
+        $response = $this->get(ProspectResource::getUrl('index'));
+        $response->assertForbidden();
+        
+        $this->user->givePermissionTo('prospects.view_any');
+        $response = $this->get(ProspectResource::getUrl('index'));
+        $response->assertSuccessful();
+    }
+
+    /** @test */
+    public function it_validates_email_and_phone_formats()
+    {
+        $response = $this->post(ProspectResource::getUrl('create'), [
+            'reference_number' => 'REF001',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'invalid-email',
+            'phone' => 'invalid-phone',
+            'status' => 'new',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'email' => 'The email field must be a valid email address.',
+            'phone' => 'The phone format is invalid.',
+        ]);
+    }
+
+    /** @test */
+    public function it_can_perform_bulk_actions()
+    {
+        $prospects = Prospect::factory()->count(3)->create();
+        $user = User::factory()->create();
+
+        $response = $this->post(ProspectResource::getUrl('index') . '/bulk', [
+            'records' => $prospects->pluck('id')->toArray(),
+            'action' => 'assign',
+            'data' => [
+                'assigned_to' => $user->id,
+            ],
+        ]);
+
+        $response->assertRedirect();
+        foreach ($prospects as $prospect) {
+            $this->assertDatabaseHas('prospects', [
+                'id' => $prospect->id,
+                'assigned_to' => $user->id,
+            ]);
+        }
+    }
+
+    /** @test */
+    public function it_updates_status_after_conversion()
+    {
+        $prospect = Prospect::factory()->create(['status' => 'qualified']);
+
+        $response = $this->post(ProspectResource::getUrl('convert', ['record' => $prospect]), [
+            'client_number' => 'CLI002',
+            'passport_number' => 'PASS456',
+            'passport_expiry' => now()->addYears(5)->format('Y-m-d'),
+            'total_amount' => 2000,
+            'paid_amount' => 1000,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('prospects', [
+            'id' => $prospect->id,
+            'status' => 'converted',
+        ]);
+    }
+
 }

@@ -90,7 +90,6 @@ class TestDataSeeder extends Seeder
                     'description' => "Discussion initiale sur les besoins",
                     'scheduled_at' => Carbon::now(),
                     'completed_at' => Carbon::now(),
-                    'created_by' => $advisor->id,
                 ]);
             }
         }
@@ -124,7 +123,6 @@ class TestDataSeeder extends Seeder
                     'description' => "Point d'avancement mensuel",
                     'scheduled_at' => Carbon::now()->addDays(rand(1, 7)),
                     'completed_at' => null,
-                    'created_by' => $advisor->id,
                 ]);
             }
         }

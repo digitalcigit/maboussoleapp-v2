@@ -38,8 +38,14 @@ class ActivityPolicy
              $activity->user_id === $user->id);
     }
 
-    public function delete(User $user, Activity $activity): bool
+    public function delete(User $user, ?Activity $activity = null): bool
     {
+        if (!$activity) {
+            return $user->hasPermissionTo('activities.delete') &&
+                ($user->hasRole('super_admin') || 
+                 $user->hasRole('manager'));
+        }
+
         return $user->hasPermissionTo('activities.delete') &&
             ($user->hasRole('super_admin') || 
              $user->hasRole('manager'));

@@ -39,6 +39,7 @@ trait HasTestPermissions
             // Permissions générales Filament
             'access_filament',
             'access_admin_panel',
+            'view_admin_panel',
             
             // Permissions pour les activités
             'activities.view',
@@ -47,6 +48,7 @@ trait HasTestPermissions
             'activities.delete',
             'activities.view_any',
             'activities.edit',
+            'manage activities',
             
             // Permissions pour les prospects
             'prospects.view',
@@ -55,6 +57,7 @@ trait HasTestPermissions
             'prospects.delete',
             'prospects.view_any',
             'prospects.edit',
+            'manage prospects',
             
             // Permissions pour les clients
             'clients.view',
@@ -63,21 +66,39 @@ trait HasTestPermissions
             'clients.delete',
             'clients.view_any',
             'clients.edit',
+            'manage clients',
+            'clients.import',
+            'clients.export',
+            
+            // Permissions pour les utilisateurs
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.delete',
+            'users.view_any',
+            'users.edit',
+            'manage users',
+            
+            // Permissions pour les rôles
+            'roles.view',
+            'roles.create',
+            'roles.update',
+            'roles.delete',
+            'roles.view_any',
+            'roles.edit',
+            'manage roles',
         ];
 
+        // Crée chaque permission
         foreach ($permissions as $permission) {
             Permission::create(['name' => $permission]);
         }
 
-        // Crée le rôle admin et assigne toutes les permissions
+        // Crée un rôle admin avec toutes les permissions
         $role = Role::create(['name' => 'admin']);
         $role->givePermissionTo($permissions);
 
-        // Crée un rôle avec toutes les permissions
-        $role = Role::create(['name' => 'super-admin']);
-        $role->givePermissionTo($permissions);
-
-        // Assigne le rôle à l'utilisateur de test
-        $this->user->assignRole('super-admin');
+        // Assigne le rôle admin à l'utilisateur de test
+        $this->user->assignRole('admin');
     }
 }

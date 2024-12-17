@@ -47,16 +47,20 @@ return new class extends Migration
     {
         Schema::table('activities', function (Blueprint $table) {
             // Drop foreign keys first
-            $table->dropForeign(['client_id']);
-            $table->dropForeign(['prospect_id']);
+            if (Schema::hasColumn('activities', 'client_id')) {
+                $table->dropForeign(['client_id']);
+            }
+            if (Schema::hasColumn('activities', 'prospect_id')) {
+                $table->dropForeign(['prospect_id']);
+            }
             
-            // Then drop columns
-            $table->dropColumn([
-                'title',
-                'status',
-                'client_id',
-                'prospect_id'
-            ]);
+            // Drop columns if they exist
+            $columns = ['title', 'status', 'client_id', 'prospect_id'];
+            foreach ($columns as $column) {
+                if (Schema::hasColumn('activities', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
 
         // Re-add the migration record
