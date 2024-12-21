@@ -27,7 +27,12 @@ return new class extends Migration
             $table->string('desired_field')->nullable();
             $table->string('desired_destination')->nullable();
             $table->json('emergency_contact')->nullable();
-            $table->enum('status', ['active', 'inactive', 'completed'])->default('active');
+            $table->enum('status', [
+                'active',
+                'inactive',
+                'pending',
+                'archived'
+            ])->default('active');
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->string('commercial_code')->nullable();
             $table->foreignId('partner_id')->nullable()->constrained('users')->nullOnDelete();

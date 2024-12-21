@@ -26,8 +26,8 @@ return new class extends Migration
                 }
 
                 if (!Schema::hasColumn('activities', 'status')) {
-                    $table->enum('status', ['planifié', 'en_cours', 'terminé', 'annulé'])
-                          ->default('planifié')
+                    $table->enum('status', ['planned', 'in_progress', 'completed', 'cancelled'])
+                          ->default('planned')
                           ->after('type');
                 }
 
