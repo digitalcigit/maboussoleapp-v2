@@ -16,4 +16,13 @@ class EditActivity extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    public function mount($record): void
+    {
+        parent::mount($record);
+
+        $this->form->fill(
+            $this->record->attributesToArray()
+        );
+    }
 }

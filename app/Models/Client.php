@@ -13,6 +13,23 @@ class Client extends Model
 {
     use HasFactory;
 
+    // Constantes de statut
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_ARCHIVED = 'archived';
+
+    // Liste des statuts valides
+    public static function getValidStatuses(): array
+    {
+        return [
+            self::STATUS_ACTIVE,
+            self::STATUS_INACTIVE,
+            self::STATUS_PENDING,
+            self::STATUS_ARCHIVED,
+        ];
+    }
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -27,10 +44,14 @@ class Client extends Model
         'assigned_to',
         'prospect_id',
         'last_action_at',
+        'total_amount',
+        'paid_amount',
     ];
 
     protected $casts = [
         'last_action_at' => 'datetime',
+        'total_amount' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
     ];
 
     protected $appends = ['full_name'];

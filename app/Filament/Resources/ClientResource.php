@@ -23,13 +23,57 @@ class ClientResource extends Resource
 {
     protected static ?string $model = Client::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
-
-    protected static ?string $navigationGroup = 'CRM';
-
-    protected static ?int $navigationSort = 2;
-
     protected static ?string $recordTitleAttribute = 'full_name';
+
+    public static function getModelLabel(): string
+    {
+        return __('Client');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Clients');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('clients.edit');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('clients.delete');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('clients.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('clients.create');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('clients.view');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'CRM';
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-users';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
+    }
 
     public static function getNavigationBadge(): ?string
     {
@@ -38,37 +82,7 @@ class ClientResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()->can('manage clients');
-    }
-
-    public static function canViewAny(): bool
-    {
-        return auth()->user()->can('manage clients');
-    }
-
-    public static function canCreate(): bool
-    {
-        return auth()->user()->can('manage clients');
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return auth()->user()->can('manage clients');
-    }
-
-    public static function canDelete(Model $record): bool
-    {
-        return auth()->user()->can('manage clients');
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return auth()->user()->can('manage clients');
-    }
-
-    public static function canView(Model $record): bool
-    {
-        return auth()->user()->can('manage clients');
+        return auth()->user()->can('clients.view');
     }
 
     public static function form(Form $form): Form
@@ -94,11 +108,14 @@ class ClientResource extends Resource
                             ->email()
                             ->required()
                             ->maxLength(255)
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->rules(['email']),
                         Forms\Components\TextInput::make('phone')
                             ->required()
                             ->maxLength(255)
-                            ->label('Téléphone'),
+                            ->label('Téléphone')
+                            ->tel()
+                            ->rules(['regex:/^([0-9\s\-\+\(\)]*)$/']),
                     ])->columns(2),
                 
                 Forms\Components\Section::make('Suivi')
@@ -107,11 +124,13 @@ class ClientResource extends Resource
                             ->options([
                                 'active' => 'Actif',
                                 'inactive' => 'Inactif',
-                                'completed' => 'Terminé',
+                                'pending' => 'En attente',
+                                'archived' => 'Archivé'
                             ])
                             ->required()
                             ->default('active')
-                            ->label('Statut'),
+                            ->label('Statut')
+                            ->rules(['in:active,inactive,pending,archived']),
                         Forms\Components\Select::make('assigned_to')
                             ->relationship('assignedTo', 'name')
                             ->searchable()
@@ -177,7 +196,8 @@ class ClientResource extends Resource
                     ->color(fn (string $state): string => match ($state) {
                         'active' => 'success',
                         'inactive' => 'danger',
-                        'completed' => 'info',
+                        'pending' => 'warning',
+                        'archived' => 'secondary',
                         default => 'secondary',
                     })
                     ->label('Statut'),
@@ -195,7 +215,8 @@ class ClientResource extends Resource
                     ->options([
                         'active' => 'Actif',
                         'inactive' => 'Inactif',
-                        'completed' => 'Terminé',
+                        'pending' => 'En attente',
+                        'archived' => 'Archivé'
                     ])
                     ->label('Statut'),
                 Tables\Filters\SelectFilter::make('payment_status')

@@ -49,7 +49,7 @@ class ConvertToClient extends Page
                     ]);
 
                     // Mettre à jour le statut du prospect
-                    $prospect->update(['status' => 'converted']);
+                    $prospect->update(['status' => 'converti']);
 
                     // Rediriger vers la page du nouveau client
                     return redirect()->to(ClientResource::getUrl('edit', ['record' => $client]));

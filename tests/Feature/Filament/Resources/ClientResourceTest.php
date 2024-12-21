@@ -22,6 +22,7 @@ use Filament\Pages\Page;
 use Filament\Actions\CreateAction;
 use Filament\Tables\Actions\CreateAction as TableCreateAction;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Log;
 
 class ClientResourceTest extends TestCase
@@ -31,29 +32,36 @@ class ClientResourceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        // Create and authenticate user with permissions
-        $this->user = User::factory()->create();
-        $this->actingAs($this->user);
-        $this->setupPermissions();
-        
-        // Give all necessary permissions
-        $this->user->givePermissionTo([
+
+        $this->user = User::factory()->create([
+            'email' => 'test_' . uniqid() . '@example.com',
+        ]);
+
+        // Création des permissions avec firstOrCreate
+        $permissions = [
             'access_filament',
             'access_admin_panel',
             'view_admin_panel',
             'clients.view',
             'clients.create',
-            'clients.update',
+            'clients.edit',
             'clients.delete',
             'clients.view_any',
-            'clients.edit',
+            'clients.update',
             'manage clients',
-        ]);
+            'activities.view',
+            'activities.create',
+            'activities.edit',
+            'activities.delete',
+            'manage activities'
+        ];
 
-        // Assign super_admin role
-        $role = Role::firstOrCreate(['name' => 'super_admin']);
-        $this->user->assignRole($role);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+
+        $this->user->syncPermissions($permissions);
+        $this->actingAs($this->user);
     }
 
     /** @test */
@@ -77,9 +85,9 @@ class ClientResourceTest extends TestCase
             'last_name' => 'Doe',
             'email' => 'john@example.com',
             'phone' => '1234567890',
-            'status' => 'active',
-            'total_amount' => 1000,
-            'paid_amount' => 500,
+            'status' => Client::STATUS_ACTIVE,
+            'total_amount' => '1000.00',
+            'paid_amount' => '500.00',
         ];
 
         Livewire::test(CreateClient::class)
@@ -90,41 +98,62 @@ class ClientResourceTest extends TestCase
         $this->assertDatabaseHas('clients', [
             'client_number' => $newClientData['client_number'],
             'email' => $newClientData['email'],
+            'status' => Client::STATUS_ACTIVE,
         ]);
     }
 
     /** @test */
     public function it_can_edit_client()
     {
-        $client = Client::factory()->create(['status' => 'active']);
+        $client = Client::factory()->create([
+            'status' => Client::STATUS_ACTIVE,
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john@example.com',
+            'phone' => '1234567890',
+            'total_amount' => '1000.00',
+            'paid_amount' => '500.00',
+        ]);
+
+        $response = $this->get(ClientResource::getUrl('edit', ['record' => $client]));
+        $response->assertSuccessful();
+
         $newData = [
             'first_name' => 'Jane',
             'last_name' => 'Smith',
             'email' => 'jane@example.com',
             'phone' => '0987654321',
-            'status' => 'active',
-            'total_amount' => 2000,
-            'paid_amount' => 1000,
+            'status' => Client::STATUS_INACTIVE,
+            'total_amount' => '2000.00',
+            'paid_amount' => '1000.00',
         ];
 
         Livewire::test(EditClient::class, [
             'record' => $client->id,
         ])
-            ->assertSuccessful()
+            ->assertSet('data.first_name', 'John')
+            ->assertSet('data.last_name', 'Doe')
+            ->assertSet('data.email', 'john@example.com')
             ->fillForm($newData)
             ->call('save')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('clients', [
             'id' => $client->id,
+            'first_name' => $newData['first_name'],
+            'last_name' => $newData['last_name'],
             'email' => $newData['email'],
+            'phone' => $newData['phone'],
+            'status' => Client::STATUS_INACTIVE,
+            'total_amount' => $newData['total_amount'],
+            'paid_amount' => $newData['paid_amount'],
         ]);
     }
 
     /** @test */
     public function it_can_delete_client()
     {
-        $client = Client::factory()->create(['status' => 'active']);
+        $client = Client::factory()->create(['status' => Client::STATUS_ACTIVE]);
 
         Livewire::test(ListClients::class)
             ->assertSuccessful()
@@ -140,7 +169,7 @@ class ClientResourceTest extends TestCase
     public function it_can_view_client_details()
     {
         $client = Client::factory()->create([
-            'status' => 'active',
+            'status' => Client::STATUS_ACTIVE,
             'first_name' => 'John',
             'last_name' => 'Doe',
         ]);
@@ -189,14 +218,68 @@ class ClientResourceTest extends TestCase
     /** @test */
     public function it_can_filter_clients_by_status()
     {
-        $activeClient = Client::factory()->create(['status' => 'active']);
-        $inactiveClient = Client::factory()->create(['status' => 'inactive']);
+        $activeClient = Client::factory()->create(['status' => Client::STATUS_ACTIVE]);
+        $inactiveClient = Client::factory()->create(['status' => Client::STATUS_INACTIVE]);
 
         Livewire::test(ListClients::class)
             ->assertCanSeeTableRecords([$activeClient, $inactiveClient])
-            ->filterTable('status', 'active')
+            ->filterTable('status', Client::STATUS_ACTIVE)
             ->assertCanSeeTableRecords([$activeClient])
             ->assertCanNotSeeTableRecords([$inactiveClient]);
+    }
+
+    /** @test */
+    public function it_validates_email_format()
+    {
+        Livewire::test(CreateClient::class)
+            ->fillForm([
+                'client_number' => 'CLI-' . rand(10000, 99999),
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'email' => 'invalid-email',
+                'phone' => '+1234567890',
+                'status' => Client::STATUS_ACTIVE,
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['email' => 'email']);
+    }
+
+    /** @test */
+    public function it_validates_phone_format()
+    {
+        Livewire::test(CreateClient::class)
+            ->fillForm([
+                'client_number' => 'CLI-' . rand(10000, 99999),
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'email' => 'john@example.com',
+                'phone' => 'abc123',
+                'status' => Client::STATUS_ACTIVE,
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['phone' => 'regex']);
+    }
+
+    /** @test */
+    public function it_validates_status_values()
+    {
+        $prospect = Prospect::factory()->create();
+
+        // Test avec un statut invalide
+        Livewire::test(CreateClient::class)
+            ->fillForm([
+                'client_number' => 'CLI-' . rand(10000, 99999),
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'email' => 'john@example.com',
+                'phone' => '1234567890',
+                'prospect_id' => $prospect->id,
+                'total_amount' => 1000,
+                'paid_amount' => 500,
+                'status' => 'not-a-valid-status',
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['status']);
     }
 
     /** @test */
@@ -269,8 +352,8 @@ class ClientResourceTest extends TestCase
         
         $formData = [
             'title' => 'Test Activity',
-            'type' => 'appel',
-            'status' => 'planifié',
+            'type' => 'call',
+            'status' => 'planned',
             'description' => 'Test description',
             'scheduled_at' => now()->addDay()->toDateTimeString(),
         ];
@@ -283,8 +366,8 @@ class ClientResourceTest extends TestCase
             'subject_id' => $client->id,
             'subject_type' => Client::class,
             'title' => 'Test Activity',
-            'type' => 'appel',
-            'status' => 'planifié',
+            'type' => 'call',
+            'status' => 'planned',
             'description' => 'Test description',
         ]);
 
@@ -297,7 +380,7 @@ class ClientResourceTest extends TestCase
         $component
             ->assertSuccessful()
             ->assertSeeText('Test Activity')
-            ->assertSeeText('appel');
+            ->assertSeeText('call');
     }
 
     /** @test */
@@ -309,8 +392,8 @@ class ClientResourceTest extends TestCase
             'record' => $client->id,
         ])
             ->fillForm([
-                'total_amount' => 1000,
-                'paid_amount' => 2000, // Paid amount greater than total
+                'total_amount' => '1000.00',
+                'paid_amount' => '2000.00', // Paid amount greater than total
             ])
             ->call('save')
             ->assertHasFormErrors(['paid_amount']);
@@ -319,7 +402,11 @@ class ClientResourceTest extends TestCase
     /** @test */
     public function it_tracks_client_conversion_from_prospect()
     {
-        $prospect = Prospect::factory()->create(['status' => 'qualified']);
+        $prospect = Prospect::factory()->create([
+            'status' => 'qualified',
+            'phone' => '1234567890', // Numéro de téléphone valide
+        ]);
+        
         $clientData = [
             'prospect_id' => $prospect->id,
             'client_number' => 'CLI-' . rand(10000, 99999),
@@ -327,9 +414,9 @@ class ClientResourceTest extends TestCase
             'last_name' => $prospect->last_name,
             'email' => $prospect->email,
             'phone' => $prospect->phone,
-            'status' => 'active',
-            'total_amount' => 1000,
-            'paid_amount' => 500,
+            'status' => Client::STATUS_ACTIVE,
+            'total_amount' => '1000.00',
+            'paid_amount' => '500.00',
         ];
 
         Livewire::test(CreateClient::class)
@@ -364,13 +451,13 @@ class ClientResourceTest extends TestCase
     public function it_can_filter_clients_by_payment_status()
     {
         $paidClient = Client::factory()->create([
-            'total_amount' => 1000,
-            'paid_amount' => 1000,
+            'total_amount' => '1000.00',
+            'paid_amount' => '1000.00',
         ]);
         
         $partiallyPaidClient = Client::factory()->create([
-            'total_amount' => 1000,
-            'paid_amount' => 500,
+            'total_amount' => '1000.00',
+            'paid_amount' => '500.00',
         ]);
 
         Livewire::test(ListClients::class)

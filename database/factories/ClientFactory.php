@@ -37,7 +37,12 @@ class ClientFactory extends Factory
             'desired_field' => $prospect->desired_field,
             'desired_destination' => $prospect->desired_destination,
             'emergency_contact' => $prospect->emergency_contact,
-            'status' => $this->faker->randomElement(['active', 'inactive', 'completed']),
+            'status' => $this->faker->randomElement([
+                Client::STATUS_ACTIVE,
+                Client::STATUS_INACTIVE,
+                Client::STATUS_PENDING,
+                Client::STATUS_ARCHIVED,
+            ]),
             'assigned_to' => $prospect->assigned_to,
             'commercial_code' => $prospect->commercial_code,
             'partner_id' => $prospect->partner_id,

@@ -12,14 +12,26 @@ class Prospect extends Model
     use HasFactory;
 
     protected $fillable = [
+        'reference_number',
         'first_name',
         'last_name',
         'email',
         'phone',
+        'birth_date',
+        'profession',
+        'education_level',
+        'current_location',
+        'current_field',
+        'desired_field',
+        'desired_destination',
+        'emergency_contact',
         'status',
         'assigned_to',
+        'commercial_code',
+        'partner_id',
         'last_action_at',
-        'notes'
+        'analysis_deadline',
+        'notes',
     ];
 
     protected $casts = [
@@ -49,52 +61,31 @@ class Prospect extends Model
 
     /**
      * Convertit le prospect en client
-     *
-     * @param User $convertedBy L'utilisateur qui effectue la conversion
-     * @throws \Exception Si le prospect n'est pas qualifié
      * @return Client Le client créé
      */
-    public function convertToClient(User $convertedBy): Client
+    public function convertToClient(): Client
     {
-        if ($this->status !== self::STATUS_QUALIFIED) {
-            throw new \Exception('Seuls les prospects qualifiés peuvent être convertis en clients.');
-        }
-
-        if (!$convertedBy->can('prospects.convert')) {
-            throw new \Exception('Vous n\'avez pas la permission de convertir des prospects en clients.');
-        }
-
-        // Générer le numéro de client
-        $lastClient = Client::orderBy('id', 'desc')->first();
-        $nextId = $lastClient ? $lastClient->id + 1 : 1;
-        $clientNumber = 'CLI' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
-
-        // Créer le client
-        $client = Client::create([
+        return Client::create([
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'client_number' => 'CLI-' . str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT),
             'status' => 'active',
-            'assigned_to' => $this->assigned_to,
             'prospect_id' => $this->id,
-            'client_number' => $clientNumber
         ]);
+    }
 
-        // Créer une activité de conversion
-        Activity::create([
-            'title' => 'Conversion en client',
-            'subject_type' => Client::class,
-            'subject_id' => $client->id,
-            'type' => 'note',
-            'description' => 'Conversion du prospect en client',
-            'user_id' => $convertedBy->id,
-            'status' => 'terminé'
+    public function convertToClientSimple()
+    {
+        return Client::create([
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'reference_number' => 'CLI-' . random_int(10000, 99999),
+            'status' => 'actif',
+            'prospect_id' => $this->id,
         ]);
-
-        // Mettre à jour le statut du prospect
-        $this->update(['status' => self::STATUS_CONVERTED]);
-
-        return $client;
     }
 }

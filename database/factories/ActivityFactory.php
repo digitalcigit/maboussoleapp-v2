@@ -22,26 +22,34 @@ class ActivityFactory extends Factory
      */
     public function definition(): array
     {
-        $subject = $this->faker->randomElement([
-            Prospect::factory()->create(),
-            Client::factory()->create(),
-        ]);
-
+        $faker = $this->faker;
         $user = User::factory()->create();
+        $prospect = Prospect::factory()->create();
 
         return [
-            'title' => $this->faker->sentence(),
+            'title' => $faker->sentence(),
+            'description' => $faker->text(),
+            'type' => $faker->randomElement([
+                Activity::TYPE_CALL,
+                Activity::TYPE_EMAIL,
+                Activity::TYPE_MEETING,
+                Activity::TYPE_NOTE,
+                Activity::TYPE_TASK,
+            ]),
+            'status' => $faker->randomElement([
+                Activity::STATUS_PENDING,
+                Activity::STATUS_IN_PROGRESS,
+                Activity::STATUS_COMPLETED,
+                Activity::STATUS_CANCELLED,
+            ]),
+            'scheduled_at' => $faker->dateTimeBetween('now', '+1 month'),
+            'completed_at' => $faker->optional()->dateTimeBetween('-1 month', 'now'),
             'user_id' => $user->id,
-            'created_by' => $user->id,
-            'subject_type' => get_class($subject),
-            'subject_id' => $subject->id,
-            'type' => $this->faker->randomElement(['call', 'email', 'meeting', 'note', 'task']),
-            'status' => $this->faker->randomElement(['planifié', 'en_cours', 'terminé', 'annulé']),
-            'description' => $this->faker->paragraph(),
-            'scheduled_at' => $this->faker->optional()->dateTimeBetween('now', '+1 month'),
-            'completed_at' => $this->faker->optional()->dateTimeBetween('-1 month', 'now'),
-            'created_at' => $this->faker->dateTimeBetween('-1 year'),
-            'updated_at' => $this->faker->dateTimeBetween('-1 month'),
+            'created_by' => User::factory(),
+            'subject_type' => Prospect::class,
+            'subject_id' => $prospect->id,
+            'created_at' => $faker->dateTimeBetween('-1 year', '-1 month'),
+            'updated_at' => $faker->dateTimeBetween('-1 month', 'now'),
         ];
     }
 

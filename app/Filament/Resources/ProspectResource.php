@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 
@@ -32,6 +33,10 @@ class ProspectResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informations Personnelles')
                     ->schema([
+                        Forms\Components\TextInput::make('reference_number')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->default(fn () => 'PROS-' . random_int(10000, 99999)),
                         Forms\Components\TextInput::make('first_name')
                             ->required()
                             ->maxLength(255)
@@ -57,10 +62,10 @@ class ProspectResource extends Resource
                         Forms\Components\Select::make('status')
                             ->options([
                                 'nouveau' => 'Nouveau',
-                                'contacté' => 'Contacté',
-                                'qualifié' => 'Qualifié',
-                                'non_qualifié' => 'Non Qualifié',
+                                'en_cours' => 'En cours',
                                 'converti' => 'Converti',
+                                'rejeté' => 'Rejeté',
+                                'autre' => 'Autre',
                             ])
                             ->required()
                             ->default('nouveau')
@@ -102,11 +107,11 @@ class ProspectResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'new' => 'gray',
-                        'analyzing' => 'warning',
-                        'qualified' => 'success',
-                        'converted' => 'info',
-                        'rejected' => 'danger',
+                        'nouveau' => 'gray',
+                        'en_cours' => 'warning',
+                        'converti' => 'success',
+                        'rejeté' => 'danger',
+                        default => 'gray',
                     })
                     ->searchable()
                     ->sortable()
@@ -119,11 +124,11 @@ class ProspectResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'new' => 'Nouveau',
-                        'analyzing' => 'En analyse',
-                        'qualified' => 'Qualifié',
-                        'converted' => 'Converti',
-                        'rejected' => 'Rejeté',
+                        'nouveau' => 'Nouveau',
+                        'en_cours' => 'En cours',
+                        'converti' => 'Converti',
+                        'rejeté' => 'Rejeté',
+                        'autre' => 'Autre',
                     ])
                     ->label('Statut'),
                 Tables\Filters\SelectFilter::make('source')
@@ -141,12 +146,34 @@ class ProspectResource extends Resource
                     ->label('Convertir en client')
                     ->icon('heroicon-o-user-plus')
                     ->color('success')
-                    ->url(fn ($record) => route('filament.admin.resources.prospects.convert', $record))
-                    ->visible(fn ($record) => $record->status !== 'converted'),
+                    ->action(function ($record) {
+                        $record->update(['status' => 'converti']);
+                        $client = $record->convertToClient();
+                        return redirect()->route('filament.admin.resources.clients.edit', ['record' => $client]);
+                    })
+                    ->requiresConfirmation()
+                    ->visible(fn ($record) => $record->status !== 'converti'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('bulk-update')
+                        ->label('Mise à jour en masse')
+                        ->form([
+                            Forms\Components\Select::make('status')
+                                ->label('Statut')
+                                ->options([
+                                    'nouveau' => 'Nouveau',
+                                    'en_cours' => 'En cours',
+                                    'converti' => 'Converti',
+                                    'rejeté' => 'Rejeté',
+                                    'autre' => 'Autre',
+                                ])
+                                ->required(),
+                        ])
+                        ->action(function ($records, array $data) {
+                            $records->each(fn ($record) => $record->update(['status' => $data['status']]));
+                        }),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
@@ -167,5 +194,55 @@ class ProspectResource extends Resource
             'edit' => Pages\EditProspect::route('/{record}/edit'),
             'convert' => Pages\ConvertToClient::route('/{record}/convert'),
         ];
-    }    
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'CRM';
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-user-group';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Prospect');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Prospects');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('prospects.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('prospects.create');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('prospects.edit');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('prospects.delete');
+    }
 }
