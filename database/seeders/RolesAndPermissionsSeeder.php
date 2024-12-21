@@ -20,6 +20,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'system.settings.view',
             'system.settings.edit',
             'system.logs.view',
+            'access_filament',
+            'access_admin_panel',
+            'view_admin_panel'
         ];
 
         // Permissions utilisateurs
@@ -28,6 +31,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.create',
             'users.edit',
             'users.delete',
+            'users.view_any',
+            'users.update'
         ];
 
         // Permissions rôles
@@ -36,6 +41,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'roles.create',
             'roles.edit',
             'roles.delete',
+            'roles.view_any',
+            'roles.update'
         ];
 
         // Permissions prospects
@@ -46,6 +53,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'prospects.delete',
             'prospects.convert',
             'prospects.assign',
+            'prospects.view_any',
+            'prospects.update'
         ];
 
         // Permissions clients
@@ -54,6 +63,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'clients.create',
             'clients.edit',
             'clients.delete',
+            'clients.view_any',
+            'clients.update'
         ];
 
         // Permissions activités
@@ -62,6 +73,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'activities.create',
             'activities.edit',
             'activities.delete',
+            'activities.view_any',
+            'activities.update'
         ];
 
         // Permissions documents
@@ -131,24 +144,44 @@ class RolesAndPermissionsSeeder extends Seeder
         // Manager
         $manager = Role::create(['name' => 'manager']);
         $manager->givePermissionTo([
+            // Permissions système
+            'access_filament',
+            'access_admin_panel',
+            'view_admin_panel',
+            
+            // Permissions utilisateurs
             'users.view',
             'users.create',
             'users.edit',
             'users.delete',
+            
+            // Permissions prospects
             'prospects.view',
             'prospects.create',
             'prospects.edit',
             'prospects.delete',
             'prospects.assign',
             'prospects.convert',
+            'prospects.view_any',
+            'prospects.update',
+            
+            // Permissions clients
             'clients.view',
             'clients.create',
             'clients.edit',
             'clients.delete',
+            'clients.view_any',
+            'clients.update',
+            
+            // Permissions activités
             'activities.view',
             'activities.create',
             'activities.edit',
             'activities.delete',
+            'activities.view_any',
+            'activities.update',
+            
+            // Autres permissions
             'reports.view',
             'reports.export',
             'documents.validate',
