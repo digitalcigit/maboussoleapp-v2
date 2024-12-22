@@ -72,7 +72,7 @@ class TestDataSeeder extends Seeder
                     'last_name' => "Test",
                     'email' => "prospect$i@test.com",
                     'phone' => "+33612345678",
-                    'status' => 'new',
+                    'status' => Prospect::STATUS_NEW,
                     'source' => 'site_web',
                     'assigned_to' => $advisor->id,
                     'partner_id' => $partners[array_rand($partners)]->id,
