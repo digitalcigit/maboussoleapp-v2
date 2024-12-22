@@ -64,3 +64,25 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+# MaBoussole CRM v2
+
+Application de gestion de la relation client pour MaBoussole.
+
+## Environnement de développement
+
+- PHP 8.2
+- Laravel 10.x
+- MySQL 8.0
+
+## Déploiement
+
+Cette application utilise GitHub Actions pour le déploiement continu.
+
+## Tests
+
+Les tests sont exécutés automatiquement à chaque push sur la branche main.
+
+## Statut
+
+![Laravel CI/CD](https://github.com/[votre-nom]/maboussoleapp-v2/actions/workflows/laravel-ci.yml/badge.svg)

@@ -10,11 +10,12 @@
     "require": {
         "php": "^8.1",
         "bezhansalleh/filament-shield": "^3.1",
+        "doctrine/dbal": "^3.9",
         "filament/filament": "3.1",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
-        "laravel/tinker": "^2.8",
+        "laravel/tinker": "^2.10",
         "nesbot/carbon": "^2.72.1"
     },
     "require-dev": {
@@ -53,6 +54,24 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "test": [
+            "@php artisan test"
+        ],
+        "test-db": [
+            "@php artisan test --filter=Database"
+        ],
+        "dev-migrate": [
+            "@php artisan dev:migrate"
+        ],
+        "dev-migrate-fresh": [
+            "@php artisan dev:migrate --fresh"
+        ],
+        "dev-migrate-seed": [
+            "@php artisan dev:migrate --seed"
+        ],
+        "dev-migrate-fresh-seed": [
+            "@php artisan dev:migrate --fresh --seed"
         ]
     },
     "extra": {

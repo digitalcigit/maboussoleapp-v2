@@ -33,23 +33,9 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        Log::info('Tentative d\'accès au panel', [
-            'user_id' => $this->id,
-            'user_email' => $this->email,
-            'panel_id' => $panel->getId(),
-            'roles' => $this->roles->pluck('name'),
-            'timestamp' => now()->toDateTimeString(),
-            'session_id' => session()->getId(),
-        ]);
-
-        // Pour déboguer, retournons true et voyons si la méthode est appelée
-        $canAccess = true;
-
-        Log::info('Résultat de canAccessPanel', [
-            'can_access' => $canAccess,
-            'user_email' => $this->email,
-        ]);
-
-        return $canAccess;
+        // Vérifier si l'utilisateur a un rôle qui lui permet d'accéder au panel
+        $authorizedRoles = ['super_admin', 'manager', 'conseiller'];
+        
+        return $this->hasAnyRole($authorizedRoles);
     }
 }

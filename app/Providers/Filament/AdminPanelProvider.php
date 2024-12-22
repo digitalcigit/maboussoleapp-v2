@@ -27,8 +27,6 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->registration()
-            ->passwordReset()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -54,7 +52,8 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                \App\Http\Middleware\FilamentAuthenticate::class,
+                'filament.init',
+                Authenticate::class,
             ]);
     }
 }

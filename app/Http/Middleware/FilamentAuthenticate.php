@@ -2,31 +2,24 @@
 
 namespace App\Http\Middleware;
 
-use Filament\Models\Contracts\FilamentUser;
-use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use App\Models\User;
+use Closure;
+use Illuminate\Http\Request;
 
-class FilamentAuthenticate extends Middleware
+class FilamentAuthenticate
 {
-    protected function authenticate($request, array $guards): void
+    public function handle(Request $request, Closure $next)
     {
-        $guard = config('filament.auth.guard', 'web');
+        // Vérifier si un super admin existe
+        $hasSuperAdmin = User::whereHas('roles', function ($query) {
+            $query->where('name', 'super_admin');
+        })->exists();
 
-        if (!$this->auth->guard($guard)->check()) {
-            $this->unauthenticated($request, $guards);
-            return;
+        // Si pas de super admin, rediriger vers la page d'initialisation
+        if (!$hasSuperAdmin) {
+            return redirect()->route('system.initialization');
         }
 
-        $this->auth->shouldUse($guard);
-        $user = $this->auth->guard($guard)->user();
-
-        if (! $user instanceof FilamentUser) {
-            $this->unauthenticated($request, $guards);
-            return;
-        }
-    }
-
-    protected function redirectTo($request): string
-    {
-        return route('filament.admin.auth.login');
+        return $next($request);
     }
 }

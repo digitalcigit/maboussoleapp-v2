@@ -11,16 +11,47 @@ class Activity extends Model
 {
     use HasFactory;
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_IN_PROGRESS = 'in_progress';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_CANCELLED = 'cancelled';
+    // Constantes de statut
+    const STATUS_PENDING = 'en_attente';
+    const STATUS_IN_PROGRESS = 'en_cours';
+    const STATUS_COMPLETED = 'termine';
+    const STATUS_CANCELLED = 'annule';
 
-    const TYPE_CALL = 'call';
+    // Constantes de type
+    const TYPE_CALL = 'appel';
     const TYPE_EMAIL = 'email';
-    const TYPE_MEETING = 'meeting';
+    const TYPE_MEETING = 'reunion';
     const TYPE_NOTE = 'note';
-    const TYPE_TASK = 'task';
+    const TYPE_DOCUMENT = 'document';
+    const TYPE_PAYMENT = 'paiement';
+    const TYPE_CONVERSION = 'conversion';
+    const TYPE_OTHER = 'autre';
+
+    // Liste des statuts valides
+    public static function getValidStatuses(): array
+    {
+        return [
+            self::STATUS_PENDING,
+            self::STATUS_IN_PROGRESS,
+            self::STATUS_COMPLETED,
+            self::STATUS_CANCELLED,
+        ];
+    }
+
+    // Liste des types valides
+    public static function getValidTypes(): array
+    {
+        return [
+            self::TYPE_CALL,
+            self::TYPE_EMAIL,
+            self::TYPE_MEETING,
+            self::TYPE_NOTE,
+            self::TYPE_DOCUMENT,
+            self::TYPE_PAYMENT,
+            self::TYPE_CONVERSION,
+            self::TYPE_OTHER,
+        ];
+    }
 
     protected $fillable = [
         'title',
@@ -34,12 +65,17 @@ class Activity extends Model
         'prospect_id',
         'client_id',
         'scheduled_at',
-        'completed_at'
+        'completed_at',
+        'notes',
+        'result',
+        'attachments'
     ];
 
     protected $casts = [
         'scheduled_at' => 'datetime',
         'completed_at' => 'datetime',
+        'attachments' => 'array',
+        'result' => 'array',
     ];
 
     protected static function boot()
@@ -68,12 +104,26 @@ class Activity extends Model
             if (empty($activity->status)) {
                 $activity->status = self::STATUS_PENDING;
             }
+
+            // Valider le type et le statut
+            if (!in_array($activity->type, self::getValidTypes())) {
+                throw new \InvalidArgumentException('Type d\'activité invalide');
+            }
+
+            if (!in_array($activity->status, self::getValidStatuses())) {
+                throw new \InvalidArgumentException('Statut d\'activité invalide');
+            }
         });
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function prospect(): BelongsTo
@@ -108,7 +158,10 @@ class Activity extends Model
             self::TYPE_EMAIL => __('Email'),
             self::TYPE_MEETING => __('Réunion'),
             self::TYPE_NOTE => __('Note'),
-            self::TYPE_TASK => __('Tâche'),
+            self::TYPE_DOCUMENT => __('Document'),
+            self::TYPE_PAYMENT => __('Paiement'),
+            self::TYPE_CONVERSION => __('Conversion'),
+            self::TYPE_OTHER => __('Autre'),
         ];
     }
 }
