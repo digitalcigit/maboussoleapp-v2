@@ -103,11 +103,11 @@ class TestDataSeeder extends Seeder
                     'last_name' => "Test",
                     'email' => "client$i@test.com",
                     'phone' => "+33612345678",
-                    'status' => 'active',
+                    'status' => Client::STATUS_ACTIVE,
                     'assigned_to' => $advisor->id,
                     'partner_id' => $partners[array_rand($partners)]->id,
                     'commercial_code' => 'COM-' . str_pad($i, 3, '0', STR_PAD_LEFT),
-                    'payment_status' => 'pending',
+                    'payment_status' => Client::PAYMENT_STATUS_PENDING,
                     'total_amount' => 5000.00,
                     'paid_amount' => 0.00,
                 ]);
