@@ -14,9 +14,9 @@ class SystemInitializationController extends Controller
     {
         // Vérifier si un super admin existe déjà
         if (User::whereHas('roles', function ($query) {
-            $query->where('name', 'super_admin');
+            $query->where('name', 'super-admin');
         })->exists()) {
-            return redirect('/admin/login');
+            return redirect('/admin');
         }
 
         return view('system.initialization');
@@ -34,8 +34,8 @@ class SystemInitializationController extends Controller
         try {
             DB::beginTransaction();
 
-            // Créer le rôle super_admin s'il n'existe pas
-            $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
+            // Créer le rôle super-admin s'il n'existe pas
+            $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
 
             // Créer l'utilisateur super admin
             $superAdmin = User::create([
@@ -49,14 +49,10 @@ class SystemInitializationController extends Controller
 
             DB::commit();
 
-            return redirect('/admin/login')
-                ->with('success', 'Super administrateur créé avec succès. Vous pouvez maintenant vous connecter.');
-
+            return redirect('/admin')->with('success', 'Système initialisé avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Une erreur est survenue lors de l\'initialisation. Veuillez réessayer.']);
+            return back()->withErrors(['system' => 'Une erreur est survenue lors de l\'initialisation.'])->withInput();
         }
     }
 }
