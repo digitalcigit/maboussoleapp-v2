@@ -2,48 +2,65 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Activity extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    // Constantes de statut
-    const STATUS_PENDING = 'en_attente';
-    const STATUS_IN_PROGRESS = 'en_cours';
-    const STATUS_COMPLETED = 'termine';
-    const STATUS_CANCELLED = 'annule';
+    // Types d'activités
+    public const TYPE_NOTE = 'note';
+    public const TYPE_CALL = 'appel';
+    public const TYPE_EMAIL = 'email';
+    public const TYPE_MEETING = 'reunion';
+    public const TYPE_DOCUMENT = 'document';
+    public const TYPE_CONVERSION = 'conversion';
 
-    // Constantes de type
-    const TYPE_CALL = 'appel';
-    const TYPE_EMAIL = 'email';
-    const TYPE_MEETING = 'reunion';
-    const TYPE_NOTE = 'note';
-    const TYPE_DOCUMENT = 'document';
-    const TYPE_PAYMENT = 'paiement';
-    const TYPE_CONVERSION = 'conversion';
-    const TYPE_OTHER = 'autre';
+    // Statuts d'activités
+    public const STATUS_PENDING = 'en_attente';
+    public const STATUS_IN_PROGRESS = 'en_cours';
+    public const STATUS_COMPLETED = 'termine';
+    public const STATUS_CANCELLED = 'annule';
 
     protected $fillable = [
-        'title',
-        'description',
+        'user_id',
+        'subject_type',
+        'subject_id',
         'type',
+        'description',
+        'scheduled_at',
+        'completed_at',
         'status',
-        'start_date',
-        'end_date',
-        'client_id',
-        'prospect_id',
-        'created_by',
+        'created_by'
     ];
 
     protected $casts = [
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
+        'scheduled_at' => 'datetime',
+        'completed_at' => 'datetime'
     ];
 
-    // Liste des statuts valides
+    /**
+     * Liste des types d'activités valides
+     */
+    public static function getValidTypes(): array
+    {
+        return [
+            self::TYPE_NOTE,
+            self::TYPE_CALL,
+            self::TYPE_EMAIL,
+            self::TYPE_MEETING,
+            self::TYPE_DOCUMENT,
+            self::TYPE_CONVERSION,
+        ];
+    }
+
+    /**
+     * Liste des statuts d'activités valides
+     */
     public static function getValidStatuses(): array
     {
         return [
@@ -54,100 +71,57 @@ class Activity extends Model
         ];
     }
 
-    // Liste des types valides
-    public static function getValidTypes(): array
+    /**
+     * Obtenir le libellé traduit du type
+     */
+    public function getTypeLabel(): string
     {
-        return [
-            self::TYPE_CALL,
-            self::TYPE_EMAIL,
-            self::TYPE_MEETING,
-            self::TYPE_NOTE,
-            self::TYPE_DOCUMENT,
-            self::TYPE_PAYMENT,
-            self::TYPE_CONVERSION,
-            self::TYPE_OTHER,
-        ];
+        return match($this->type) {
+            self::TYPE_NOTE => 'Note',
+            self::TYPE_CALL => 'Appel',
+            self::TYPE_EMAIL => 'Email',
+            self::TYPE_MEETING => 'Réunion',
+            self::TYPE_DOCUMENT => 'Document',
+            self::TYPE_CONVERSION => 'Conversion',
+            default => $this->type,
+        };
     }
 
     /**
-     * Get the client associated with the activity.
+     * Obtenir le libellé traduit du statut
      */
-    public function client(): BelongsTo
+    public function getStatusLabel(): string
     {
-        return $this->belongsTo(Client::class);
+        return match($this->status) {
+            self::STATUS_PENDING => 'En attente',
+            self::STATUS_IN_PROGRESS => 'En cours',
+            self::STATUS_COMPLETED => 'Terminé',
+            self::STATUS_CANCELLED => 'Annulé',
+            default => $this->status,
+        };
     }
 
     /**
-     * Get the prospect associated with the activity.
+     * Relation polymorphique avec le sujet de l'activité
      */
-    public function prospect(): BelongsTo
+    public function subject(): MorphTo
     {
-        return $this->belongsTo(Prospect::class);
+        return $this->morphTo();
     }
 
     /**
-     * Get the user who created the activity.
+     * Relation avec l'utilisateur qui a créé l'activité
      */
-    public function creator(): BelongsTo
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
-     * Scope a query to only include activities for a specific client.
+     * Relation avec l'utilisateur assigné à l'activité
      */
-    public function scopeForClient($query, $clientId)
+    public function assignedTo(): BelongsTo
     {
-        return $query->where('client_id', $clientId);
-    }
-
-    /**
-     * Scope a query to only include activities for a specific prospect.
-     */
-    public function scopeForProspect($query, $prospectId)
-    {
-        return $query->where('prospect_id', $prospectId);
-    }
-
-    /**
-     * Scope a query to only include activities created by a specific user.
-     */
-    public function scopeCreatedBy($query, $userId)
-    {
-        return $query->where('created_by', $userId);
-    }
-
-    /**
-     * Scope a query to only include activities with a specific status.
-     */
-    public function scopeWithStatus($query, $status)
-    {
-        return $query->where('status', $status);
-    }
-
-    /**
-     * Scope a query to only include activities with a specific type.
-     */
-    public function scopeOfType($query, $type)
-    {
-        return $query->where('type', $type);
-    }
-
-    /**
-     * Scope a query to only include upcoming activities.
-     */
-    public function scopeUpcoming($query)
-    {
-        return $query->where('start_date', '>', now())
-                    ->orderBy('start_date', 'asc');
-    }
-
-    /**
-     * Scope a query to only include past activities.
-     */
-    public function scopePast($query)
-    {
-        return $query->where('start_date', '<', now())
-                    ->orderBy('start_date', 'desc');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

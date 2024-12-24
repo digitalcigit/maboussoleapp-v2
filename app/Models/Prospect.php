@@ -2,14 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Prospect extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    // Statuts des prospects
+    public const STATUS_NEW = 'nouveau';
+    public const STATUS_ANALYZING = 'en_analyse';
+    public const STATUS_APPROVED = 'approuve';
+    public const STATUS_REJECTED = 'refuse';
+    public const STATUS_CONVERTED = 'converti';
 
     protected $fillable = [
         'reference_number',
@@ -30,110 +38,74 @@ class Prospect extends Model
         'commercial_code',
         'partner_id',
         'last_action_at',
-        'analysis_deadline',
-        'notes',
-        'user_id',
+        'analysis_deadline'
     ];
 
     protected $casts = [
-        'last_action_at' => 'datetime',
         'birth_date' => 'date',
+        'last_action_at' => 'datetime',
         'analysis_deadline' => 'datetime',
-        'emergency_contact' => 'array',
+        'emergency_contact' => 'json'
     ];
 
-    // Constantes de statut
-    const STATUS_NEW = 'nouveau';
-    const STATUS_IN_PROGRESS = 'en_cours';
-    const STATUS_QUALIFIED = 'qualifie';
-    const STATUS_CONVERTED = 'converti';
-    const STATUS_CANCELLED = 'annule';
-
-    // Liste des statuts valides
-    public static $validStatuses = [
-        self::STATUS_NEW,
-        self::STATUS_IN_PROGRESS,
-        self::STATUS_QUALIFIED,
-        self::STATUS_CONVERTED,
-        self::STATUS_CANCELLED,
-    ];
-
-    public function activities(): HasMany
+    /**
+     * Liste des statuts valides pour la base de données
+     */
+    public static function getValidStatuses(): array
     {
-        return $this->hasMany(Activity::class);
+        return [
+            self::STATUS_NEW,
+            self::STATUS_ANALYZING,
+            self::STATUS_APPROVED,
+            self::STATUS_REJECTED,
+            self::STATUS_CONVERTED,
+        ];
     }
 
+    /**
+     * Obtenir le libellé traduit du statut
+     */
+    public function getStatusLabel(): string
+    {
+        return match($this->status) {
+            self::STATUS_NEW => 'Nouveau',
+            self::STATUS_ANALYZING => 'En analyse',
+            self::STATUS_APPROVED => 'Approuvé',
+            self::STATUS_REJECTED => 'Refusé',
+            self::STATUS_CONVERTED => 'Converti',
+            default => $this->status,
+        };
+    }
+
+    /**
+     * Relation avec l'utilisateur assigné
+     */
     public function assignedTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    public function user(): BelongsTo
+    /**
+     * Relation avec le partenaire
+     */
+    public function partner(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'partner_id');
     }
 
     /**
-     * Convertit le prospect en client
-     * @return Client Le client créé
+     * Relation avec les activités
      */
-    public function convertToClient(): Client
+    public function activities(): MorphMany
     {
-        // Vérifier si le prospect peut être converti
-        if ($this->status !== self::STATUS_QUALIFIED) {
-            throw new \Exception('Seuls les prospects qualifiés peuvent être convertis en clients.');
-        }
-
-        $client = Client::create([
-            'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'birth_date' => $this->birth_date,
-            'profession' => $this->profession,
-            'education_level' => $this->education_level,
-            'current_location' => $this->current_location,
-            'current_field' => $this->current_field,
-            'desired_field' => $this->desired_field,
-            'desired_destination' => $this->desired_destination,
-            'emergency_contact' => $this->emergency_contact,
-            'client_number' => 'CLI-' . str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT),
-            'status' => 'actif',
-            'prospect_id' => $this->id,
-            'assigned_to' => $this->assigned_to,
-            'user_id' => $this->user_id,
-            'commercial_code' => $this->commercial_code,
-            'partner_id' => $this->partner_id,
-        ]);
-
-        // Mettre à jour le statut du prospect
-        $this->update(['status' => self::STATUS_CONVERTED]);
-
-        // Créer une activité de conversion
-        Activity::create([
-            'title' => 'Conversion en client',
-            'description' => 'Prospect converti en client',
-            'type' => 'conversion',
-            'status' => 'termine',
-            'user_id' => auth()->id(),
-            'prospect_id' => $this->id,
-            'client_id' => $client->id,
-            'created_by' => auth()->id(),
-        ]);
-
-        return $client;
+        return $this->morphMany(Activity::class, 'subject');
     }
 
-    public function convertToClientSimple()
+    /**
+     * Relation avec les documents
+     */
+    public function documents(): MorphMany
     {
-        return Client::create([
-            'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'reference_number' => 'CLI-' . random_int(10000, 99999),
-            'status' => 'actif',
-            'prospect_id' => $this->id,
-        ]);
+        return $this->morphMany(Document::class, 'documentable');
     }
 }

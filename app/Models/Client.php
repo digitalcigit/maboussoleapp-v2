@@ -2,132 +2,127 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    // Constantes de statut
-    public const STATUS_ACTIVE = 'actif';
-    public const STATUS_INACTIVE = 'inactif';
-    public const STATUS_PENDING = 'en_attente';
-    public const STATUS_ARCHIVED = 'archive';
-
-    // Constantes de statut de paiement
+    // Statuts de paiement
     public const PAYMENT_STATUS_PENDING = 'en_attente';
     public const PAYMENT_STATUS_PARTIAL = 'partiel';
-    public const PAYMENT_STATUS_COMPLETE = 'complete';
-    public const PAYMENT_STATUS_REFUNDED = 'rembourse';
-    public const PAYMENT_STATUS_CANCELLED = 'annule';
+    public const PAYMENT_STATUS_COMPLETED = 'complete';
 
-    // Liste des statuts valides
-    public static function getValidStatuses(): array
+    // Statuts de visa
+    public const VISA_STATUS_NOT_STARTED = 'non_demarre';
+    public const VISA_STATUS_IN_PROGRESS = 'en_cours';
+    public const VISA_STATUS_OBTAINED = 'obtenu';
+    public const VISA_STATUS_REJECTED = 'refuse';
+
+    protected $fillable = [
+        'prospect_id',
+        'client_number',
+        'passport_number',
+        'passport_expiry',
+        'visa_status',
+        'travel_preferences',
+        'payment_status',
+        'total_amount',
+        'paid_amount'
+    ];
+
+    protected $casts = [
+        'passport_expiry' => 'date',
+        'travel_preferences' => 'json',
+        'total_amount' => 'decimal:2',
+        'paid_amount' => 'decimal:2'
+    ];
+
+    /**
+     * Liste des statuts de visa valides
+     */
+    public static function getValidVisaStatuses(): array
     {
         return [
-            self::STATUS_ACTIVE,
-            self::STATUS_INACTIVE,
-            self::STATUS_PENDING,
-            self::STATUS_ARCHIVED,
+            self::VISA_STATUS_NOT_STARTED,
+            self::VISA_STATUS_IN_PROGRESS,
+            self::VISA_STATUS_OBTAINED,
+            self::VISA_STATUS_REJECTED,
         ];
     }
 
-    // Liste des statuts de paiement valides
+    /**
+     * Liste des statuts de paiement valides
+     */
     public static function getValidPaymentStatuses(): array
     {
         return [
             self::PAYMENT_STATUS_PENDING,
             self::PAYMENT_STATUS_PARTIAL,
-            self::PAYMENT_STATUS_COMPLETE,
-            self::PAYMENT_STATUS_REFUNDED,
-            self::PAYMENT_STATUS_CANCELLED,
+            self::PAYMENT_STATUS_COMPLETED,
         ];
     }
 
-    protected $fillable = [
-        'first_name',
-        'last_name',
-        'email',
-        'phone',
-        'birth_date',
-        'profession',
-        'education_level',
-        'current_location',
-        'current_field',
-        'desired_field',
-        'desired_destination',
-        'emergency_contact',
-        'status',
-        'payment_status',
-        'client_number',
-        'assigned_to',
-        'user_id',
-        'prospect_id',
-        'commercial_code',
-        'partner_id',
-        'last_action_at',
-        'contract_start_date',
-        'contract_end_date',
-        'passport_number',
-        'passport_expiry',
-        'visa_status',
-        'travel_preferences',
-        'total_amount',
-        'paid_amount',
-    ];
-
-    protected $casts = [
-        'last_action_at' => 'datetime',
-        'birth_date' => 'date',
-        'contract_start_date' => 'datetime',
-        'contract_end_date' => 'datetime',
-        'passport_expiry' => 'date',
-        'emergency_contact' => 'array',
-        'travel_preferences' => 'array',
-        'total_amount' => 'decimal:2',
-        'paid_amount' => 'decimal:2',
-    ];
-
-    protected $appends = ['full_name'];
-
-    public function getFullNameAttribute(): string
+    /**
+     * Obtenir le libellé traduit du statut de visa
+     */
+    public function getVisaStatusLabel(): string
     {
-        return "{$this->first_name} {$this->last_name}";
+        return match($this->visa_status) {
+            self::VISA_STATUS_NOT_STARTED => 'Non démarré',
+            self::VISA_STATUS_IN_PROGRESS => 'En cours',
+            self::VISA_STATUS_OBTAINED => 'Obtenu',
+            self::VISA_STATUS_REJECTED => 'Refusé',
+            default => $this->visa_status,
+        };
     }
 
-    public function activities(): MorphMany
+    /**
+     * Obtenir le libellé traduit du statut de paiement
+     */
+    public function getPaymentStatusLabel(): string
     {
-        return $this->morphMany(Activity::class, 'subject');
+        return match($this->payment_status) {
+            self::PAYMENT_STATUS_PENDING => 'En attente',
+            self::PAYMENT_STATUS_PARTIAL => 'Partiel',
+            self::PAYMENT_STATUS_COMPLETED => 'Complété',
+            default => $this->payment_status,
+        };
     }
 
+    /**
+     * Relation avec le prospect d'origine
+     */
     public function prospect(): BelongsTo
     {
         return $this->belongsTo(Prospect::class);
     }
 
-    public function assignedTo(): BelongsTo
+    /**
+     * Relation avec les activités
+     */
+    public function activities(): MorphMany
     {
-        return $this->belongsTo(User::class, 'assigned_to');
+        return $this->morphMany(Activity::class, 'subject');
     }
 
-    public function user(): BelongsTo
+    /**
+     * Relation avec les documents
+     */
+    public function documents(): MorphMany
     {
-        return $this->belongsTo(User::class);
+        return $this->morphMany(Document::class, 'documentable');
     }
 
-    protected static function boot()
+    /**
+     * Accesseur pour obtenir le nom complet du client via le prospect
+     */
+    public function getFullNameAttribute(): string
     {
-        parent::boot();
-
-        static::addGlobalScope('checkPermission', function (Builder $builder) {
-            if (!auth()->user()?->can('manage clients')) {
-                $builder->whereRaw('1 = 0');
-            }
-        });
+        return "{$this->prospect->first_name} {$this->prospect->last_name}";
     }
 }

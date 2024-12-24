@@ -49,25 +49,83 @@ class ClientFactory extends Factory
             'last_action_at' => $this->faker->dateTimeBetween('-1 month'),
             'contract_start_date' => $this->faker->dateTimeBetween('now', '+1 month'),
             'contract_end_date' => $this->faker->dateTimeBetween('+1 month', '+1 year'),
-            'passport_number' => $this->faker->bothify('P#####???'),
+            'passport_number' => strtoupper($this->faker->bothify('??######')),
             'passport_expiry' => $this->faker->dateTimeBetween('+1 year', '+10 years'),
-            'visa_status' => $this->faker->randomElement(['not_started', 'in_progress', 'obtained', 'rejected']),
-            'travel_preferences' => json_encode([
-                'preferred_airline' => $this->faker->randomElement(['Air France', 'Emirates', 'Turkish Airlines']),
-                'meal_preference' => $this->faker->randomElement(['Regular', 'Vegetarian', 'Halal']),
-                'seat_preference' => $this->faker->randomElement(['Window', 'Aisle', 'No Preference']),
-            ]),
-            'payment_status' => $this->faker->randomElement(['pending', 'partial', 'completed']),
-            'total_amount' => $this->faker->numberBetween(5000, 20000),
-            'paid_amount' => function (array $attributes) {
-                return $attributes['payment_status'] === 'completed' 
-                    ? $attributes['total_amount']
-                    : ($attributes['payment_status'] === 'partial' 
-                        ? $this->faker->numberBetween(1000, $attributes['total_amount'])
-                        : 0);
-            },
+            'visa_status' => Client::VISA_STATUS_NOT_STARTED,
+            'travel_preferences' => [
+                'preferred_airline' => $this->faker->randomElement(['Air France', 'Air Canada', 'Swiss Air']),
+                'seat_preference' => $this->faker->randomElement(['fenêtre', 'couloir', 'milieu']),
+                'meal_preference' => $this->faker->randomElement(['standard', 'végétarien', 'halal', 'casher']),
+                'baggage_preference' => $this->faker->numberBetween(1, 3) . ' bagage(s)'
+            ],
+            'payment_status' => Client::PAYMENT_STATUS_PENDING,
+            'total_amount' => $this->faker->randomFloat(2, 3000, 15000),
+            'paid_amount' => 0,
             'created_at' => $this->faker->dateTimeBetween('-1 year'),
             'updated_at' => $this->faker->dateTimeBetween('-1 month'),
         ];
+    }
+
+    /**
+     * État : visa en cours de traitement
+     */
+    public function visaInProgress(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visa_status' => Client::VISA_STATUS_IN_PROGRESS,
+            ];
+        });
+    }
+
+    /**
+     * État : visa obtenu
+     */
+    public function visaObtained(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visa_status' => Client::VISA_STATUS_OBTAINED,
+            ];
+        });
+    }
+
+    /**
+     * État : visa refusé
+     */
+    public function visaRejected(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visa_status' => Client::VISA_STATUS_REJECTED,
+            ];
+        });
+    }
+
+    /**
+     * État : paiement partiel
+     */
+    public function partiallyPaid(): self
+    {
+        return $this->state(function (array $attributes) {
+            $total = $attributes['total_amount'] ?? 5000;
+            return [
+                'payment_status' => Client::PAYMENT_STATUS_PARTIAL,
+                'paid_amount' => $total * 0.5,
+            ];
+        });
+    }
+
+    /**
+     * État : paiement complet
+     */
+    public function fullyPaid(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'payment_status' => Client::PAYMENT_STATUS_COMPLETED,
+                'paid_amount' => $attributes['total_amount'],
+            ];
+        });
     }
 }

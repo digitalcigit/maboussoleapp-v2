@@ -8,73 +8,149 @@ use App\Models\Prospect;
 use App\Models\Client;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Activity>
- */
 class ActivityFactory extends Factory
 {
     protected $model = Activity::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
-        $faker = $this->faker;
-        $user = User::factory()->create();
-        $prospect = Prospect::factory()->create();
+        $subject = $this->faker->randomElement([
+            Prospect::factory()->create(),
+            Client::factory()->create()
+        ]);
 
         return [
-            'title' => $faker->sentence(),
-            'description' => $faker->text(),
-            'type' => $faker->randomElement([
+            'user_id' => User::factory(),
+            'subject_type' => get_class($subject),
+            'subject_id' => $subject->id,
+            'type' => $this->faker->randomElement([
+                Activity::TYPE_NOTE,
                 Activity::TYPE_CALL,
                 Activity::TYPE_EMAIL,
                 Activity::TYPE_MEETING,
-                Activity::TYPE_NOTE,
-                Activity::TYPE_TASK,
+                Activity::TYPE_DOCUMENT
             ]),
-            'status' => $faker->randomElement([
-                Activity::STATUS_PENDING,
-                Activity::STATUS_IN_PROGRESS,
-                Activity::STATUS_COMPLETED,
-                Activity::STATUS_CANCELLED,
-            ]),
-            'scheduled_at' => $faker->dateTimeBetween('now', '+1 month'),
-            'completed_at' => $faker->optional()->dateTimeBetween('-1 month', 'now'),
-            'user_id' => $user->id,
-            'created_by' => User::factory(),
-            'subject_type' => Prospect::class,
-            'subject_id' => $prospect->id,
-            'created_at' => $faker->dateTimeBetween('-1 year', '-1 month'),
-            'updated_at' => $faker->dateTimeBetween('-1 month', 'now'),
+            'description' => $this->faker->paragraph(),
+            'scheduled_at' => $this->faker->optional()->dateTimeBetween('now', '+1 month'),
+            'completed_at' => null,
+            'status' => Activity::STATUS_PENDING,
+            'created_by' => User::factory()
         ];
     }
 
     /**
-     * Configure the model factory to create an activity for a prospect.
+     * État : activité en cours
      */
-    public function forProspect(Prospect $prospect = null): Factory
+    public function inProgress(): self
     {
-        return $this->state(function (array $attributes) use ($prospect) {
+        return $this->state(function (array $attributes) {
             return [
-                'subject_type' => Prospect::class,
-                'subject_id' => $prospect ? $prospect->id : Prospect::factory(),
+                'status' => Activity::STATUS_IN_PROGRESS,
+                'scheduled_at' => now(),
             ];
         });
     }
 
     /**
-     * Configure the model factory to create an activity for a client.
+     * État : activité terminée
      */
-    public function forClient(Client $client = null): Factory
+    public function completed(): self
     {
-        return $this->state(function (array $attributes) use ($client) {
+        return $this->state(function (array $attributes) {
+            $scheduledAt = $attributes['scheduled_at'] ?? now()->subHour();
             return [
-                'subject_type' => Client::class,
-                'subject_id' => $client ? $client->id : Client::factory(),
+                'status' => Activity::STATUS_COMPLETED,
+                'scheduled_at' => $scheduledAt,
+                'completed_at' => $scheduledAt->addHour(),
+            ];
+        });
+    }
+
+    /**
+     * État : activité annulée
+     */
+    public function cancelled(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'status' => Activity::STATUS_CANCELLED,
+                'completed_at' => now(),
+            ];
+        });
+    }
+
+    /**
+     * État : note
+     */
+    public function note(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Activity::TYPE_NOTE,
+                'scheduled_at' => null,
+            ];
+        });
+    }
+
+    /**
+     * État : appel
+     */
+    public function call(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Activity::TYPE_CALL,
+            ];
+        });
+    }
+
+    /**
+     * État : email
+     */
+    public function email(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Activity::TYPE_EMAIL,
+            ];
+        });
+    }
+
+    /**
+     * État : réunion
+     */
+    public function meeting(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Activity::TYPE_MEETING,
+                'scheduled_at' => $this->faker->dateTimeBetween('now', '+1 week'),
+            ];
+        });
+    }
+
+    /**
+     * État : document
+     */
+    public function document(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Activity::TYPE_DOCUMENT,
+            ];
+        });
+    }
+
+    /**
+     * État : conversion
+     */
+    public function conversion(): self
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => Activity::TYPE_CONVERSION,
+                'status' => Activity::STATUS_COMPLETED,
+                'completed_at' => now(),
             ];
         });
     }
