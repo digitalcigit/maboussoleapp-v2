@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Activity extends Model
 {
@@ -26,6 +25,23 @@ class Activity extends Model
     const TYPE_PAYMENT = 'paiement';
     const TYPE_CONVERSION = 'conversion';
     const TYPE_OTHER = 'autre';
+
+    protected $fillable = [
+        'title',
+        'description',
+        'type',
+        'status',
+        'start_date',
+        'end_date',
+        'client_id',
+        'prospect_id',
+        'created_by',
+    ];
+
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+    ];
 
     // Liste des statuts valides
     public static function getValidStatuses(): array
@@ -53,115 +69,85 @@ class Activity extends Model
         ];
     }
 
-    protected $fillable = [
-        'title',
-        'description',
-        'type',
-        'status',
-        'user_id',
-        'created_by',
-        'subject_type',
-        'subject_id',
-        'prospect_id',
-        'client_id',
-        'scheduled_at',
-        'completed_at',
-        'notes',
-        'result',
-        'attachments'
-    ];
-
-    protected $casts = [
-        'scheduled_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'attachments' => 'array',
-        'result' => 'array',
-    ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($activity) {
-            $currentUserId = auth()->id();
-            
-            if (empty($activity->created_by)) {
-                $activity->created_by = $currentUserId;
-            }
-
-            if (empty($activity->user_id)) {
-                $activity->user_id = $currentUserId;
-            }
-
-            if (!empty($activity->prospect_id)) {
-                $activity->subject_type = Prospect::class;
-                $activity->subject_id = $activity->prospect_id;
-            } elseif (!empty($activity->client_id)) {
-                $activity->subject_type = Client::class;
-                $activity->subject_id = $activity->client_id;
-            }
-
-            if (empty($activity->status)) {
-                $activity->status = self::STATUS_PENDING;
-            }
-
-            // Valider le type et le statut
-            if (!in_array($activity->type, self::getValidTypes())) {
-                throw new \InvalidArgumentException('Type d\'activité invalide');
-            }
-
-            if (!in_array($activity->status, self::getValidStatuses())) {
-                throw new \InvalidArgumentException('Statut d\'activité invalide');
-            }
-        });
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function createdBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function prospect(): BelongsTo
-    {
-        return $this->belongsTo(Prospect::class);
-    }
-
+    /**
+     * Get the client associated with the activity.
+     */
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
 
-    public function subject(): MorphTo
+    /**
+     * Get the prospect associated with the activity.
+     */
+    public function prospect(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(Prospect::class);
     }
 
-    public static function getStatuses(): array
+    /**
+     * Get the user who created the activity.
+     */
+    public function creator(): BelongsTo
     {
-        return [
-            self::STATUS_PENDING => __('En attente'),
-            self::STATUS_IN_PROGRESS => __('En cours'),
-            self::STATUS_COMPLETED => __('Terminé'),
-            self::STATUS_CANCELLED => __('Annulé'),
-        ];
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    public static function getTypes(): array
+    /**
+     * Scope a query to only include activities for a specific client.
+     */
+    public function scopeForClient($query, $clientId)
     {
-        return [
-            self::TYPE_CALL => __('Appel'),
-            self::TYPE_EMAIL => __('Email'),
-            self::TYPE_MEETING => __('Réunion'),
-            self::TYPE_NOTE => __('Note'),
-            self::TYPE_DOCUMENT => __('Document'),
-            self::TYPE_PAYMENT => __('Paiement'),
-            self::TYPE_CONVERSION => __('Conversion'),
-            self::TYPE_OTHER => __('Autre'),
-        ];
+        return $query->where('client_id', $clientId);
+    }
+
+    /**
+     * Scope a query to only include activities for a specific prospect.
+     */
+    public function scopeForProspect($query, $prospectId)
+    {
+        return $query->where('prospect_id', $prospectId);
+    }
+
+    /**
+     * Scope a query to only include activities created by a specific user.
+     */
+    public function scopeCreatedBy($query, $userId)
+    {
+        return $query->where('created_by', $userId);
+    }
+
+    /**
+     * Scope a query to only include activities with a specific status.
+     */
+    public function scopeWithStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Scope a query to only include activities with a specific type.
+     */
+    public function scopeOfType($query, $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    /**
+     * Scope a query to only include upcoming activities.
+     */
+    public function scopeUpcoming($query)
+    {
+        return $query->where('start_date', '>', now())
+                    ->orderBy('start_date', 'asc');
+    }
+
+    /**
+     * Scope a query to only include past activities.
+     */
+    public function scopePast($query)
+    {
+        return $query->where('start_date', '<', now())
+                    ->orderBy('start_date', 'desc');
     }
 }

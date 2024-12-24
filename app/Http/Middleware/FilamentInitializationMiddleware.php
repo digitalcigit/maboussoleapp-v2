@@ -18,7 +18,7 @@ class FilamentInitializationMiddleware
 
         // Pour toutes les autres routes
         $hasSuperAdmin = User::whereHas('roles', function ($query) {
-            $query->where('name', 'super_admin');
+            $query->where('name', 'super-admin');
         })->exists();
 
         // Si pas de super admin et ce n'est pas la page d'initialisation

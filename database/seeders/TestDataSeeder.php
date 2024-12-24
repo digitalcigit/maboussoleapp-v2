@@ -67,29 +67,35 @@ class TestDataSeeder extends Seeder
         foreach ($advisors as $advisor) {
             for ($i = 1; $i <= 5; $i++) {
                 $prospect = Prospect::create([
-                    'reference_number' => 'PROS-' . Str::random(8),
-                    'first_name' => "Prospect $i",
-                    'last_name' => "Test",
+                    'name' => "Prospect Test $i",
                     'email' => "prospect$i@test.com",
                     'phone' => "+33612345678",
+                    'birth_date' => Carbon::now()->subYears(rand(20, 50)),
+                    'profession' => 'Profession Test',
+                    'education_level' => 'Bac+' . rand(2, 5),
+                    'current_location' => 'France',
+                    'current_field' => 'Test Field',
+                    'desired_field' => 'Desired Field',
+                    'desired_destination' => 'Canada',
+                    'emergency_contact' => json_encode([
+                        'name' => 'Contact Test',
+                        'phone' => '+33612345678',
+                        'relationship' => 'Parent'
+                    ]),
                     'status' => Prospect::STATUS_NEW,
-                    'source' => 'site_web',
-                    'assigned_to' => $advisor->id,
-                    'partner_id' => $partners[array_rand($partners)]->id,
-                    'commercial_code' => 'COM-' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                    'created_by' => $advisor->id,
                 ]);
 
                 // Création d'activités pour chaque prospect
                 Activity::create([
                     'title' => "Premier contact avec Prospect $i",
-                    'user_id' => $advisor->id,
-                    'subject_type' => Prospect::class,
-                    'subject_id' => $prospect->id,
+                    'description' => "Discussion initiale sur les besoins",
                     'type' => Activity::TYPE_CALL,
                     'status' => Activity::STATUS_COMPLETED,
-                    'description' => "Discussion initiale sur les besoins",
-                    'scheduled_at' => Carbon::now(),
-                    'completed_at' => Carbon::now(),
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addHour(),
+                    'prospect_id' => $prospect->id,
+                    'created_by' => $advisor->id,
                 ]);
             }
         }
@@ -98,31 +104,30 @@ class TestDataSeeder extends Seeder
         foreach ($advisors as $advisor) {
             for ($i = 1; $i <= 3; $i++) {
                 $client = Client::create([
-                    'client_number' => 'CLI-' . Str::random(8),
-                    'first_name' => "Client $i",
-                    'last_name' => "Test",
+                    'name' => "Client Test $i",
                     'email' => "client$i@test.com",
                     'phone' => "+33612345678",
+                    'address' => "123 Rue Test",
+                    'city' => "Ville Test",
+                    'postal_code' => "75000",
+                    'country' => "France",
+                    'notes' => "Notes de test pour le client $i",
                     'status' => Client::STATUS_ACTIVE,
-                    'assigned_to' => $advisor->id,
-                    'partner_id' => $partners[array_rand($partners)]->id,
-                    'commercial_code' => 'COM-' . str_pad($i, 3, '0', STR_PAD_LEFT),
-                    'payment_status' => Client::PAYMENT_STATUS_PENDING,
-                    'total_amount' => 5000.00,
-                    'paid_amount' => 0.00,
+                    'contract_start_date' => Carbon::now(),
+                    'contract_end_date' => Carbon::now()->addYear(),
+                    'created_by' => $advisor->id,
                 ]);
 
                 // Création d'activités pour chaque client
                 Activity::create([
                     'title' => "Suivi Client $i",
-                    'user_id' => $advisor->id,
-                    'subject_type' => Client::class,
-                    'subject_id' => $client->id,
+                    'description' => "Point mensuel de suivi",
                     'type' => Activity::TYPE_MEETING,
                     'status' => Activity::STATUS_PENDING,
-                    'description' => "Point d'avancement mensuel",
-                    'scheduled_at' => Carbon::now()->addDays(rand(1, 7)),
-                    'completed_at' => null,
+                    'start_date' => Carbon::now()->addDays(rand(1, 30)),
+                    'end_date' => Carbon::now()->addDays(rand(1, 30))->addHour(),
+                    'client_id' => $client->id,
+                    'created_by' => $advisor->id,
                 ]);
             }
         }
