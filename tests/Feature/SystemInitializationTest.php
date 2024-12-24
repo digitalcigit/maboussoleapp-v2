@@ -4,11 +4,20 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SystemInitializationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Seed the roles and permissions before each test
+        $this->seed(RolesAndPermissionsSeeder::class);
+    }
 
     /** @test */
     public function system_redirects_to_initialization_when_no_users_exist()
