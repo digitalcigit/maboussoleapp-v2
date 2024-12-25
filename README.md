@@ -69,6 +69,14 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 Application de gestion de la relation client pour MaBoussole.
 
+## CI/CD
+
+Le projet utilise GitHub Actions pour :
+- Déploiement automatique vers staging (branche develop)
+- Déploiement automatique vers production (branche main)
+- Création automatique des releases
+- Notifications Slack pour suivre les déploiements
+
 ## 🚀 Test de Déploiement Automatique
 
 Date: 25 décembre 2024
