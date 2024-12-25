@@ -1,12 +1,11 @@
 <?php
 
+use App\Models\Activity;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Activity;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -22,7 +21,7 @@ return new class extends Migration
                 Activity::TYPE_EMAIL,
                 Activity::TYPE_MEETING,
                 Activity::TYPE_DOCUMENT,
-                Activity::TYPE_CONVERSION
+                Activity::TYPE_CONVERSION,
             ]);
             $table->text('description');
             $table->timestamp('scheduled_at')->nullable();
@@ -31,7 +30,7 @@ return new class extends Migration
                 Activity::STATUS_PENDING,
                 Activity::STATUS_IN_PROGRESS,
                 Activity::STATUS_COMPLETED,
-                Activity::STATUS_CANCELLED
+                Activity::STATUS_CANCELLED,
             ])->default(Activity::STATUS_PENDING);
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();

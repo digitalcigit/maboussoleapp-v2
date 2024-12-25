@@ -2,14 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Prospect;
-use App\Models\Activity;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProspectConversionService
 {
@@ -25,7 +23,7 @@ class ProspectConversionService
     public function convertToClient(Prospect $prospect, array $additionalData = []): Client
     {
         // Vérifier les permissions
-        if (!Auth::user()->can('prospects.convert')) {
+        if (! Auth::user()->can('prospects.convert')) {
             throw new AuthorizationException('Vous n\'avez pas la permission de convertir les prospects en clients.');
         }
 
@@ -60,14 +58,16 @@ class ProspectConversionService
                 'subject_id' => $client->id,
                 'description' => 'Prospect converti en client',
                 'created_by' => Auth::id(),
-                'status' => 'completed'
+                'status' => 'completed',
             ]);
 
             DB::commit();
+
             return $client;
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             throw $e;
         }
     }
@@ -79,6 +79,7 @@ class ProspectConversionService
     {
         $lastClient = Client::orderBy('id', 'desc')->first();
         $nextId = $lastClient ? $lastClient->id + 1 : 1;
+
         return 'CLI' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
     }
 }

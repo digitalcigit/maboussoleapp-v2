@@ -33,7 +33,7 @@ class MonthlyGoalsWidget extends BaseWidget
             ->count();
         $totalProspects = Prospect::whereMonth('created_at', now()->month)
             ->count();
-        $conversionRate = $totalProspects > 0 
+        $conversionRate = $totalProspects > 0
             ? round(($convertedProspects / $totalProspects) * 100, 1)
             : 0;
 

@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Client;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ClientPolicy
@@ -18,8 +18,8 @@ class ClientPolicy
     public function view(User $user, Client $client): bool
     {
         return $user->hasPermissionTo('clients.view') &&
-            ($user->hasRole('super_admin') || 
-             $user->hasRole('manager') || 
+            ($user->hasRole('super_admin') ||
+             $user->hasRole('manager') ||
              $client->assigned_to === $user->id);
     }
 
@@ -31,15 +31,15 @@ class ClientPolicy
     public function update(User $user, Client $client): bool
     {
         return $user->hasPermissionTo('clients.edit') &&
-            ($user->hasRole('super_admin') || 
-             $user->hasRole('manager') || 
+            ($user->hasRole('super_admin') ||
+             $user->hasRole('manager') ||
              $client->assigned_to === $user->id);
     }
 
     public function delete(User $user, Client $client): bool
     {
         return $user->hasPermissionTo('clients.delete') &&
-            ($user->hasRole('super_admin') || 
+            ($user->hasRole('super_admin') ||
              $user->hasRole('manager'));
     }
 

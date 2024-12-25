@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
-use Doctrine\DBAL\Types\Type;
 use App\Database\Types\EnumType;
+use Doctrine\DBAL\Types\Type;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
         error_reporting(config('app.error_reporting', E_ALL & ~E_DEPRECATED));
 
         // Enregistrer le type ENUM avec Doctrine DBAL
-        if (!Type::hasType('enum')) {
+        if (! Type::hasType('enum')) {
             Type::addType('enum', EnumType::class);
         }
     }

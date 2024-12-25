@@ -2,10 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Filament\Facades\Filament;
 
 class FilamentInitializationMiddleware
 {
@@ -22,7 +21,7 @@ class FilamentInitializationMiddleware
         })->exists();
 
         // Si pas de super admin et ce n'est pas la page d'initialisation
-        if (!$hasSuperAdmin && !$request->is('admin/system-initialization')) {
+        if (! $hasSuperAdmin && ! $request->is('admin/system-initialization')) {
             return redirect()->to('/admin/system-initialization');
         }
 

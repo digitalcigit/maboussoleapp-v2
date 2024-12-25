@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\Activity;
-use App\Models\User;
-use App\Models\Prospect;
 use App\Models\Client;
+use App\Models\Prospect;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ActivityFactory extends Factory
@@ -16,7 +16,7 @@ class ActivityFactory extends Factory
     {
         $subject = $this->faker->randomElement([
             Prospect::factory()->create(),
-            Client::factory()->create()
+            Client::factory()->create(),
         ]);
 
         return [
@@ -28,13 +28,13 @@ class ActivityFactory extends Factory
                 Activity::TYPE_CALL,
                 Activity::TYPE_EMAIL,
                 Activity::TYPE_MEETING,
-                Activity::TYPE_DOCUMENT
+                Activity::TYPE_DOCUMENT,
             ]),
             'description' => $this->faker->paragraph(),
             'scheduled_at' => $this->faker->optional()->dateTimeBetween('now', '+1 month'),
             'completed_at' => null,
             'status' => Activity::STATUS_PENDING,
-            'created_by' => User::factory()
+            'created_by' => User::factory(),
         ];
     }
 
@@ -58,6 +58,7 @@ class ActivityFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $scheduledAt = $attributes['scheduled_at'] ?? now()->subHour();
+
             return [
                 'status' => Activity::STATUS_COMPLETED,
                 'scheduled_at' => $scheduledAt,

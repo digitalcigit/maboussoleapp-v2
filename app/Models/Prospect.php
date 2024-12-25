@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Prospect extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     // Statuts des prospects
     public const STATUS_NEW = 'nouveau';
@@ -38,14 +39,14 @@ class Prospect extends Model
         'commercial_code',
         'partner_id',
         'last_action_at',
-        'analysis_deadline'
+        'analysis_deadline',
     ];
 
     protected $casts = [
         'birth_date' => 'date',
         'last_action_at' => 'datetime',
         'analysis_deadline' => 'datetime',
-        'emergency_contact' => 'json'
+        'emergency_contact' => 'json',
     ];
 
     /**

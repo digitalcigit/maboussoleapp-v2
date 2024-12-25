@@ -36,7 +36,7 @@ class ProspectFactory extends Factory
             'emergency_contact' => [
                 'name' => $this->faker->name(),
                 'phone' => $this->faker->phoneNumber(),
-                'relationship' => $this->faker->randomElement(['Conjoint(e)', 'Parent', 'Frère/Sœur', 'Ami(e)'])
+                'relationship' => $this->faker->randomElement(['Conjoint(e)', 'Parent', 'Frère/Sœur', 'Ami(e)']),
             ],
             'status' => Prospect::STATUS_NEW,
             'assigned_to' => User::factory(),

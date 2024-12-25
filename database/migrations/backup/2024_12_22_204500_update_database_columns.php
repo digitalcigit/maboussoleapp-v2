@@ -2,30 +2,29 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up()
     {
         // Mise à jour de la table prospects
         Schema::table('prospects', function (Blueprint $table) {
-            if (!Schema::hasColumn('prospects', 'user_id')) {
+            if (! Schema::hasColumn('prospects', 'user_id')) {
                 $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             }
         });
 
         // Mise à jour de la table clients
         Schema::table('clients', function (Blueprint $table) {
-            if (!Schema::hasColumn('clients', 'user_id')) {
+            if (! Schema::hasColumn('clients', 'user_id')) {
                 $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             }
         });
 
         // Mise à jour de la table activities
         Schema::table('activities', function (Blueprint $table) {
-            if (!Schema::hasColumn('activities', 'user_id')) {
+            if (! Schema::hasColumn('activities', 'user_id')) {
                 $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             }
         });
@@ -65,7 +64,7 @@ return new class extends Migration
                 'en_cours',
                 'qualifie',
                 'converti',
-                'annule'
+                'annule',
             ])->default('nouveau')->change();
         });
 
@@ -74,14 +73,14 @@ return new class extends Migration
                 'planifie',
                 'en_cours',
                 'termine',
-                'annule'
+                'annule',
             ])->default('planifie')->change();
             
             $table->enum('type', [
                 'appel',
                 'reunion',
                 'email',
-                'autre'
+                'autre',
             ])->default('autre')->change();
         });
     }

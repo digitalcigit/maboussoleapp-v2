@@ -3,9 +3,9 @@
 namespace Tests\Traits;
 
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 trait FilamentPermissionsTrait
 {
@@ -81,7 +81,7 @@ trait FilamentPermissionsTrait
         foreach ($allPermissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
-                'description' => "Permission : $permission"
+                'description' => "Permission : $permission",
             ]);
         }
     }
@@ -168,8 +168,10 @@ trait FilamentPermissionsTrait
     protected function assertHasBaseFilamentAccess(User $user): void
     {
         foreach ($this->getBaseFilamentPermissions() as $permission) {
-            $this->assertTrue($user->hasPermissionTo($permission), 
-                "L'utilisateur devrait avoir la permission : $permission");
+            $this->assertTrue(
+                $user->hasPermissionTo($permission),
+                "L'utilisateur devrait avoir la permission : $permission"
+            );
         }
     }
 }

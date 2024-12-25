@@ -2,9 +2,9 @@
 
 namespace Tests\Browser\Dashboards;
 
-use App\Models\User;
 use App\Models\Client;
 use App\Models\Prospect;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
@@ -42,7 +42,7 @@ class SuperAdminDashboardTest extends DuskTestCase
 
             // Test du dashboard complet
             $this->percy($browser, 'dashboard-overview', [
-                'widths' => [1280]  // Desktop d'abord
+                'widths' => [1280],  // Desktop d'abord
             ]);
 
             // Test responsive

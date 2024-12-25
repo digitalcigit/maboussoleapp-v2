@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -22,7 +22,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'system.logs.view',
             'access_filament',
             'access_admin_panel',
-            'view_admin_panel'
+            'view_admin_panel',
         ];
 
         // Permissions utilisateurs
@@ -32,7 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.edit',
             'users.delete',
             'users.view_any',
-            'users.update'
+            'users.update',
         ];
 
         // Permissions rôles
@@ -42,7 +42,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'roles.edit',
             'roles.delete',
             'roles.view_any',
-            'roles.update'
+            'roles.update',
         ];
 
         // Permissions prospects
@@ -54,7 +54,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'prospects.convert',
             'prospects.assign',
             'prospects.view_any',
-            'prospects.update'
+            'prospects.update',
         ];
 
         // Permissions clients
@@ -64,7 +64,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'clients.edit',
             'clients.delete',
             'clients.view_any',
-            'clients.update'
+            'clients.update',
         ];
 
         // Permissions activités
@@ -74,7 +74,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'activities.edit',
             'activities.delete',
             'activities.view_any',
-            'activities.update'
+            'activities.update',
         ];
 
         // Permissions documents

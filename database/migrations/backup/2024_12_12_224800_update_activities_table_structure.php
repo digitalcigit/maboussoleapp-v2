@@ -2,11 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,20 +19,20 @@ return new class extends Migration
         // Then update the activities table
         Schema::table('activities', function (Blueprint $table) {
             // Add new columns if they don't exist
-            if (!Schema::hasColumn('activities', 'title')) {
+            if (! Schema::hasColumn('activities', 'title')) {
                 $table->string('title')->after('id');
             }
             
-            if (!Schema::hasColumn('activities', 'status')) {
+            if (! Schema::hasColumn('activities', 'status')) {
                 $table->enum('status', ['planifié', 'en_cours', 'terminé', 'annulé'])->after('type');
             }
             
-            if (!Schema::hasColumn('activities', 'client_id')) {
+            if (! Schema::hasColumn('activities', 'client_id')) {
                 $table->unsignedBigInteger('client_id')->nullable();
                 $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             }
             
-            if (!Schema::hasColumn('activities', 'prospect_id')) {
+            if (! Schema::hasColumn('activities', 'prospect_id')) {
                 $table->unsignedBigInteger('prospect_id')->nullable();
                 $table->foreign('prospect_id')->references('id')->on('prospects')->onDelete('cascade');
             }
@@ -66,7 +65,7 @@ return new class extends Migration
         // Re-add the migration record
         DB::table('migrations')->insert([
             'migration' => '2024_12_12_224500_add_subject_fields_to_activities_table',
-            'batch' => 1
+            'batch' => 1,
         ]);
     }
 };

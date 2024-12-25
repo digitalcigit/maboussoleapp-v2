@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Prospect;
-use App\Models\Activity;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class TestDataSeeder extends Seeder
 {
@@ -81,7 +80,7 @@ class TestDataSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Contact Test',
                     'phone' => '+33612345678',
-                    'relationship' => 'Parent'
+                    'relationship' => 'Parent',
                 ],
                 'status' => Prospect::STATUS_NEW,
                 'assigned_to' => $advisors[array_rand($advisors)]->id,
@@ -115,7 +114,7 @@ class TestDataSeeder extends Seeder
                 'travel_preferences' => [
                     'destination' => 'Canada',
                     'budget' => rand(5000, 15000),
-                    'duration' => '2 ans'
+                    'duration' => '2 ans',
                 ],
                 'payment_status' => Client::PAYMENT_STATUS_PENDING,
                 'total_amount' => rand(5000, 15000),

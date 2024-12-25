@@ -2,16 +2,13 @@
 
 namespace App\Filament\Pages\Dashboards;
 
-use Filament\Pages\Dashboard;
-use Filament\Support\Facades\FilamentIcon;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\Facades\Gate;
-use App\Filament\Widgets\StatsOverviewWidget;
 use App\Filament\Widgets\FinancialMetricsWidget;
 use App\Filament\Widgets\FinancialPerformanceChart;
 use App\Filament\Widgets\LatestTransactionsWidget;
-use App\Filament\Widgets\ProspectFunnelWidget;
 use App\Filament\Widgets\MonthlyGoalsWidget;
+use App\Filament\Widgets\ProspectFunnelWidget;
+use Filament\Pages\Dashboard;
+use Illuminate\Contracts\Support\Htmlable;
 
 class SuperAdminDashboard extends Dashboard
 {

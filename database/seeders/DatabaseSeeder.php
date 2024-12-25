@@ -3,9 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Database\Seeders\RolesAndPermissionsSeeder;
-use Database\Seeders\AdminUserSeeder;
-use Database\Seeders\TestDataSeeder;
 
 class DatabaseSeeder extends Seeder
 {

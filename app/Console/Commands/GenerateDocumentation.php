@@ -21,16 +21,19 @@ class GenerateDocumentation extends Command
             case 'models':
                 $generator->generateModelsDocs();
                 $this->info('Documentation des modèles générée.');
+
                 break;
             case 'controllers':
                 $generator->generateControllersDocs();
                 $this->info('Documentation des contrôleurs générée.');
+
                 break;
             case 'all':
                 $generator->generateModelsDocs();
                 $generator->generateControllersDocs();
                 $generator->generateCoverageReport();
                 $this->info('Documentation complète générée.');
+
                 break;
         }
 

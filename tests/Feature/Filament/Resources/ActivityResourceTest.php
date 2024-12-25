@@ -2,22 +2,22 @@
 
 namespace Tests\Feature\Filament\Resources;
 
+use App\Filament\Resources\ActivityResource;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Prospect;
 use App\Models\User;
-use App\Filament\Resources\ActivityResource;
 use Filament\Actions\DeleteAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 use Tests\Traits\FilamentPermissionsTrait;
-use Spatie\Permission\Models\Role;
 
 class ActivityResourceTest extends TestCase
 {
-    use RefreshDatabase, FilamentPermissionsTrait;
+    use RefreshDatabase;
+    use FilamentPermissionsTrait;
 
     protected function setUp(): void
     {
@@ -28,7 +28,7 @@ class ActivityResourceTest extends TestCase
         
         // Créer un client pour les tests
         $this->client = Client::factory()->create([
-            'status' => Client::STATUS_ACTIVE
+            'status' => Client::STATUS_ACTIVE,
         ]);
         
         // Créer une activité pour les tests
@@ -36,7 +36,7 @@ class ActivityResourceTest extends TestCase
             'subject_type' => Client::class,
             'subject_id' => $this->client->id,
             'type' => Activity::TYPE_NOTE,
-            'status' => Activity::STATUS_PENDING
+            'status' => Activity::STATUS_PENDING,
         ]);
     }
 
@@ -493,7 +493,7 @@ class ActivityResourceTest extends TestCase
         $this->actingAs($user);
 
         $activity = Activity::factory()->create([
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         Livewire::test(ActivityResource\Pages\EditActivity::class, [

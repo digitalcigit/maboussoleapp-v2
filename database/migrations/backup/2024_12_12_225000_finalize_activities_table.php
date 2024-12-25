@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -21,23 +20,23 @@ return new class extends Migration
 
             // Then add any missing columns
             Schema::table('activities', function (Blueprint $table) {
-                if (!Schema::hasColumn('activities', 'title')) {
+                if (! Schema::hasColumn('activities', 'title')) {
                     $table->string('title')->nullable()->after('id');
                 }
 
-                if (!Schema::hasColumn('activities', 'status')) {
+                if (! Schema::hasColumn('activities', 'status')) {
                     $table->enum('status', ['planned', 'in_progress', 'completed', 'cancelled'])
                           ->default('planned')
                           ->after('type');
                 }
 
                 // Add polymorphic relationship if it doesn't exist
-                if (!Schema::hasColumn('activities', 'subject_type')) {
+                if (! Schema::hasColumn('activities', 'subject_type')) {
                     $table->morphs('subject');
                 }
 
                 // Add relationships if they don't exist
-                if (!Schema::hasColumn('activities', 'client_id')) {
+                if (! Schema::hasColumn('activities', 'client_id')) {
                     $table->unsignedBigInteger('client_id')->nullable();
                     $table->foreign('client_id')
                           ->references('id')
@@ -45,7 +44,7 @@ return new class extends Migration
                           ->onDelete('cascade');
                 }
 
-                if (!Schema::hasColumn('activities', 'prospect_id')) {
+                if (! Schema::hasColumn('activities', 'prospect_id')) {
                     $table->unsignedBigInteger('prospect_id')->nullable();
                     $table->foreign('prospect_id')
                           ->references('id')

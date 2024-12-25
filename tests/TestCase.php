@@ -3,12 +3,12 @@
 namespace Tests;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Livewire\LivewireServiceProvider;
 use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
-use Filament\Tables\TablesServiceProvider;
 use Filament\Support\SupportServiceProvider;
+use Filament\Tables\TablesServiceProvider;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Livewire\LivewireServiceProvider;
 
 abstract class TestCase extends BaseTestCase
 {

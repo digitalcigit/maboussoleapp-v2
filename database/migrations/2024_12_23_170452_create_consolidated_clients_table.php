@@ -1,14 +1,13 @@
 <?php
 
+use App\Models\Client;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Client;
 
 require_once __DIR__ . '/../../app/Models/Client.php';
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -24,13 +23,13 @@ return new class extends Migration
                 Client::VISA_STATUS_NOT_STARTED,
                 Client::VISA_STATUS_IN_PROGRESS,
                 Client::VISA_STATUS_OBTAINED,
-                Client::VISA_STATUS_REJECTED
+                Client::VISA_STATUS_REJECTED,
             ])->default(Client::VISA_STATUS_NOT_STARTED);
             $table->json('travel_preferences')->nullable();
             $table->enum('payment_status', [
                 Client::PAYMENT_STATUS_PENDING,
                 Client::PAYMENT_STATUS_PARTIAL,
-                Client::PAYMENT_STATUS_COMPLETED
+                Client::PAYMENT_STATUS_COMPLETED,
             ])->default(Client::PAYMENT_STATUS_PENDING);
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->decimal('paid_amount', 10, 2)->default(0);
@@ -38,7 +37,7 @@ return new class extends Migration
                 Client::STATUS_ACTIVE,
                 Client::STATUS_INACTIVE,
                 Client::STATUS_PENDING,
-                Client::STATUS_ARCHIVED
+                Client::STATUS_ARCHIVED,
             ])->default(Client::STATUS_ACTIVE);
             $table->timestamps();
             $table->softDeletes();

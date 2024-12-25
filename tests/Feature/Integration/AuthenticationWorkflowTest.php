@@ -2,17 +2,18 @@
 
 namespace Tests\Feature\Integration;
 
-use Tests\TestCase;
 use App\Models\User;
-use Tests\Traits\FilamentTestHelpers;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Filament\Events\Auth\Login;
 use Filament\Events\Auth\Logout;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
+use Tests\TestCase;
+use Tests\Traits\FilamentTestHelpers;
 
 class AuthenticationWorkflowTest extends TestCase
 {
-    use RefreshDatabase, FilamentTestHelpers;
+    use RefreshDatabase;
+    use FilamentTestHelpers;
 
     private User $superAdmin;
     private User $manager;
@@ -37,7 +38,7 @@ class AuthenticationWorkflowTest extends TestCase
         $this->post('/admin/login', [
             'email' => 'super_admin@maboussole.ci',
             'password' => 'wrong_password',
-            'remember' => false
+            'remember' => false,
         ]);
         
         $this->assertGuest();
@@ -45,7 +46,7 @@ class AuthenticationWorkflowTest extends TestCase
         // 2. Connexion réussie
         $response = $this->attemptFilamentLogin([
             'email' => 'super_admin@maboussole.ci',
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         Event::assertDispatched(Login::class);
@@ -94,7 +95,7 @@ class AuthenticationWorkflowTest extends TestCase
         $response = $this->attemptFilamentLogin([
             'email' => 'super_admin@maboussole.ci',
             'password' => 'password',
-            'remember' => true
+            'remember' => true,
         ]);
 
         $this->assertAuthenticated();

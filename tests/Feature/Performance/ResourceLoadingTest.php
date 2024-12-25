@@ -2,14 +2,12 @@
 
 namespace Tests\Feature\Performance;
 
-use App\Models\User;
-use App\Models\Prospect;
-use App\Models\Client;
 use App\Models\Activity;
+use App\Models\Prospect;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Builder;
+use Tests\TestCase;
 
 class ResourceLoadingTest extends TestCase
 {

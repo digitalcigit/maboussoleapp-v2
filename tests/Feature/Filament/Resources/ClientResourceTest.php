@@ -3,30 +3,24 @@
 namespace Tests\Feature\Filament\Resources;
 
 use App\Filament\Resources\ClientResource;
-use App\Filament\Resources\ClientResource\Pages\ListClients;
 use App\Filament\Resources\ClientResource\Pages\CreateClient;
 use App\Filament\Resources\ClientResource\Pages\EditClient;
+use App\Filament\Resources\ClientResource\Pages\ListClients;
 use App\Filament\Resources\ClientResource\Pages\ViewClient;
 use App\Models\Client;
 use App\Models\Prospect;
 use App\Models\User;
-use App\Models\Activity;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
 use Tests\Traits\FilamentPermissionsTrait;
-use Filament\Pages\Page;
-use Filament\Actions\CreateAction;
-use Filament\Tables\Actions\CreateAction as TableCreateAction;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Log;
 
 class ClientResourceTest extends TestCase
 {
-    use RefreshDatabase, FilamentPermissionsTrait;
+    use RefreshDatabase;
+    use FilamentPermissionsTrait;
 
     protected function setUp(): void
     {
@@ -69,7 +63,7 @@ class ClientResourceTest extends TestCase
         foreach ($additionalProspects as $prospect) {
             $additionalClients[] = Client::factory()->create([
                 'prospect_id' => $prospect->id,
-                'status' => Client::STATUS_ACTIVE
+                'status' => Client::STATUS_ACTIVE,
             ]);
         }
 
@@ -185,7 +179,7 @@ class ClientResourceTest extends TestCase
         foreach ($additionalProspects as $prospect) {
             $clientsToDelete[] = Client::factory()->create([
                 'prospect_id' => $prospect->id,
-                'status' => Client::STATUS_ACTIVE
+                'status' => Client::STATUS_ACTIVE,
             ]);
         }
 

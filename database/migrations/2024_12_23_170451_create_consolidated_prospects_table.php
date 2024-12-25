@@ -1,12 +1,11 @@
 <?php
 
+use App\Models\Prospect;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Prospect;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -32,7 +31,7 @@ return new class extends Migration
                 Prospect::STATUS_ANALYZING,
                 Prospect::STATUS_APPROVED,
                 Prospect::STATUS_REJECTED,
-                Prospect::STATUS_CONVERTED
+                Prospect::STATUS_CONVERTED,
             ])->default(Prospect::STATUS_NEW);
             $table->foreignId('assigned_to')->nullable()->constrained('users')->onDelete('set null');
             $table->string('commercial_code')->nullable();

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Auth;
 
-use Tests\TestCase;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class MultipleRolesTest extends TestCase
 {
@@ -120,7 +120,7 @@ class MultipleRolesTest extends TestCase
         $restrictedRole = Role::create(['name' => 'restricted']);
         $restrictedRole->givePermissionTo([
             'prospects.view',
-            'reports.view.own.basic'
+            'reports.view.own.basic',
         ]);
 
         // Assigner les rôles commercial et restricted

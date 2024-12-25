@@ -3,9 +3,9 @@
 namespace Tests\Traits;
 
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 trait HasTestPermissions
 {
@@ -73,7 +73,7 @@ trait HasTestPermissions
             'prospects.view_any',   // Permission Filament
             'prospects.update',     // Permission Filament
             'prospects.bulk_delete', // Permission pour la suppression en masse
-            'manage prospects'      // Permission Filament
+            'manage prospects',      // Permission Filament
         ];
 
         // Crée les permissions dans la base de données

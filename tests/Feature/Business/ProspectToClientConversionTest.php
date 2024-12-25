@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Business;
 
-use Tests\TestCase;
-use App\Models\User;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Prospect;
-use App\Models\Activity;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ProspectToClientConversionTest extends TestCase
 {
@@ -33,7 +33,7 @@ class ProspectToClientConversionTest extends TestCase
         // Créer un prospect qualifié
         $this->prospect = Prospect::factory()->create([
             'status' => Prospect::STATUS_QUALIFIED,
-            'assigned_to' => $this->conseiller->id
+            'assigned_to' => $this->conseiller->id,
         ]);
     }
 
@@ -44,6 +44,7 @@ class ProspectToClientConversionTest extends TestCase
     {
         $lastClient = Client::orderBy('id', 'desc')->first();
         $nextId = $lastClient ? $lastClient->id + 1 : 1;
+
         return 'CLI' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
     }
 
@@ -63,19 +64,19 @@ class ProspectToClientConversionTest extends TestCase
         // Vérifications
         $this->assertDatabaseHas('clients', [
             'id' => $client->id,
-            'email' => $this->prospect->email
+            'email' => $this->prospect->email,
         ]);
 
         $this->assertDatabaseHas('prospects', [
             'id' => $this->prospect->id,
-            'status' => Prospect::STATUS_CONVERTED
+            'status' => Prospect::STATUS_CONVERTED,
         ]);
 
         $this->assertDatabaseHas('activities', [
             'subject_type' => Client::class,
             'subject_id' => $client->id,
             'title' => 'Conversion en client',
-            'user_id' => $this->manager->id
+            'user_id' => $this->manager->id,
         ]);
     }
 
@@ -104,7 +105,7 @@ class ProspectToClientConversionTest extends TestCase
         // Créer un prospect non qualifié
         $unqualifiedProspect = Prospect::factory()->create([
             'status' => Prospect::STATUS_NEW,
-            'assigned_to' => $this->conseiller->id
+            'assigned_to' => $this->conseiller->id,
         ]);
 
         // Tenter de convertir le prospect non qualifié
@@ -145,7 +146,7 @@ class ProspectToClientConversionTest extends TestCase
             'type' => 'note',
             'description' => 'Premier contact avec le prospect',
             'user_id' => $this->conseiller->id,
-            'status' => 'terminé'
+            'status' => 'terminé',
         ]);
 
         // Convertir le prospect en client
@@ -156,14 +157,14 @@ class ProspectToClientConversionTest extends TestCase
             'id' => $prospectActivity->id,
             'subject_type' => Prospect::class,
             'subject_id' => $this->prospect->id,
-            'title' => 'Premier contact'
+            'title' => 'Premier contact',
         ]);
 
         $this->assertDatabaseHas('activities', [
             'subject_type' => Client::class,
             'subject_id' => $client->id,
             'title' => 'Conversion en client',
-            'user_id' => $this->manager->id
+            'user_id' => $this->manager->id,
         ]);
     }
 }

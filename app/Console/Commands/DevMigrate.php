@@ -30,16 +30,18 @@ class DevMigrate extends Command
         putenv("APP_ENV={$currentEnv}");
 
         // Si les tests échouent
-        if (!$testProcess->isSuccessful()) {
+        if (! $testProcess->isSuccessful()) {
             $this->error('❌ Les tests ont échoué. Les migrations ne seront pas appliquées.');
+
             return 1;
         }
 
         $this->info('✅ Les tests sont passés !');
 
         // 3. Demander confirmation pour la migration
-        if (!$this->confirm('Voulez-vous appliquer les migrations sur la base de développement ?', true)) {
+        if (! $this->confirm('Voulez-vous appliquer les migrations sur la base de développement ?', true)) {
             $this->info('🛑 Migration annulée.');
+
             return 0;
         }
 
@@ -56,8 +58,9 @@ class DevMigrate extends Command
             $this->output->write($buffer);
         });
 
-        if (!$migrateProcess->isSuccessful()) {
+        if (! $migrateProcess->isSuccessful()) {
             $this->error('❌ Erreur lors de l\'application des migrations.');
+
             return 1;
         }
 
@@ -69,13 +72,15 @@ class DevMigrate extends Command
                 $this->output->write($buffer);
             });
 
-            if (!$seedProcess->isSuccessful()) {
+            if (! $seedProcess->isSuccessful()) {
                 $this->error('❌ Erreur lors de l\'exécution des seeders.');
+
                 return 1;
             }
         }
 
         $this->info('✨ Processus de migration terminé avec succès !');
+
         return 0;
     }
 }

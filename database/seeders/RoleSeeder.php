@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -50,13 +50,13 @@ class RoleSeeder extends Seeder
             
             // Permissions Rapports
             'reports.view' => 'Voir les rapports',
-            'reports.export' => 'Exporter les rapports'
+            'reports.export' => 'Exporter les rapports',
         ];
 
         foreach ($permissions as $name => $description) {
             Permission::create([
                 'name' => $name,
-                'description' => $description
+                'description' => $description,
             ]);
         }
 
@@ -67,25 +67,25 @@ class RoleSeeder extends Seeder
             'prospects.view', 'prospects.create', 'prospects.edit', 'prospects.delete',
             'prospects.convert', 'prospects.activities.view', 'prospects.activities.create',
             'activities.view', 'activities.create', 'activities.edit', 'activities.delete',
-            'users.view', 'reports.view', 'reports.export'
+            'users.view', 'reports.view', 'reports.export',
         ]);
 
         $conseiller->givePermissionTo([
             'clients.view', 'clients.activities.view', 'clients.activities.create',
             'prospects.view', 'prospects.activities.view', 'prospects.activities.create',
-            'activities.view', 'activities.create', 'activities.edit'
+            'activities.view', 'activities.create', 'activities.edit',
         ]);
 
         $commercial->givePermissionTo([
             'prospects.view', 'prospects.create', 'prospects.edit',
             'prospects.activities.view', 'prospects.activities.create',
-            'activities.view', 'activities.create'
+            'activities.view', 'activities.create',
         ]);
 
         $partenaire->givePermissionTo([
             'prospects.view', 'prospects.create',
             'prospects.activities.view', 'prospects.activities.create',
-            'activities.view', 'activities.create'
+            'activities.view', 'activities.create',
         ]);
     }
 }

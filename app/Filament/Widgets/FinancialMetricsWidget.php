@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Client;
 use App\Models\Prospect;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class FinancialMetricsWidget extends BaseWidget
 {
@@ -38,8 +38,8 @@ class FinancialMetricsWidget extends BaseWidget
                 ->description($revenueTrend >= 0 ? '+' . number_format($revenueTrend, 0, ',', ' ') . ' €' : number_format($revenueTrend, 0, ',', ' ') . ' €')
                 ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->chart([
-                    $lastMonthRevenue/1000,
-                    $currentMonthRevenue/1000
+                    $lastMonthRevenue / 1000,
+                    $currentMonthRevenue / 1000,
                 ])
                 ->color($revenueTrend >= 0 ? 'success' : 'danger'),
 
@@ -47,8 +47,8 @@ class FinancialMetricsWidget extends BaseWidget
                 ->description($commissionsTrend >= 0 ? '+' . number_format($commissionsTrend, 0, ',', ' ') . ' €' : number_format($commissionsTrend, 0, ',', ' ') . ' €')
                 ->descriptionIcon($commissionsTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->chart([
-                    $lastMonthCommissions/1000,
-                    $currentMonthCommissions/1000
+                    $lastMonthCommissions / 1000,
+                    $currentMonthCommissions / 1000,
                 ])
                 ->color($commissionsTrend >= 0 ? 'success' : 'danger'),
 
@@ -56,8 +56,8 @@ class FinancialMetricsWidget extends BaseWidget
                 ->description($qualifiedProspects . ' prospects qualifiés')
                 ->descriptionIcon('heroicon-m-calculator')
                 ->chart([
-                    $averageContractValue/1000,
-                    $projectedRevenue/1000
+                    $averageContractValue / 1000,
+                    $projectedRevenue / 1000,
                 ])
                 ->color('info'),
         ];

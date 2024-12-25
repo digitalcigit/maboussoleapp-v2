@@ -4,7 +4,6 @@ namespace App\Filament\Widgets;
 
 use App\Models\Client;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Collection;
 
 class FinancialPerformanceChart extends ChartWidget
 {

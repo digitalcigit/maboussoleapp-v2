@@ -7,16 +7,14 @@ use App\Filament\Resources\ClientResource\RelationManagers;
 use App\Models\Client;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class ClientResource extends Resource
@@ -125,7 +123,7 @@ class ClientResource extends Resource
                                 'active' => 'Actif',
                                 'inactive' => 'Inactif',
                                 'pending' => 'En attente',
-                                'archived' => 'Archivé'
+                                'archived' => 'Archivé',
                             ])
                             ->required()
                             ->default('active')
@@ -160,7 +158,7 @@ class ClientResource extends Resource
                                             $fail("Le montant payé ne peut pas être supérieur au montant total.");
                                         }
                                     };
-                                }
+                                },
                             ]),
                     ])->columns(2),
             ]);
@@ -216,7 +214,7 @@ class ClientResource extends Resource
                         'active' => 'Actif',
                         'inactive' => 'Inactif',
                         'pending' => 'En attente',
-                        'archived' => 'Archivé'
+                        'archived' => 'Archivé',
                     ])
                     ->label('Statut'),
                 Tables\Filters\SelectFilter::make('payment_status')
@@ -262,7 +260,7 @@ class ClientResource extends Resource
 
                             // Récupérer l'ID de l'utilisateur depuis les données du formulaire
                             $assignedToId = $data['assigned_to'];
-                            if (!$assignedToId) {
+                            if (! $assignedToId) {
                                 return;
                             }
 

@@ -3,10 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Client;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up()
     {
         Schema::create('clients', function (Blueprint $table) {
@@ -29,13 +27,13 @@ return new class extends Migration
                 'inactif',
                 'en_pause',
                 'termine',
-                'annule'
+                'annule',
             ])->default('actif');
             $table->enum('payment_status', [
                 'en_attente',
                 'partiel',
                 'complet',
-                'rembourse'
+                'rembourse',
             ])->default('en_attente');
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('assigned_to')->nullable()->constrained('users');

@@ -2,17 +2,17 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Page;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\DB;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class SystemInitialization extends Page implements HasForms
 {
@@ -78,7 +78,7 @@ class SystemInitialization extends Page implements HasForms
                             ->password()
                             ->required()
                             ->minLength(8),
-                    ])
+                    ]),
             ]);
     }
     

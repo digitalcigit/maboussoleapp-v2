@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\DB;
 
 class SystemInitializationController extends Controller
 {
@@ -52,6 +52,7 @@ class SystemInitializationController extends Controller
             return redirect('/admin')->with('success', 'Système initialisé avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withErrors(['system' => 'Une erreur est survenue lors de l\'initialisation.'])->withInput();
         }
     }

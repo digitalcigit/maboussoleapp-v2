@@ -3,10 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Prospect;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up()
     {
         Schema::create('prospects', function (Blueprint $table) {
@@ -30,7 +28,7 @@ return new class extends Migration
                 'qualifie',
                 'non_qualifie',
                 'converti',
-                'annule'
+                'annule',
             ])->default('nouveau');
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('assigned_to')->nullable()->constrained('users');

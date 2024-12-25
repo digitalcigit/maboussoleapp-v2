@@ -2,14 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Activity;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use Livewire\Livewire;
 use App\Filament\Resources\ClientResource;
+use App\Models\Activity;
+use App\Models\Client;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
 
 class ClientPermissionsTest extends TestCase
 {
@@ -29,7 +28,7 @@ class ClientPermissionsTest extends TestCase
         
         // Créer un client pour les tests
         $this->client = Client::factory()->create([
-            'created_by' => $this->admin->id
+            'created_by' => $this->admin->id,
         ]);
     }
 

@@ -2,11 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
-use Tests\TestCase;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Tests\TestCase;
 
 class RolePermissionsTest extends TestCase
 {
@@ -52,7 +51,7 @@ class RolePermissionsTest extends TestCase
             'activities.view', 'activities.create', 'activities.edit', 'activities.delete',
             'reports.view', 'reports.export',
             'documents.validate', 'steps.validate',
-            'settings.view', 'settings.edit.department'
+            'settings.view', 'settings.edit.department',
         ];
 
         // Vérifie que le manager a toutes les permissions attendues
@@ -67,7 +66,7 @@ class RolePermissionsTest extends TestCase
         $restrictedPermissions = [
             'system.settings.view',
             'system.logs.view',
-            'bonus.view.own'
+            'bonus.view.own',
         ];
 
         foreach ($restrictedPermissions as $permission) {
@@ -93,7 +92,7 @@ class RolePermissionsTest extends TestCase
             'activities.view', 'activities.create', 'activities.edit',
             'documents.view', 'documents.upload', 'documents.validate',
             'communications.email', 'communications.sms',
-            'reports.view.own'
+            'reports.view.own',
         ];
 
         foreach ($conseillerPermissions as $permission) {
@@ -109,7 +108,7 @@ class RolePermissionsTest extends TestCase
             'clients.delete',
             'activities.delete',
             'users.view',
-            'settings.view'
+            'settings.view',
         ];
 
         foreach ($restrictedPermissions as $permission) {
@@ -132,7 +131,7 @@ class RolePermissionsTest extends TestCase
         $partenairePermissions = [
             'prospects.create', 'prospects.view', 'prospects.edit',
             'documents.upload', 'documents.view',
-            'reports.view.own'
+            'reports.view.own',
         ];
 
         foreach ($partenairePermissions as $permission) {
@@ -147,7 +146,7 @@ class RolePermissionsTest extends TestCase
             'prospects.delete',
             'clients.view',
             'activities.view',
-            'communications.email'
+            'communications.email',
         ];
 
         foreach ($restrictedPermissions as $permission) {
@@ -171,7 +170,7 @@ class RolePermissionsTest extends TestCase
             'prospects.create', 'prospects.view',
             'activities.view', 'activities.create',
             'bonus.view.own',
-            'reports.view.own.basic'
+            'reports.view.own.basic',
         ];
 
         foreach ($commercialPermissions as $permission) {
@@ -187,7 +186,7 @@ class RolePermissionsTest extends TestCase
             'prospects.delete',
             'clients.view',
             'documents.upload',
-            'communications.email'
+            'communications.email',
         ];
 
         foreach ($restrictedPermissions as $permission) {

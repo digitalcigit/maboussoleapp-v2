@@ -4,9 +4,9 @@ namespace Tests\Traits;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Testing\TestResponse;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 trait FilamentTestHelpers
 {
@@ -19,7 +19,7 @@ trait FilamentTestHelpers
         $role = Role::firstOrCreate(['name' => $roleName]);
 
         // Attribuer les permissions au rôle si spécifiées
-        if (!empty($permissions)) {
+        if (! empty($permissions)) {
             foreach ($permissions as $permissionName) {
                 $permission = Permission::firstOrCreate(['name' => $permissionName]);
                 $role->givePermissionTo($permission);
@@ -34,6 +34,7 @@ trait FilamentTestHelpers
         ]);
 
         $user->assignRole($role);
+
         return $user;
     }
 
@@ -64,7 +65,7 @@ trait FilamentTestHelpers
             'activities.edit',
             'activities.delete',
             'reports.view',
-            'reports.export'
+            'reports.export',
         ]);
     }
 
@@ -82,7 +83,7 @@ trait FilamentTestHelpers
             'clients.edit',
             'activities.view',
             'activities.create',
-            'reports.view'
+            'reports.view',
         ]);
     }
 
@@ -95,7 +96,7 @@ trait FilamentTestHelpers
             'prospects.view',
             'clients.view',
             'activities.view',
-            'activities.create'
+            'activities.create',
         ]);
     }
 
@@ -150,6 +151,7 @@ trait FilamentTestHelpers
     {
         $response = $this->post('/admin/logout');
         $this->app['auth']->logout();
+
         return $response;
     }
 }

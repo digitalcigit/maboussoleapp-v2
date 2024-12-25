@@ -2,12 +2,11 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\User;
-use App\Models\Prospect;
 use App\Models\Client;
+use App\Models\Prospect;
+use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\DB;
 
 class StatsOverviewWidget extends BaseWidget
 {
@@ -30,7 +29,7 @@ class StatsOverviewWidget extends BaseWidget
         // Taux de conversion global
         $totalConversions = Client::whereMonth('created_at', now()->month)->count();
         $totalProspectsThisMonth = Prospect::whereMonth('created_at', now()->month)->count();
-        $conversionRate = $totalProspectsThisMonth > 0 
+        $conversionRate = $totalProspectsThisMonth > 0
             ? round(($totalConversions / $totalProspectsThisMonth) * 100, 2)
             : 0;
 
@@ -81,7 +80,7 @@ class StatsOverviewWidget extends BaseWidget
                 ->description($revenueTrend >= 0 ? "+$revenueTrend € vs mois dernier" : "$revenueTrend € vs mois dernier")
                 ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($revenueTrend >= 0 ? 'success' : 'danger')
-                ->chart([8, 9, 7, 8, 6, 9, $currentMonthRevenue/1000])
+                ->chart([8, 9, 7, 8, 6, 9, $currentMonthRevenue / 1000])
                 ->icon('heroicon-o-currency-euro')
                 ->extraAttributes([
                     'data-testid' => 'kpi-revenue',

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ActivityResource\Pages;
-use App\Filament\Resources\ActivityResource\RelationManagers;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Prospect;
@@ -14,7 +13,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ActivityResource extends Resource
 {
@@ -145,10 +143,10 @@ class ActivityResource extends Resource
     {
         $data['created_by'] = auth()->id();
 
-        if (!empty($data['prospect_id'])) {
+        if (! empty($data['prospect_id'])) {
             $data['subject_type'] = \App\Models\Prospect::class;
             $data['subject_id'] = $data['prospect_id'];
-        } elseif (!empty($data['client_id'])) {
+        } elseif (! empty($data['client_id'])) {
             $data['subject_type'] = \App\Models\Client::class;
             $data['subject_id'] = $data['client_id'];
         }

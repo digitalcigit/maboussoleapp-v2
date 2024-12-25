@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Business;
 
-use Tests\TestCase;
-use App\Models\User;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Prospect;
-use App\Models\Activity;
+use App\Models\User;
 use App\Services\ProspectConversionService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ProspectConversionTest extends TestCase
 {
@@ -50,12 +50,12 @@ class ProspectConversionTest extends TestCase
             'emergency_contact' => json_encode([
                 'name' => 'Jane Doe',
                 'phone' => '+33612345679',
-                'relationship' => 'Spouse'
+                'relationship' => 'Spouse',
             ]),
             'status' => Prospect::STATUS_APPROVED,
             'assigned_to' => $this->conseiller->id,
             'commercial_code' => 'COM001',
-            'partner_id' => null
+            'partner_id' => null,
         ]);
 
         $this->conversionService = new ProspectConversionService();
@@ -75,9 +75,9 @@ class ProspectConversionTest extends TestCase
             'passport_expiry' => '2025-12-31',
             'travel_preferences' => [
                 'preferred_airline' => 'Air France',
-                'seat_preference' => 'window'
+                'seat_preference' => 'window',
             ],
-            'total_amount' => 5000.00
+            'total_amount' => 5000.00,
         ];
 
         // Convertir le prospect
@@ -91,12 +91,12 @@ class ProspectConversionTest extends TestCase
             'visa_status' => Client::VISA_STATUS_NOT_STARTED,
             'payment_status' => Client::PAYMENT_STATUS_PENDING,
             'total_amount' => 5000.00,
-            'paid_amount' => 0
+            'paid_amount' => 0,
         ]);
 
         $this->assertDatabaseHas('prospects', [
             'id' => $this->prospect->id,
-            'status' => Prospect::STATUS_CONVERTED
+            'status' => Prospect::STATUS_CONVERTED,
         ]);
 
         // Vérifier que le client a accès aux informations du prospect
@@ -131,7 +131,7 @@ class ProspectConversionTest extends TestCase
         // Créer un prospect non approuvé
         $newProspect = Prospect::factory()->create([
             'status' => Prospect::STATUS_NEW,
-            'assigned_to' => $this->conseiller->id
+            'assigned_to' => $this->conseiller->id,
         ]);
 
         // Vérifier le libellé du statut
@@ -157,7 +157,7 @@ class ProspectConversionTest extends TestCase
             'subject_type' => Client::class,
             'subject_id' => $client->id,
             'status' => Activity::STATUS_COMPLETED,
-            'created_by' => $this->manager->id
+            'created_by' => $this->manager->id,
         ]);
 
         // Récupérer l'activité et vérifier ses libellés
@@ -180,7 +180,7 @@ class ProspectConversionTest extends TestCase
         // Créer un second prospect et le convertir
         $prospect2 = Prospect::factory()->create([
             'status' => Prospect::STATUS_APPROVED,
-            'assigned_to' => $this->conseiller->id
+            'assigned_to' => $this->conseiller->id,
         ]);
         $client2 = $this->conversionService->convertToClient($prospect2);
 

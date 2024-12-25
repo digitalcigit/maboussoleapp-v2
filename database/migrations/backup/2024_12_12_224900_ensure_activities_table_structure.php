@@ -2,11 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,16 +19,16 @@ return new class extends Migration
         if (Schema::hasTable('activities')) {
             Schema::table('activities', function (Blueprint $table) {
                 // Check and add each column only if it doesn't exist
-                if (!Schema::hasColumn('activities', 'title')) {
+                if (! Schema::hasColumn('activities', 'title')) {
                     $table->string('title')->after('id')->nullable();
                 }
 
-                if (!Schema::hasColumn('activities', 'status')) {
+                if (! Schema::hasColumn('activities', 'status')) {
                     $table->enum('status', ['planifié', 'en_cours', 'terminé', 'annulé'])->after('type')->default('planifié');
                 }
 
                 // Add relationships if they don't exist
-                if (!Schema::hasColumn('activities', 'client_id')) {
+                if (! Schema::hasColumn('activities', 'client_id')) {
                     $table->unsignedBigInteger('client_id')->nullable();
                     $table->foreign('client_id')
                           ->references('id')
@@ -37,7 +36,7 @@ return new class extends Migration
                           ->onDelete('cascade');
                 }
 
-                if (!Schema::hasColumn('activities', 'prospect_id')) {
+                if (! Schema::hasColumn('activities', 'prospect_id')) {
                     $table->unsignedBigInteger('prospect_id')->nullable();
                     $table->foreign('prospect_id')
                           ->references('id')

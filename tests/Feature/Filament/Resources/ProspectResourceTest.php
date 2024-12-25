@@ -9,18 +9,17 @@ use App\Filament\Resources\ProspectResource\Pages\ListProspects;
 use App\Filament\Resources\ProspectResource\Pages\ViewProspect;
 use App\Filament\Resources\ProspectResource\RelationManagers\ActivitiesRelationManager;
 use App\Models\Activity;
-use App\Models\Client;
 use App\Models\Prospect;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 use Tests\Traits\FilamentPermissionsTrait;
 
 class ProspectResourceTest extends TestCase
 {
-    use RefreshDatabase, FilamentPermissionsTrait;
+    use RefreshDatabase;
+    use FilamentPermissionsTrait;
 
     protected User $user;
     protected Prospect $prospect;
@@ -34,7 +33,7 @@ class ProspectResourceTest extends TestCase
         
         // Créer un prospect pour les tests
         $this->prospect = Prospect::factory()->create([
-            'status' => Prospect::STATUS_NEW
+            'status' => Prospect::STATUS_NEW,
         ]);
     }
 
@@ -143,14 +142,14 @@ class ProspectResourceTest extends TestCase
             'record' => $this->prospect->id,
         ])
             ->fillForm([
-                'assigned_to' => $assignee->id
+                'assigned_to' => $assignee->id,
             ])
             ->call('save')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('prospects', [
             'id' => $this->prospect->id,
-            'assigned_to' => $assignee->id
+            'assigned_to' => $assignee->id,
         ]);
     }
 
@@ -198,7 +197,7 @@ class ProspectResourceTest extends TestCase
     public function it_can_convert_prospect_to_client()
     {
         $prospect = Prospect::factory()->create([
-            'status' => Prospect::STATUS_ANALYZING
+            'status' => Prospect::STATUS_ANALYZING,
         ]);
 
         $this->get(ProspectResource::getUrl('index'))
@@ -212,7 +211,7 @@ class ProspectResourceTest extends TestCase
 
         $this->assertDatabaseHas('prospects', [
             'id' => $prospect->id,
-            'status' => Prospect::STATUS_CONVERTED
+            'status' => Prospect::STATUS_CONVERTED,
         ]);
 
         $this->assertDatabaseHas('clients', [
@@ -227,7 +226,7 @@ class ProspectResourceTest extends TestCase
     public function it_can_bulk_update_prospects()
     {
         $prospects = Prospect::factory()->count(3)->create([
-            'status' => Prospect::STATUS_NEW
+            'status' => Prospect::STATUS_NEW,
         ]);
 
         $this->get(ProspectResource::getUrl('index'))
@@ -237,14 +236,14 @@ class ProspectResourceTest extends TestCase
             ->assertCanSeeTableRecords($prospects)
             ->assertTableBulkActionExists('bulk-update')
             ->callTableBulkAction('bulk-update', $prospects->pluck('id')->toArray(), [
-                'status' => Prospect::STATUS_ANALYZING
+                'status' => Prospect::STATUS_ANALYZING,
             ])
             ->assertHasNoActionErrors();
 
         foreach ($prospects as $prospect) {
             $this->assertDatabaseHas('prospects', [
                 'id' => $prospect->id,
-                'status' => Prospect::STATUS_ANALYZING
+                'status' => Prospect::STATUS_ANALYZING,
             ]);
         }
     }
@@ -261,7 +260,7 @@ class ProspectResourceTest extends TestCase
 
         Livewire::test(ActivitiesRelationManager::class, [
             'ownerRecord' => $this->prospect,
-            'pageClass' => EditProspect::class
+            'pageClass' => EditProspect::class,
         ])
         ->assertSuccessful()
         ->callTableAction('create', data: [

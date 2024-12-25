@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SystemInitializationTest extends TestCase
 {
@@ -34,14 +34,14 @@ class SystemInitializationTest extends TestCase
             'name' => 'Super Admin',
             'email' => 'admin@maboussole.fr',
             'password' => 'password123',
-            'password_confirmation' => 'password123'
+            'password_confirmation' => 'password123',
         ];
 
         $response = $this->post('/system/initialization', $userData);
 
         $this->assertDatabaseHas('users', [
             'email' => 'admin@maboussole.fr',
-            'name' => 'Super Admin'
+            'name' => 'Super Admin',
         ]);
 
         $user = User::where('email', 'admin@maboussole.fr')->first();
@@ -70,7 +70,7 @@ class SystemInitializationTest extends TestCase
             'name' => '',
             'email' => 'not-an-email',
             'password' => 'short',
-            'password_confirmation' => 'different'
+            'password_confirmation' => 'different',
         ];
 
         $response = $this->post('/system/initialization', $invalidData);
@@ -85,7 +85,7 @@ class SystemInitializationTest extends TestCase
             'name' => 'Super Admin',
             'email' => 'admin@maboussole.fr',
             'password' => 'password123',
-            'password_confirmation' => 'password123'
+            'password_confirmation' => 'password123',
         ];
 
         $this->post('/system/initialization', $userData);

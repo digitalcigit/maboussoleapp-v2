@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\Client;
 use App\Models\Activity;
+use App\Models\Client;
 use App\Models\Prospect;
 use Illuminate\Support\Facades\Auth;
 

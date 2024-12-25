@@ -21,7 +21,7 @@ class PermissionSeeder extends Seeder
             'prospects.convert',
             'prospects.assign',
             'manage prospects',
-            'manage activities'
+            'manage activities',
         ];
 
         foreach ($prospectPermissions as $permission) {

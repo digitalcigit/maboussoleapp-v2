@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Integration;
 
-use App\Models\User;
-use App\Models\Prospect;
-use App\Models\Client;
 use App\Models\Activity;
+use App\Models\Client;
+use App\Models\Prospect;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
 
 class WorkflowTest extends TestCase
 {
@@ -46,14 +46,14 @@ class WorkflowTest extends TestCase
         $response = $this->actingAs($this->manager)
             ->patch("/admin/prospects/{$prospect->id}", [
                 'user_id' => $this->conseiller->id,
-                'status' => 'assigned'
+                'status' => 'assigned',
             ]);
         
         $response->assertStatus(200);
         
         // 3. Ajout d'une activité par le conseiller
         $activityData = Activity::factory()->raw([
-            'prospect_id' => $prospect->id
+            'prospect_id' => $prospect->id,
         ]);
         
         $response = $this->actingAs($this->conseiller)
@@ -64,7 +64,7 @@ class WorkflowTest extends TestCase
         // 4. Qualification du prospect
         $response = $this->actingAs($this->conseiller)
             ->patch("/admin/prospects/{$prospect->id}", [
-                'status' => 'qualified'
+                'status' => 'qualified',
             ]);
         
         $response->assertStatus(200);
@@ -72,14 +72,14 @@ class WorkflowTest extends TestCase
         // 5. Conversion en client
         $response = $this->actingAs($this->manager)
             ->post("/admin/prospects/{$prospect->id}/convert", [
-                'type' => 'standard'
+                'type' => 'standard',
             ]);
         
         $response->assertStatus(200);
         
         // Vérifications finales
         $this->assertDatabaseHas('clients', [
-            'prospect_id' => $prospect->id
+            'prospect_id' => $prospect->id,
         ]);
         
         // Vérifier que les événements ont été émis
@@ -98,13 +98,13 @@ class WorkflowTest extends TestCase
     public function activity_notifications_workflow()
     {
         $prospect = Prospect::factory()->create([
-            'user_id' => $this->conseiller->id
+            'user_id' => $this->conseiller->id,
         ]);
         
         // Créer une activité qui devrait déclencher une notification
         $activityData = Activity::factory()->raw([
             'prospect_id' => $prospect->id,
-            'type' => 'important_meeting'
+            'type' => 'important_meeting',
         ]);
         
         $response = $this->actingAs($this->conseiller)
@@ -123,13 +123,13 @@ class WorkflowTest extends TestCase
     public function prospect_status_transition_validation()
     {
         $prospect = Prospect::factory()->create([
-            'status' => 'new'
+            'status' => 'new',
         ]);
         
         // Tentative de qualification sans attribution
         $response = $this->actingAs($this->conseiller)
             ->patch("/admin/prospects/{$prospect->id}", [
-                'status' => 'qualified'
+                'status' => 'qualified',
             ]);
         
         $response->assertStatus(422);
@@ -138,7 +138,7 @@ class WorkflowTest extends TestCase
         $response = $this->actingAs($this->manager)
             ->patch("/admin/prospects/{$prospect->id}", [
                 'user_id' => $this->conseiller->id,
-                'status' => 'assigned'
+                'status' => 'assigned',
             ]);
         
         $response->assertStatus(200);
@@ -146,7 +146,7 @@ class WorkflowTest extends TestCase
         // Maintenant la qualification devrait fonctionner
         $response = $this->actingAs($this->conseiller)
             ->patch("/admin/prospects/{$prospect->id}", [
-                'status' => 'qualified'
+                'status' => 'qualified',
             ]);
         
         $response->assertStatus(200);

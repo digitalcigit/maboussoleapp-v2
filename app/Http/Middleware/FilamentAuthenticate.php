@@ -16,7 +16,7 @@ class FilamentAuthenticate
         })->exists();
 
         // Si pas de super admin, rediriger vers la page d'initialisation
-        if (!$hasSuperAdmin) {
+        if (! $hasSuperAdmin) {
             return redirect()->route('system.initialization');
         }
 

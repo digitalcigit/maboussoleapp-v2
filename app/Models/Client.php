@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     // Statuts de base du client
     public const STATUS_ACTIVE = 'actif';
@@ -39,14 +40,14 @@ class Client extends Model
         'payment_status',
         'total_amount',
         'paid_amount',
-        'status'
+        'status',
     ];
 
     protected $casts = [
         'passport_expiry' => 'date',
         'travel_preferences' => 'json',
         'total_amount' => 'decimal:2',
-        'paid_amount' => 'decimal:2'
+        'paid_amount' => 'decimal:2',
     ];
 
     /**

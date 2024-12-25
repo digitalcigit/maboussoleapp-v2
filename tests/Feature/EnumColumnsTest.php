@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Prospect;
-use App\Models\Client;
 use App\Models\Activity;
+use App\Models\Client;
+use App\Models\Prospect;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class EnumColumnsTest extends TestCase
 {
@@ -15,7 +15,7 @@ class EnumColumnsTest extends TestCase
     public function test_prospect_status_enum()
     {
         $prospect = Prospect::create([
-            'status' => 'nouveau'
+            'status' => 'nouveau',
         ]);
         
         $this->assertEquals('nouveau', $prospect->status);
@@ -23,7 +23,7 @@ class EnumColumnsTest extends TestCase
         // Test invalid value
         try {
             Prospect::create([
-                'status' => 'invalid_status'
+                'status' => 'invalid_status',
             ]);
             $this->fail('Should have thrown an exception for invalid enum value');
         } catch (\Exception $e) {
@@ -35,7 +35,7 @@ class EnumColumnsTest extends TestCase
     {
         $client = Client::create([
             'status' => 'actif',
-            'payment_status' => 'en_attente'
+            'payment_status' => 'en_attente',
         ]);
         
         $this->assertEquals('actif', $client->status);
@@ -46,7 +46,7 @@ class EnumColumnsTest extends TestCase
     {
         $activity = Activity::create([
             'status' => 'planifie',
-            'type' => 'appel'
+            'type' => 'appel',
         ]);
         
         $this->assertEquals('planifie', $activity->status);

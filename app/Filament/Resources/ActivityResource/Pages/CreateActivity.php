@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\ActivityResource\Pages;
 
 use App\Filament\Resources\ActivityResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateActivity extends CreateRecord
@@ -14,10 +13,10 @@ class CreateActivity extends CreateRecord
     {
         $data['created_by'] = auth()->id();
 
-        if (!empty($data['prospect_id'])) {
+        if (! empty($data['prospect_id'])) {
             $data['subject_type'] = \App\Models\Prospect::class;
             $data['subject_id'] = $data['prospect_id'];
-        } elseif (!empty($data['client_id'])) {
+        } elseif (! empty($data['client_id'])) {
             $data['subject_type'] = \App\Models\Client::class;
             $data['subject_id'] = $data['client_id'];
         }

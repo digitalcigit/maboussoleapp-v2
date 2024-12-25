@@ -10,10 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Collection;
 
 class ProspectResource extends Resource
 {
@@ -149,6 +146,7 @@ class ProspectResource extends Resource
                     ->action(function ($record) {
                         $record->update(['status' => 'converti']);
                         $client = $record->convertToClient();
+
                         return redirect()->route('filament.admin.resources.clients.edit', ['record' => $client]);
                     })
                     ->requiresConfirmation()

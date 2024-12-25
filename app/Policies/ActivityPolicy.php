@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Activity;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ActivityPolicy
@@ -18,8 +18,8 @@ class ActivityPolicy
     public function view(User $user, Activity $activity): bool
     {
         return $user->hasPermissionTo('activities.view') &&
-            ($user->hasRole('super_admin') || 
-             $user->hasRole('manager') || 
+            ($user->hasRole('super_admin') ||
+             $user->hasRole('manager') ||
              $activity->user_id === $user->id ||
              ($activity->prospect && $activity->prospect->assigned_to === $user->id) ||
              ($activity->client && $activity->client->assigned_to === $user->id));
@@ -33,21 +33,21 @@ class ActivityPolicy
     public function update(User $user, Activity $activity): bool
     {
         return $user->hasPermissionTo('activities.edit') &&
-            ($user->hasRole('super_admin') || 
-             $user->hasRole('manager') || 
+            ($user->hasRole('super_admin') ||
+             $user->hasRole('manager') ||
              $activity->user_id === $user->id);
     }
 
     public function delete(User $user, ?Activity $activity = null): bool
     {
-        if (!$activity) {
+        if (! $activity) {
             return $user->hasPermissionTo('activities.delete') &&
-                ($user->hasRole('super_admin') || 
+                ($user->hasRole('super_admin') ||
                  $user->hasRole('manager'));
         }
 
         return $user->hasPermissionTo('activities.delete') &&
-            ($user->hasRole('super_admin') || 
+            ($user->hasRole('super_admin') ||
              $user->hasRole('manager'));
     }
 }
