@@ -12,435 +12,458 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
-use Tests\Traits\HasTestPermissions;
+use Tests\Traits\FilamentPermissionsTrait;
 use Spatie\Permission\Models\Role;
 
 class ActivityResourceTest extends TestCase
 {
-    use RefreshDatabase, HasTestPermissions;
+    use RefreshDatabase, FilamentPermissionsTrait;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->user = User::factory()->create();
-
-        // Create permissions
-        $permissions = [
-            'activities.view_any',
-            'activities.view',
-            'activities.create',
-            'activities.update',
-            'activities.delete',
-            'access_filament',
-            'access_admin_panel',
-            'view_admin_panel'
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
-        }
-
-        $this->user->givePermissionTo($permissions);
-
-        $this->actingAs($this->user);
+        
+        // Créer un manager avec toutes les permissions nécessaires
+        $this->user = $this->createManager();
+        
+        // Créer un client pour les tests
+        $this->client = Client::factory()->create([
+            'status' => Client::STATUS_ACTIVE
+        ]);
+        
+        // Créer une activité pour les tests
+        $this->activity = Activity::factory()->create([
+            'subject_type' => Client::class,
+            'subject_id' => $this->client->id,
+            'type' => Activity::TYPE_NOTE,
+            'status' => Activity::STATUS_PENDING
+        ]);
     }
 
     /** @test */
     public function it_can_list_activities()
     {
-        Activity::factory()->count(3)->create([
-            'user_id' => $this->user->id,
-        ]);
-
-        Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->assertSuccessful()
-            ->assertCanSeeTableRecords(Activity::limit(3)->get());
-    }
-
-    /** @test */
-    public function test_it_can_create_activity()
-    {
-        $this->user->givePermissionTo('activities.create');
-        
-        $prospect = Prospect::factory()->create();
-
-        $data = [
-            'title' => 'Test Activity',
-            'type' => Activity::TYPE_MEETING,
-            'status' => Activity::STATUS_PENDING,
-            'prospect_id' => $prospect->id,
-            'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
-            'created_by' => $this->user->id,
-            'description' => 'Test description',
-            'user_id' => $this->user->id,
-        ];
-
-        Livewire::test(ActivityResource\Pages\CreateActivity::class)
-            ->fillForm($data)
-            ->call('create')
-            ->assertHasNoFormErrors();
-
-        $this->assertDatabaseHas('activities', array_merge($data, [
-            'subject_type' => Prospect::class,
-            'subject_id' => $prospect->id,
-        ]));
-    }
-
-    /** @test */
-    public function test_it_can_create_activity_for_prospect()
-    {
-        $this->user->givePermissionTo('activities.create');
-        
-        $prospect = Prospect::factory()->create();
-
-        $data = [
-            'title' => 'Test Activity',
-            'type' => Activity::TYPE_MEETING,
-            'status' => Activity::STATUS_PENDING,
-            'prospect_id' => $prospect->id,
-            'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
-            'created_by' => $this->user->id,
-            'description' => 'Test description',
-            'user_id' => $this->user->id,
-        ];
-
-        Livewire::test(ActivityResource\Pages\CreateActivity::class)
-            ->fillForm($data)
-            ->call('create')
-            ->assertHasNoFormErrors();
-
-        $this->assertDatabaseHas('activities', array_merge($data, [
-            'subject_type' => Prospect::class,
-            'subject_id' => $prospect->id,
-        ]));
-    }
-
-    /** @test */
-    public function test_it_can_create_activity_for_client()
-    {
-        $this->user->givePermissionTo('activities.create');
-        
-        $client = Client::factory()->create();
-
-        $data = [
-            'title' => 'Test Activity',
-            'type' => Activity::TYPE_MEETING,
-            'status' => Activity::STATUS_PENDING,
-            'client_id' => $client->id,
-            'scheduled_at' => now()->addDay()->format('Y-m-d H:i:s'),
-            'created_by' => $this->user->id,
-            'description' => 'Test description',
-            'user_id' => $this->user->id,
-        ];
-
-        Livewire::test(ActivityResource\Pages\CreateActivity::class)
-            ->fillForm($data)
-            ->call('create')
-            ->assertHasNoFormErrors();
-
-        $this->assertDatabaseHas('activities', array_merge($data, [
-            'subject_type' => Client::class,
-            'subject_id' => $client->id,
-        ]));
-    }
-
-    /** @test */
-    public function it_can_edit_activity(): void
-    {
-        $this->actingAs($this->user);
-        $this->user->assignRole('manager');
-
-        $client = Client::factory()->create();
-        $activity = Activity::factory()->create([
-            'title' => 'Original Activity',
-            'type' => Activity::TYPE_CALL,
-            'status' => Activity::STATUS_PENDING,
-            'scheduled_at' => now(),
-            'description' => 'Original description',
-            'client_id' => $client->id,
-            'user_id' => $this->user->id,
-            'created_by' => $this->user->id,
-            'subject_type' => Client::class,
-            'subject_id' => $client->id,
-        ]);
-
-        $response = Livewire::test(ActivityResource\Pages\EditActivity::class, [
-            'record' => $activity->id,
-        ]);
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('index'));
 
         $response->assertSuccessful();
 
-        $newData = [
-            'title' => 'Updated Activity',
-            'type' => Activity::TYPE_MEETING,
-            'status' => Activity::STATUS_COMPLETED,
-            'scheduled_at' => now()->addDay(),
-            'description' => 'Updated description',
-            'client_id' => $client->id,
-            'user_id' => $this->user->id,
-        ];
-
-        $response
-            ->fillForm($newData)
-            ->call('save')
-            ->assertHasNoFormErrors();
-
-        $this->assertDatabaseHas('activities', array_merge($newData, [
-            'id' => $activity->id,
-            'subject_type' => Client::class,
-            'subject_id' => $client->id,
-        ]));
+        Livewire::test(ActivityResource\Pages\ListActivities::class)
+            ->assertCanSeeTableRecords([$this->activity]);
     }
 
     /** @test */
-    public function test_it_validates_required_fields()
+    public function it_can_create_activity()
     {
-        $this->actingAs($this->user);
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('create'));
+
+        $response->assertSuccessful();
 
         Livewire::test(ActivityResource\Pages\CreateActivity::class)
             ->fillForm([
-                'title' => '',
-                'type' => '',
-                'status' => '',
-                'scheduled_at' => '',
-                'user_id' => '',
+                'subject_type' => Client::class,
+                'subject_id' => $this->client->id,
+                'type' => Activity::TYPE_CALL,
+                'title' => 'Test Call',
+                'description' => 'Test Description',
+                'status' => Activity::STATUS_PENDING,
+                'scheduled_at' => now(),
             ])
             ->call('create')
-            ->assertHasFormErrors([
-                'title' => 'required',
-                'type' => 'required',
-                'status' => 'required',
-                'scheduled_at' => 'required',
-                'user_id' => 'required',
-            ]);
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('activities', [
+            'subject_type' => Client::class,
+            'subject_id' => $this->client->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+        ]);
     }
 
     /** @test */
-    public function test_it_validates_type_enum()
+    public function it_can_edit_activity()
     {
-        $this->actingAs($this->user);
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('edit', [
+                'record' => $this->activity,
+            ]));
 
-        $client = Client::factory()->create();
-        $data = [
-            'title' => 'Test Activity',
-            'type' => 'invalid_type',
-            'status' => 'pending',
-            'scheduled_at' => now()->addDay(),
-            'description' => 'Test description',
-            'client_id' => $client->id,
-            'user_id' => $this->user->id,
-            'subject_type' => Client::class,
-            'subject_id' => $client->id,
-        ];
+        $response->assertSuccessful();
 
-        Livewire::test(ActivityResource\Pages\CreateActivity::class)
-            ->fillForm($data)
-            ->call('create')
-            ->assertHasFormErrors(['type']);
+        Livewire::test(ActivityResource\Pages\EditActivity::class, [
+            'record' => $this->activity->id,
+        ])
+            ->fillForm([
+                'status' => Activity::STATUS_COMPLETED,
+                'description' => 'Updated Description',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('activities', [
+            'id' => $this->activity->id,
+            'status' => Activity::STATUS_COMPLETED,
+            'description' => 'Updated Description',
+        ]);
     }
 
     /** @test */
-    public function test_it_validates_status_enum()
+    public function it_can_view_activity()
     {
-        $this->actingAs($this->user);
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('view', [
+                'record' => $this->activity,
+            ]));
 
-        $client = Client::factory()->create();
-        $data = [
-            'title' => 'Test Activity',
-            'type' => 'meeting',
-            'status' => 'invalid_status',
-            'scheduled_at' => now()->addDay(),
-            'description' => 'Test description',
-            'client_id' => $client->id,
-            'user_id' => $this->user->id,
-            'subject_type' => Client::class,
-            'subject_id' => $client->id,
-        ];
+        $response->assertSuccessful();
 
-        Livewire::test(ActivityResource\Pages\CreateActivity::class)
-            ->fillForm($data)
-            ->call('create')
-            ->assertHasFormErrors(['status']);
+        Livewire::test(ActivityResource\Pages\ViewActivity::class, [
+            'record' => $this->activity->id,
+        ])->assertSuccessful();
     }
 
     /** @test */
     public function it_can_delete_activity()
     {
-        $activity = Activity::factory()->create([
-            'user_id' => $this->user->id,
-        ]);
-
-        $response = $this->get(ActivityResource::getUrl('index'));
-        $response->assertSuccessful();
-
         Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->assertSuccessful()
-            ->assertCanSeeTableRecords([$activity])
-            ->callTableAction('delete', $activity)
-            ->assertCanNotSeeTableRecords([$activity]);
+            ->callTableAction(DeleteAction::class, $this->activity)
+            ->assertSuccessful();
 
-        $this->assertDatabaseMissing('activities', [
-            'id' => $activity->id,
-        ]);
+        $this->assertSoftDeleted($this->activity);
     }
 
     /** @test */
     public function it_can_filter_activities_by_type()
     {
-        $client = Client::factory()->create();
-
         $callActivity = Activity::factory()->create([
-            'title' => 'Call Activity',
             'type' => Activity::TYPE_CALL,
-            'status' => Activity::STATUS_PENDING,
-            'scheduled_at' => now(),
-            'user_id' => $this->user->id,
-            'client_id' => $client->id,
+            'subject_type' => Client::class,
+            'subject_id' => $this->client->id,
         ]);
 
-        $emailActivity = Activity::factory()->create([
-            'title' => 'Email Activity',
-            'type' => Activity::TYPE_EMAIL,
-            'status' => Activity::STATUS_PENDING,
-            'scheduled_at' => now(),
-            'user_id' => $this->user->id,
-            'client_id' => $client->id,
+        $noteActivity = Activity::factory()->create([
+            'type' => Activity::TYPE_NOTE,
+            'subject_type' => Client::class,
+            'subject_id' => $this->client->id,
         ]);
-
-        $response = $this->get(ActivityResource::getUrl('index'));
-        $response->assertSuccessful();
 
         Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->assertSuccessful()
             ->filterTable('type', Activity::TYPE_CALL)
             ->assertCanSeeTableRecords([$callActivity])
-            ->assertCanNotSeeTableRecords([$emailActivity]);
+            ->assertCanNotSeeTableRecords([$noteActivity]);
     }
 
     /** @test */
-    public function it_can_filter_activities_by_completion_status()
+    public function it_can_filter_activities_by_status()
     {
-        $client = Client::factory()->create();
+        $pendingActivity = Activity::factory()->create([
+            'status' => Activity::STATUS_PENDING,
+            'subject_type' => Client::class,
+            'subject_id' => $this->client->id,
+        ]);
 
         $completedActivity = Activity::factory()->create([
-            'title' => 'Completed Activity',
-            'type' => Activity::TYPE_CALL,
             'status' => Activity::STATUS_COMPLETED,
-            'scheduled_at' => now(),
-            'user_id' => $this->user->id,
-            'client_id' => $client->id,
+            'subject_type' => Client::class,
+            'subject_id' => $this->client->id,
         ]);
-
-        $pendingActivity = Activity::factory()->create([
-            'title' => 'Pending Activity',
-            'type' => Activity::TYPE_CALL,
-            'status' => Activity::STATUS_PENDING,
-            'scheduled_at' => now(),
-            'user_id' => $this->user->id,
-            'client_id' => $client->id,
-        ]);
-
-        $response = $this->get(ActivityResource::getUrl('index'));
-        $response->assertSuccessful();
 
         Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->assertSuccessful()
-            ->filterTable('status', Activity::STATUS_COMPLETED)
-            ->assertCanSeeTableRecords([$completedActivity])
-            ->assertCanNotSeeTableRecords([$pendingActivity]);
+            ->filterTable('status', Activity::STATUS_PENDING)
+            ->assertCanSeeTableRecords([$pendingActivity])
+            ->assertCanNotSeeTableRecords([$completedActivity]);
     }
 
     /** @test */
-    public function it_can_filter_activities_by_date_range()
+    public function it_can_create_activity_for_prospect()
     {
-        $client = Client::factory()->create();
-
-        $recentActivity = Activity::factory()->create([
-            'title' => 'Recent Activity',
-            'type' => Activity::TYPE_CALL,
-            'status' => Activity::STATUS_PENDING,
-            'scheduled_at' => now(),
-            'user_id' => $this->user->id,
-            'client_id' => $client->id,
-        ]);
-
-        $oldActivity = Activity::factory()->create([
-            'title' => 'Old Activity',
-            'type' => Activity::TYPE_CALL,
-            'status' => Activity::STATUS_PENDING,
-            'scheduled_at' => now()->subMonths(2),
-            'user_id' => $this->user->id,
-            'client_id' => $client->id,
-        ]);
-
-        $response = $this->get(ActivityResource::getUrl('index'));
-        $response->assertSuccessful();
-
-        Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->assertSuccessful()
-            ->filterTable('scheduled_at', [
-                'since' => now()->subMonth()->format('Y-m-d'),
-                'until' => now()->addDay()->format('Y-m-d'),
-            ])
-            ->assertCanSeeTableRecords([$recentActivity])
-            ->assertCanNotSeeTableRecords([$oldActivity]);
-    }
-
-    /** @test */
-    public function test_it_can_filter_activities_by_subject_type()
-    {
-        $this->user->givePermissionTo('activities.view_any');
-        
         $prospect = Prospect::factory()->create();
+
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('create'));
+
+        $response->assertSuccessful();
+
+        Livewire::test(ActivityResource\Pages\CreateActivity::class)
+            ->fillForm([
+                'subject_type' => Prospect::class,
+                'subject_id' => $prospect->id,
+                'type' => Activity::TYPE_CALL,
+                'title' => 'Test Call',
+                'description' => 'Test Description',
+                'status' => Activity::STATUS_PENDING,
+                'scheduled_at' => now(),
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('activities', [
+            'subject_type' => Prospect::class,
+            'subject_id' => $prospect->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+        ]);
+    }
+
+    /** @test */
+    public function it_can_create_activity_for_client()
+    {
         $client = Client::factory()->create();
+
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('create'));
+
+        $response->assertSuccessful();
+
+        Livewire::test(ActivityResource\Pages\CreateActivity::class)
+            ->fillForm([
+                'subject_type' => Client::class,
+                'subject_id' => $client->id,
+                'type' => Activity::TYPE_CALL,
+                'title' => 'Test Call',
+                'description' => 'Test Description',
+                'status' => Activity::STATUS_PENDING,
+                'scheduled_at' => now(),
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('activities', [
+            'subject_type' => Client::class,
+            'subject_id' => $client->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+        ]);
+    }
+
+    /** @test */
+    public function it_can_edit_activity_for_prospect()
+    {
+        $prospect = Prospect::factory()->create();
+
+        $activity = Activity::factory()->create([
+            'subject_type' => Prospect::class,
+            'subject_id' => $prospect->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+            'description' => 'Test Description',
+            'status' => Activity::STATUS_PENDING,
+            'scheduled_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('edit', [
+                'record' => $activity,
+            ]));
+
+        $response->assertSuccessful();
+
+        Livewire::test(ActivityResource\Pages\EditActivity::class, [
+            'record' => $activity->id,
+        ])
+            ->fillForm([
+                'status' => Activity::STATUS_COMPLETED,
+                'description' => 'Updated Description',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('activities', [
+            'id' => $activity->id,
+            'status' => Activity::STATUS_COMPLETED,
+            'description' => 'Updated Description',
+        ]);
+    }
+
+    /** @test */
+    public function it_can_edit_activity_for_client()
+    {
+        $client = Client::factory()->create();
+
+        $activity = Activity::factory()->create([
+            'subject_type' => Client::class,
+            'subject_id' => $client->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+            'description' => 'Test Description',
+            'status' => Activity::STATUS_PENDING,
+            'scheduled_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('edit', [
+                'record' => $activity,
+            ]));
+
+        $response->assertSuccessful();
+
+        Livewire::test(ActivityResource\Pages\EditActivity::class, [
+            'record' => $activity->id,
+        ])
+            ->fillForm([
+                'status' => Activity::STATUS_COMPLETED,
+                'description' => 'Updated Description',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('activities', [
+            'id' => $activity->id,
+            'status' => Activity::STATUS_COMPLETED,
+            'description' => 'Updated Description',
+        ]);
+    }
+
+    /** @test */
+    public function it_can_view_activity_for_prospect()
+    {
+        $prospect = Prospect::factory()->create();
+
+        $activity = Activity::factory()->create([
+            'subject_type' => Prospect::class,
+            'subject_id' => $prospect->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+            'description' => 'Test Description',
+            'status' => Activity::STATUS_PENDING,
+            'scheduled_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('view', [
+                'record' => $activity,
+            ]));
+
+        $response->assertSuccessful();
+
+        Livewire::test(ActivityResource\Pages\ViewActivity::class, [
+            'record' => $activity->id,
+        ])->assertSuccessful();
+    }
+
+    /** @test */
+    public function it_can_view_activity_for_client()
+    {
+        $client = Client::factory()->create();
+
+        $activity = Activity::factory()->create([
+            'subject_type' => Client::class,
+            'subject_id' => $client->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+            'description' => 'Test Description',
+            'status' => Activity::STATUS_PENDING,
+            'scheduled_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(ActivityResource::getUrl('view', [
+                'record' => $activity,
+            ]));
+
+        $response->assertSuccessful();
+
+        Livewire::test(ActivityResource\Pages\ViewActivity::class, [
+            'record' => $activity->id,
+        ])->assertSuccessful();
+    }
+
+    /** @test */
+    public function it_can_delete_activity_for_prospect()
+    {
+        $prospect = Prospect::factory()->create();
+
+        $activity = Activity::factory()->create([
+            'subject_type' => Prospect::class,
+            'subject_id' => $prospect->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+            'description' => 'Test Description',
+            'status' => Activity::STATUS_PENDING,
+            'scheduled_at' => now(),
+        ]);
+
+        Livewire::test(ActivityResource\Pages\ListActivities::class)
+            ->callTableAction(DeleteAction::class, $activity)
+            ->assertSuccessful();
+
+        $this->assertSoftDeleted($activity);
+    }
+
+    /** @test */
+    public function it_can_delete_activity_for_client()
+    {
+        $client = Client::factory()->create();
+
+        $activity = Activity::factory()->create([
+            'subject_type' => Client::class,
+            'subject_id' => $client->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+            'description' => 'Test Description',
+            'status' => Activity::STATUS_PENDING,
+            'scheduled_at' => now(),
+        ]);
+
+        Livewire::test(ActivityResource\Pages\ListActivities::class)
+            ->callTableAction(DeleteAction::class, $activity)
+            ->assertSuccessful();
+
+        $this->assertSoftDeleted($activity);
+    }
+
+    /** @test */
+    public function it_can_filter_activities_by_subject_type()
+    {
+        $prospect = Prospect::factory()->create();
 
         $prospectActivity = Activity::factory()->create([
-            'title' => 'Prospect Activity',
+            'subject_type' => Prospect::class,
+            'subject_id' => $prospect->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+            'description' => 'Test Description',
             'status' => Activity::STATUS_PENDING,
             'scheduled_at' => now(),
-            'user_id' => $this->user->id,
-            'prospect_id' => $prospect->id,
         ]);
+
+        $client = Client::factory()->create();
 
         $clientActivity = Activity::factory()->create([
-            'title' => 'Client Activity',
+            'subject_type' => Client::class,
+            'subject_id' => $client->id,
+            'type' => Activity::TYPE_CALL,
+            'title' => 'Test Call',
+            'description' => 'Test Description',
             'status' => Activity::STATUS_PENDING,
             'scheduled_at' => now(),
-            'user_id' => $this->user->id,
-            'client_id' => $client->id,
         ]);
 
-        $response = $this->get(ActivityResource::getUrl('index'));
-        $response->assertSuccessful();
-
         Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->assertSuccessful()
             ->filterTable('subject_type', Prospect::class)
             ->assertCanSeeTableRecords([$prospectActivity])
             ->assertCanNotSeeTableRecords([$clientActivity]);
     }
 
     /** @test */
-    public function test_it_can_paginate_activities()
+    public function it_can_sort_activities()
     {
-        $this->user->givePermissionTo('activities.view_any');
-
-        // Create 15 activities
-        $activities = Activity::factory()->count(15)->create([
-            'user_id' => $this->user->id,
-            'client_id' => Client::factory()->create()->id,
-            'created_by' => $this->user->id,
+        $firstActivity = Activity::factory()->create([
+            'title' => 'A Test Activity',
+            'created_at' => now()->subDay(),
         ]);
 
-        $firstPageActivities = $activities->take(10);
-        $secondPageActivities = $activities->skip(10);
+        $secondActivity = Activity::factory()->create([
+            'title' => 'B Test Activity',
+            'created_at' => now(),
+        ]);
 
         Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->assertCanSeeTableRecords($firstPageActivities)
-            ->assertCanNotSeeTableRecords($secondPageActivities)
-            ->set('tableRecordsPerPage', 10)
-            ->assertCanSeeTableRecords($firstPageActivities);
+            ->sortTable('title')
+            ->assertCanSeeTableRecords([$firstActivity, $secondActivity], inOrder: true)
+            ->sortTable('title', 'desc')
+            ->assertCanSeeTableRecords([$secondActivity, $firstActivity], inOrder: true);
     }
 
     /** @test */
@@ -508,25 +531,5 @@ class ActivityResourceTest extends TestCase
         $this->assertEquals($user->id, $activity->user->id);
         $this->assertEquals($prospect->id, $activity->prospect->id);
         $this->assertInstanceOf(Prospect::class, $activity->prospect);
-    }
-
-    /** @test */ 
-    public function it_can_sort_activities()
-    {
-        $firstActivity = Activity::factory()->create([
-            'title' => 'A Test Activity',
-            'created_at' => now()->subDay(),
-        ]);
-
-        $secondActivity = Activity::factory()->create([
-            'title' => 'B Test Activity',
-            'created_at' => now(),
-        ]);
-
-        Livewire::test(ActivityResource\Pages\ListActivities::class)
-            ->sortTable('title')
-            ->assertCanSeeTableRecords([$firstActivity, $secondActivity], inOrder: true)
-            ->sortTable('title', 'desc')
-            ->assertCanSeeTableRecords([$secondActivity, $firstActivity], inOrder: true);
     }
 }

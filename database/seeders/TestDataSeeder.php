@@ -64,70 +64,76 @@ class TestDataSeeder extends Seeder
         }
 
         // Création des prospects de test
-        foreach ($advisors as $advisor) {
-            for ($i = 1; $i <= 5; $i++) {
-                $prospect = Prospect::create([
-                    'name' => "Prospect Test $i",
-                    'email' => "prospect$i@test.com",
-                    'phone' => "+33612345678",
-                    'birth_date' => Carbon::now()->subYears(rand(20, 50)),
-                    'profession' => 'Profession Test',
-                    'education_level' => 'Bac+' . rand(2, 5),
-                    'current_location' => 'France',
-                    'current_field' => 'Test Field',
-                    'desired_field' => 'Desired Field',
-                    'desired_destination' => 'Canada',
-                    'emergency_contact' => json_encode([
-                        'name' => 'Contact Test',
-                        'phone' => '+33612345678',
-                        'relationship' => 'Parent'
-                    ]),
-                    'status' => Prospect::STATUS_NEW,
-                    'created_by' => $advisor->id,
-                ]);
+        for ($i = 1; $i <= 5; $i++) {
+            $prospect = Prospect::create([
+                'reference_number' => 'PROS' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'first_name' => "Prospect",
+                'last_name' => "Test $i",
+                'email' => "prospect$i@test.com",
+                'phone' => '+33612345678',
+                'birth_date' => Carbon::now()->subYears(rand(20, 50)),
+                'profession' => 'Profession Test',
+                'education_level' => 'Bac+2',
+                'current_location' => 'France',
+                'current_field' => 'Test Field',
+                'desired_field' => 'Desired Field',
+                'desired_destination' => 'Canada',
+                'emergency_contact' => [
+                    'name' => 'Contact Test',
+                    'phone' => '+33612345678',
+                    'relationship' => 'Parent'
+                ],
+                'status' => Prospect::STATUS_NEW,
+                'assigned_to' => $advisors[array_rand($advisors)]->id,
+                'commercial_code' => 'COM' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'partner_id' => $partners[array_rand($partners)]->id,
+            ]);
 
-                // Création d'activités pour chaque prospect
+            // Création d'activités pour chaque prospect
+            for ($j = 1; $j <= 3; $j++) {
                 Activity::create([
-                    'title' => "Premier contact avec Prospect $i",
-                    'description' => "Discussion initiale sur les besoins",
-                    'type' => Activity::TYPE_CALL,
-                    'status' => Activity::STATUS_COMPLETED,
-                    'start_date' => Carbon::now(),
-                    'end_date' => Carbon::now()->addHour(),
-                    'prospect_id' => $prospect->id,
-                    'created_by' => $advisor->id,
+                    'user_id' => $advisors[array_rand($advisors)]->id,
+                    'subject_type' => Prospect::class,
+                    'subject_id' => $prospect->id,
+                    'type' => Activity::TYPE_NOTE,
+                    'description' => "Note de test $j pour le prospect $i",
+                    'scheduled_at' => Carbon::now()->addDays(rand(1, 30)),
+                    'status' => Activity::STATUS_PENDING,
+                    'created_by' => $advisors[array_rand($advisors)]->id,
                 ]);
             }
         }
 
         // Création des clients de test
-        foreach ($advisors as $advisor) {
-            for ($i = 1; $i <= 3; $i++) {
-                $client = Client::create([
-                    'name' => "Client Test $i",
-                    'email' => "client$i@test.com",
-                    'phone' => "+33612345678",
-                    'address' => "123 Rue Test",
-                    'city' => "Ville Test",
-                    'postal_code' => "75000",
-                    'country' => "France",
-                    'notes' => "Notes de test pour le client $i",
-                    'status' => Client::STATUS_ACTIVE,
-                    'contract_start_date' => Carbon::now(),
-                    'contract_end_date' => Carbon::now()->addYear(),
-                    'created_by' => $advisor->id,
-                ]);
+        for ($i = 1; $i <= 3; $i++) {
+            $client = Client::create([
+                'prospect_id' => Prospect::inRandomOrder()->first()->id,
+                'client_number' => 'CLI' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'passport_number' => 'PASS' . str_pad($i, 6, '0', STR_PAD_LEFT),
+                'passport_expiry' => Carbon::now()->addYears(5),
+                'visa_status' => Client::VISA_STATUS_NOT_STARTED,
+                'travel_preferences' => [
+                    'destination' => 'Canada',
+                    'budget' => rand(5000, 15000),
+                    'duration' => '2 ans'
+                ],
+                'payment_status' => Client::PAYMENT_STATUS_PENDING,
+                'total_amount' => rand(5000, 15000),
+                'paid_amount' => 0,
+                'status' => Client::STATUS_ACTIVE,
+            ]);
 
-                // Création d'activités pour chaque client
+            // Création d'activités pour chaque client
+            for ($j = 1; $j <= 3; $j++) {
                 Activity::create([
-                    'title' => "Suivi Client $i",
-                    'description' => "Point mensuel de suivi",
-                    'type' => Activity::TYPE_MEETING,
+                    'user_id' => $advisors[array_rand($advisors)]->id,
+                    'subject_type' => Client::class,
+                    'subject_id' => $client->id,
+                    'type' => Activity::TYPE_NOTE,
+                    'description' => "Note de test $j pour le client $i",
+                    'scheduled_at' => Carbon::now()->addDays(rand(1, 30)),
                     'status' => Activity::STATUS_PENDING,
-                    'start_date' => Carbon::now()->addDays(rand(1, 30)),
-                    'end_date' => Carbon::now()->addDays(rand(1, 30))->addHour(),
-                    'client_id' => $client->id,
-                    'created_by' => $advisor->id,
+                    'created_by' => $advisors[array_rand($advisors)]->id,
                 ]);
             }
         }

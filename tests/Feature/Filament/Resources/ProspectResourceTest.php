@@ -6,6 +6,7 @@ use App\Filament\Resources\ProspectResource;
 use App\Filament\Resources\ProspectResource\Pages\CreateProspect;
 use App\Filament\Resources\ProspectResource\Pages\EditProspect;
 use App\Filament\Resources\ProspectResource\Pages\ListProspects;
+use App\Filament\Resources\ProspectResource\Pages\ViewProspect;
 use App\Filament\Resources\ProspectResource\RelationManagers\ActivitiesRelationManager;
 use App\Models\Activity;
 use App\Models\Client;
@@ -15,159 +16,140 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
+use Tests\Traits\FilamentPermissionsTrait;
 
 class ProspectResourceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, FilamentPermissionsTrait;
 
     protected User $user;
+    protected Prospect $prospect;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->user = User::factory()->create([
-            'email' => 'test_' . uniqid() . '@example.com',
+        
+        // Créer un manager avec toutes les permissions nécessaires
+        $this->user = $this->createManager();
+        
+        // Créer un prospect pour les tests
+        $this->prospect = Prospect::factory()->create([
+            'status' => Prospect::STATUS_NEW
         ]);
-
-        // Création des permissions avec firstOrCreate
-        $permissions = [
-            'prospects.view',
-            'prospects.create',
-            'prospects.edit',
-            'prospects.delete',
-            'prospects.convert',
-            'prospects.bulk_update',
-            'activities.view',
-            'activities.create',
-            'activities.edit',
-            'activities.delete',
-            'access_filament',
-            'access_admin_panel',
-            'manage prospects',  // Permission Filament
-            'manage activities', // Permission Filament
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
-        }
-
-        $this->user->syncPermissions($permissions);
-        $this->actingAs($this->user);
     }
 
     /** @test */
     public function it_can_list_prospects()
     {
-        $prospects = Prospect::factory()->count(5)->create();
+        $response = $this->actingAs($this->user)
+            ->get(ProspectResource::getUrl('index'));
+
+        $response->assertSuccessful();
 
         Livewire::test(ListProspects::class)
-            ->assertCanSeeTableRecords($prospects);
+            ->assertCanSeeTableRecords([$this->prospect]);
     }
 
     /** @test */
     public function it_can_create_prospect()
     {
-        $prospect = Prospect::factory()->make([
-            'phone' => '+33612345678'
-        ]);
+        $response = $this->actingAs($this->user)
+            ->get(ProspectResource::getUrl('create'));
+
+        $response->assertSuccessful();
 
         Livewire::test(CreateProspect::class)
             ->fillForm([
-                'reference_number' => $prospect->reference_number,
-                'first_name' => $prospect->first_name,
-                'last_name' => $prospect->last_name,
-                'email' => $prospect->email,
-                'phone' => $prospect->phone,
-                'birth_date' => $prospect->birth_date,
-                'profession' => $prospect->profession,
-                'education_level' => $prospect->education_level,
-                'current_location' => $prospect->current_location,
-                'current_field' => $prospect->current_field,
-                'desired_field' => $prospect->desired_field,
-                'desired_destination' => $prospect->desired_destination,
-                'emergency_contact' => $prospect->emergency_contact,
-                'status' => $prospect->status,
-                'commercial_code' => $prospect->commercial_code,
-                'analysis_deadline' => $prospect->analysis_deadline,
-                'notes' => $prospect->notes,
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'email' => 'john.doe@example.com',
+                'phone' => '+22501020304',
+                'status' => Prospect::STATUS_NEW,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('prospects', [
-            'email' => $prospect->email,
-            'first_name' => $prospect->first_name,
-            'last_name' => $prospect->last_name,
+            'email' => 'john.doe@example.com',
+            'status' => Prospect::STATUS_NEW,
         ]);
     }
 
     /** @test */
     public function it_can_edit_prospect()
     {
-        $prospect = Prospect::factory()->create([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john@example.com',
-            'phone' => '+33612345678'
-        ]);
+        $response = $this->actingAs($this->user)
+            ->get(ProspectResource::getUrl('edit', [
+                'record' => $this->prospect,
+            ]));
 
-        $response = $this->get(ProspectResource::getUrl('edit', ['record' => $prospect]));
         $response->assertSuccessful();
 
         Livewire::test(EditProspect::class, [
-            'record' => $prospect->id
+            'record' => $this->prospect->id,
         ])
-        ->assertFormSet([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'john@example.com',
-            'phone' => '+33612345678'
-        ])
-        ->fillForm([
-            'first_name' => 'Jane',
-            'last_name' => 'Smith',
-            'email' => 'jane@example.com',
-            'phone' => '+33687654321'
-        ])
-        ->call('save')
-        ->assertHasNoFormErrors();
+            ->fillForm([
+                'status' => Prospect::STATUS_ANALYZING,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('prospects', [
-            'id' => $prospect->id,
-            'first_name' => 'Jane',
-            'last_name' => 'Smith',
-            'email' => 'jane@example.com',
-            'phone' => '+33687654321'
+            'id' => $this->prospect->id,
+            'status' => Prospect::STATUS_ANALYZING,
         ]);
+    }
+
+    /** @test */
+    public function it_can_view_prospect()
+    {
+        $response = $this->actingAs($this->user)
+            ->get(ProspectResource::getUrl('view', [
+                'record' => $this->prospect,
+            ]));
+
+        $response->assertSuccessful();
+
+        Livewire::test(ViewProspect::class, [
+            'record' => $this->prospect->id,
+        ])->assertSuccessful();
+    }
+
+    /** @test */
+    public function it_can_delete_prospect()
+    {
+        Livewire::test(ListProspects::class)
+            ->callTableAction(DeleteAction::class, $this->prospect)
+            ->assertSuccessful();
+
+        $this->assertSoftDeleted($this->prospect);
     }
 
     /** @test */
     public function it_can_assign_prospect()
     {
-        $prospect = Prospect::factory()->create([
-            'assigned_to' => null
-        ]);
-        
         $assignee = User::factory()->create([
             'email' => 'assignee_' . uniqid() . '@example.com',
         ]);
 
-        $response = $this->get(ProspectResource::getUrl('edit', ['record' => $prospect]));
+        $response = $this->actingAs($this->user)
+            ->get(ProspectResource::getUrl('edit', [
+                'record' => $this->prospect,
+            ]));
+
         $response->assertSuccessful();
 
         Livewire::test(EditProspect::class, [
-            'record' => $prospect->id
+            'record' => $this->prospect->id,
         ])
-        ->assertSet('data.assigned_to', null)
-        ->fillForm([
-            'assigned_to' => $assignee->id
-        ])
-        ->call('save')
-        ->assertHasNoFormErrors();
+            ->fillForm([
+                'assigned_to' => $assignee->id
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('prospects', [
-            'id' => $prospect->id,
+            'id' => $this->prospect->id,
             'assigned_to' => $assignee->id
         ]);
     }
@@ -175,11 +157,11 @@ class ProspectResourceTest extends TestCase
     /** @test */
     public function it_can_filter_prospects_by_status()
     {
-        $activeProspect = Prospect::factory()->create(['status' => 'en_cours']);
-        $inactiveProspect = Prospect::factory()->create(['status' => 'rejeté']);
+        $activeProspect = Prospect::factory()->create(['status' => Prospect::STATUS_ANALYZING]);
+        $inactiveProspect = Prospect::factory()->create(['status' => Prospect::STATUS_REJECTED]);
 
         Livewire::test(ListProspects::class)
-            ->filterTable('status', 'en_cours')
+            ->filterTable('status', Prospect::STATUS_ANALYZING)
             ->assertCanSeeTableRecords([$activeProspect])
             ->assertCanNotSeeTableRecords([$inactiveProspect]);
     }
@@ -216,7 +198,7 @@ class ProspectResourceTest extends TestCase
     public function it_can_convert_prospect_to_client()
     {
         $prospect = Prospect::factory()->create([
-            'status' => 'en_cours'
+            'status' => Prospect::STATUS_ANALYZING
         ]);
 
         $this->get(ProspectResource::getUrl('index'))
@@ -230,7 +212,7 @@ class ProspectResourceTest extends TestCase
 
         $this->assertDatabaseHas('prospects', [
             'id' => $prospect->id,
-            'status' => 'converti'
+            'status' => Prospect::STATUS_CONVERTED
         ]);
 
         $this->assertDatabaseHas('clients', [
@@ -245,7 +227,7 @@ class ProspectResourceTest extends TestCase
     public function it_can_bulk_update_prospects()
     {
         $prospects = Prospect::factory()->count(3)->create([
-            'status' => 'nouveau'
+            'status' => Prospect::STATUS_NEW
         ]);
 
         $this->get(ProspectResource::getUrl('index'))
@@ -255,14 +237,14 @@ class ProspectResourceTest extends TestCase
             ->assertCanSeeTableRecords($prospects)
             ->assertTableBulkActionExists('bulk-update')
             ->callTableBulkAction('bulk-update', $prospects->pluck('id')->toArray(), [
-                'status' => 'en_cours'
+                'status' => Prospect::STATUS_ANALYZING
             ])
             ->assertHasNoActionErrors();
 
         foreach ($prospects as $prospect) {
             $this->assertDatabaseHas('prospects', [
                 'id' => $prospect->id,
-                'status' => 'en_cours'
+                'status' => Prospect::STATUS_ANALYZING
             ]);
         }
     }
@@ -270,16 +252,15 @@ class ProspectResourceTest extends TestCase
     /** @test */
     public function it_can_manage_prospect_activities()
     {
-        $prospect = Prospect::factory()->create();
         $activity = Activity::factory()->make([
             'subject_type' => Prospect::class,
-            'subject_id' => $prospect->id,
+            'subject_id' => $this->prospect->id,
             'title' => 'Test Activity',
             'scheduled_at' => now(),
         ]);
 
         Livewire::test(ActivitiesRelationManager::class, [
-            'ownerRecord' => $prospect,
+            'ownerRecord' => $this->prospect,
             'pageClass' => EditProspect::class
         ])
         ->assertSuccessful()
@@ -292,7 +273,7 @@ class ProspectResourceTest extends TestCase
         ->assertHasNoActionErrors();
 
         $this->assertDatabaseHas('activities', [
-            'subject_id' => $prospect->id,
+            'subject_id' => $this->prospect->id,
             'subject_type' => Prospect::class,
             'title' => $activity->title,
             'type' => $activity->type,

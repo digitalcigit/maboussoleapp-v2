@@ -1,0 +1,52 @@
+version: 2
+snapshot:
+  widths:
+    - 375  # Mobile
+    - 768  # Tablet
+    - 1280 # Desktop
+  minHeight: 1024
+  enableJavaScript: true
+  
+  # Configuration MVP des seuils
+  thresholds:
+    # Seuil global par défaut - assez permissif pour le MVP
+    default:
+      diff: 3.0  # 3% de différence autorisée globalement
+      
+    # Zones critiques du dashboard
+    selectors:
+      # Zone des KPIs principaux
+      '[data-testid="dashboard-kpis"]':
+        diff: 1.0  # 1% pour les métriques importantes
+        
+      # Zone des graphiques et visualisations
+      '[data-testid="dashboard-charts"]':
+        diff: 5.0  # 5% car les données changent régulièrement
+        
+      # Zone des tableaux de données
+      '[data-testid="dashboard-tables"]':
+        diff: 3.0  # 3% pour les changements de contenu normaux
+  
+  # CSS minimal pour stabiliser les tests
+  percyCSS: |
+    /* Masquer les éléments qui changent toujours */
+    [data-testid="timestamp"],
+    [data-testid="loading"] { 
+      visibility: hidden; 
+    }
+    
+    /* Stabiliser les animations */
+    * { 
+      animation: none !important;
+      transition: none !important;
+    }
+    
+discovery:
+  allowedHostnames: []
+  disallowedHostnames: []
+  
+upload:
+  files: "tests/Browser/screenshots/**/*.png"
+  
+static:
+  baseUrl: /

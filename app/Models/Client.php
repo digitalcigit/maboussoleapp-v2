@@ -12,6 +12,12 @@ class Client extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Statuts de base du client
+    public const STATUS_ACTIVE = 'actif';
+    public const STATUS_INACTIVE = 'inactif';
+    public const STATUS_PENDING = 'en_attente';
+    public const STATUS_ARCHIVED = 'archive';
+
     // Statuts de paiement
     public const PAYMENT_STATUS_PENDING = 'en_attente';
     public const PAYMENT_STATUS_PARTIAL = 'partiel';
@@ -32,7 +38,8 @@ class Client extends Model
         'travel_preferences',
         'payment_status',
         'total_amount',
-        'paid_amount'
+        'paid_amount',
+        'status'
     ];
 
     protected $casts = [
@@ -43,15 +50,15 @@ class Client extends Model
     ];
 
     /**
-     * Liste des statuts de visa valides
+     * Liste des statuts de base valides
      */
-    public static function getValidVisaStatuses(): array
+    public static function getValidStatuses(): array
     {
         return [
-            self::VISA_STATUS_NOT_STARTED,
-            self::VISA_STATUS_IN_PROGRESS,
-            self::VISA_STATUS_OBTAINED,
-            self::VISA_STATUS_REJECTED,
+            self::STATUS_ACTIVE,
+            self::STATUS_INACTIVE,
+            self::STATUS_PENDING,
+            self::STATUS_ARCHIVED,
         ];
     }
 
@@ -68,16 +75,29 @@ class Client extends Model
     }
 
     /**
-     * Obtenir le libellé traduit du statut de visa
+     * Liste des statuts de visa valides
      */
-    public function getVisaStatusLabel(): string
+    public static function getValidVisaStatuses(): array
     {
-        return match($this->visa_status) {
-            self::VISA_STATUS_NOT_STARTED => 'Non démarré',
-            self::VISA_STATUS_IN_PROGRESS => 'En cours',
-            self::VISA_STATUS_OBTAINED => 'Obtenu',
-            self::VISA_STATUS_REJECTED => 'Refusé',
-            default => $this->visa_status,
+        return [
+            self::VISA_STATUS_NOT_STARTED,
+            self::VISA_STATUS_IN_PROGRESS,
+            self::VISA_STATUS_OBTAINED,
+            self::VISA_STATUS_REJECTED,
+        ];
+    }
+
+    /**
+     * Obtenir le libellé traduit du statut de base
+     */
+    public function getStatusLabel(): string
+    {
+        return match($this->status) {
+            self::STATUS_ACTIVE => 'Actif',
+            self::STATUS_INACTIVE => 'Inactif',
+            self::STATUS_PENDING => 'En attente',
+            self::STATUS_ARCHIVED => 'Archivé',
+            default => $this->status,
         };
     }
 
@@ -91,6 +111,20 @@ class Client extends Model
             self::PAYMENT_STATUS_PARTIAL => 'Partiel',
             self::PAYMENT_STATUS_COMPLETED => 'Complété',
             default => $this->payment_status,
+        };
+    }
+
+    /**
+     * Obtenir le libellé traduit du statut de visa
+     */
+    public function getVisaStatusLabel(): string
+    {
+        return match($this->visa_status) {
+            self::VISA_STATUS_NOT_STARTED => 'Non démarré',
+            self::VISA_STATUS_IN_PROGRESS => 'En cours',
+            self::VISA_STATUS_OBTAINED => 'Obtenu',
+            self::VISA_STATUS_REJECTED => 'Refusé',
+            default => $this->visa_status,
         };
     }
 

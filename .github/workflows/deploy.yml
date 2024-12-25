@@ -61,9 +61,9 @@ jobs:
         DEPLOY_ENV: ${{ steps.version.outputs.environment }}
         VERSION: ${{ steps.version.outputs.version }}
       run: |
-        echo " Déploiement $VERSION vers $DEPLOY_ENV en cours..."
-        # Créer le dossier de destination s'il n'existe pas
-        ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${{ secrets.DEPLOY_PATH }}"
+        echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
+        # Créer le dossier de destination avec sudo
+        ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "sudo mkdir -p ${{ secrets.DEPLOY_PATH }} && sudo chown ${{ secrets.SERVER_USER }}:${{ secrets.SERVER_USER }} ${{ secrets.DEPLOY_PATH }}"
         
         # Synchroniser les fichiers
         rsync -avz --delete -e "ssh -p 5022" \

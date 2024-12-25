@@ -20,112 +20,69 @@ class ClientFactory extends Factory
      */
     public function definition(): array
     {
-        $prospect = Prospect::factory()->create();
-
         return [
-            'prospect_id' => $prospect->id,
+            'prospect_id' => Prospect::factory(),
             'client_number' => 'CLI-' . $this->faker->unique()->randomNumber(5),
-            'first_name' => $prospect->first_name,
-            'last_name' => $prospect->last_name,
-            'email' => $prospect->email,
-            'phone' => $prospect->phone,
-            'birth_date' => $prospect->birth_date,
-            'profession' => $prospect->profession,
-            'education_level' => $prospect->education_level,
-            'current_location' => $prospect->current_location,
-            'current_field' => $prospect->current_field,
-            'desired_field' => $prospect->desired_field,
-            'desired_destination' => $prospect->desired_destination,
-            'emergency_contact' => $prospect->emergency_contact,
+            'passport_number' => strtoupper($this->faker->lexify('??')) . $this->faker->unique()->randomNumber(6),
+            'passport_expiry' => $this->faker->dateTimeBetween('+1 year', '+10 years'),
+            'visa_status' => $this->faker->randomElement([
+                Client::VISA_STATUS_NOT_STARTED,
+                Client::VISA_STATUS_IN_PROGRESS,
+                Client::VISA_STATUS_OBTAINED,
+                Client::VISA_STATUS_REJECTED,
+            ]),
+            'travel_preferences' => [
+                'preferred_airline' => $this->faker->randomElement(['Air France', 'Air Canada', 'Swiss Air']),
+                'seat_preference' => $this->faker->randomElement(['fenêtre', 'couloir', 'milieu']),
+                'meal_preference' => $this->faker->randomElement(['standard', 'végétarien', 'halal', 'casher']),
+                'baggage_preference' => $this->faker->randomElement(['1 bagage(s)', '2 bagage(s)', '3 bagage(s)']),
+            ],
+            'payment_status' => $this->faker->randomElement([
+                Client::PAYMENT_STATUS_PENDING,
+                Client::PAYMENT_STATUS_PARTIAL,
+                Client::PAYMENT_STATUS_COMPLETED,
+            ]),
+            'total_amount' => $this->faker->randomFloat(2, 3000, 15000),
+            'paid_amount' => function (array $attributes) {
+                return $this->faker->randomFloat(2, 0, $attributes['total_amount']);
+            },
             'status' => $this->faker->randomElement([
                 Client::STATUS_ACTIVE,
                 Client::STATUS_INACTIVE,
                 Client::STATUS_PENDING,
                 Client::STATUS_ARCHIVED,
             ]),
-            'assigned_to' => $prospect->assigned_to,
-            'commercial_code' => $prospect->commercial_code,
-            'partner_id' => $prospect->partner_id,
-            'last_action_at' => $this->faker->dateTimeBetween('-1 month'),
-            'contract_start_date' => $this->faker->dateTimeBetween('now', '+1 month'),
-            'contract_end_date' => $this->faker->dateTimeBetween('+1 month', '+1 year'),
-            'passport_number' => strtoupper($this->faker->bothify('??######')),
-            'passport_expiry' => $this->faker->dateTimeBetween('+1 year', '+10 years'),
-            'visa_status' => Client::VISA_STATUS_NOT_STARTED,
-            'travel_preferences' => [
-                'preferred_airline' => $this->faker->randomElement(['Air France', 'Air Canada', 'Swiss Air']),
-                'seat_preference' => $this->faker->randomElement(['fenêtre', 'couloir', 'milieu']),
-                'meal_preference' => $this->faker->randomElement(['standard', 'végétarien', 'halal', 'casher']),
-                'baggage_preference' => $this->faker->numberBetween(1, 3) . ' bagage(s)'
-            ],
-            'payment_status' => Client::PAYMENT_STATUS_PENDING,
-            'total_amount' => $this->faker->randomFloat(2, 3000, 15000),
-            'paid_amount' => 0,
-            'created_at' => $this->faker->dateTimeBetween('-1 year'),
-            'updated_at' => $this->faker->dateTimeBetween('-1 month'),
         ];
     }
 
     /**
-     * État : visa en cours de traitement
+     * Indicate that the client is active.
      */
-    public function visaInProgress(): self
+    public function active(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'visa_status' => Client::VISA_STATUS_IN_PROGRESS,
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'status' => Client::STATUS_ACTIVE,
+        ]);
     }
 
     /**
-     * État : visa obtenu
+     * Indicate that the client has a pending payment.
      */
-    public function visaObtained(): self
+    public function pendingPayment(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'visa_status' => Client::VISA_STATUS_OBTAINED,
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'payment_status' => Client::PAYMENT_STATUS_PENDING,
+            'paid_amount' => 0,
+        ]);
     }
 
     /**
-     * État : visa refusé
+     * Indicate that the client has not started visa process.
      */
-    public function visaRejected(): self
+    public function noVisa(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'visa_status' => Client::VISA_STATUS_REJECTED,
-            ];
-        });
-    }
-
-    /**
-     * État : paiement partiel
-     */
-    public function partiallyPaid(): self
-    {
-        return $this->state(function (array $attributes) {
-            $total = $attributes['total_amount'] ?? 5000;
-            return [
-                'payment_status' => Client::PAYMENT_STATUS_PARTIAL,
-                'paid_amount' => $total * 0.5,
-            ];
-        });
-    }
-
-    /**
-     * État : paiement complet
-     */
-    public function fullyPaid(): self
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'payment_status' => Client::PAYMENT_STATUS_COMPLETED,
-                'paid_amount' => $attributes['total_amount'],
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'visa_status' => Client::VISA_STATUS_NOT_STARTED,
+        ]);
     }
 }
