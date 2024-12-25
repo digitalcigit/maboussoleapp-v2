@@ -59,18 +59,20 @@ jobs:
       id: deploy
       env:
         DEPLOY_ENV: ${{ steps.version.outputs.environment }}
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         VERSION: ${{ steps.version.outputs.version }}
       run: |
-        echo "🚀 Déploiement $VERSION vers $DEPLOY_ENV en cours..."
+        echo " Déploiement $VERSION vers $DEPLOY_ENV en cours..."
+        # Créer le dossier de destination s'il n'existe pas
+        ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${{ secrets.DEPLOY_PATH }}"
+        
+        # Synchroniser les fichiers
         rsync -avz --delete -e "ssh -p 5022" \
           --exclude='.git*' \
           --exclude='node_modules' \
           --exclude='vendor' \
           --exclude='.env' \
           ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}
+        
         if [ $? -eq 0 ]; then
           echo "deploy_status=success" >> $GITHUB_OUTPUT
         else
@@ -93,7 +95,7 @@ jobs:
         tag_name: ${{ steps.version.outputs.version }}
         name: Release ${{ steps.version.outputs.version }}
         body: |
-          🚀 Release ${{ steps.version.outputs.version }}
+          Release ${{ steps.version.outputs.version }}
           
           ## Changements
           ${{ github.event.head_commit.message }}
@@ -110,7 +112,7 @@ jobs:
         tag_name: ${{ steps.version.outputs.version }}
         name: Beta Release ${{ steps.version.outputs.version }}
         body: |
-          🚧 Beta Release ${{ steps.version.outputs.version }}
+          Beta Release ${{ steps.version.outputs.version }}
           
           ## Changements
           ${{ github.event.head_commit.message }}
@@ -124,10 +126,8 @@ jobs:
       if: always()
       uses: 8398a7/action-slack@v3
       with:
-        status: ${{ steps.deploy.outputs.deploy_status == 'success' && 'success' || 'failure' }}
+        status: ${{ job.status }}
         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-        text: |
-          Déploiement ${{ steps.version.outputs.version }} vers ${{ steps.version.outputs.environment }}
-          ${{ steps.deploy.outputs.deploy_status == 'success' && '✅ Succès' || '❌ Échec' }}
+        text: Deploiement ${{ steps.version.outputs.version }} vers ${{ steps.version.outputs.environment }}
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
