@@ -17,7 +17,7 @@ class ListUsers extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
-    
+
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()

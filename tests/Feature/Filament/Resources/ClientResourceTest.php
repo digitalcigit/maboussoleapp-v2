@@ -19,8 +19,8 @@ use Tests\Traits\FilamentPermissionsTrait;
 
 class ClientResourceTest extends TestCase
 {
-    use RefreshDatabase;
     use FilamentPermissionsTrait;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -29,7 +29,7 @@ class ClientResourceTest extends TestCase
         // Créer un manager avec toutes les permissions nécessaires
         $this->user = $this->createManager();
         $this->actingAs($this->user);
-        
+
         // Créer un prospect pour les tests
         $this->prospect = Prospect::factory()->create([
             'status' => Prospect::STATUS_APPROVED,
@@ -38,11 +38,11 @@ class ClientResourceTest extends TestCase
             'email' => 'john@example.com',
             'phone' => '1234567890',
         ]);
-        
+
         // Créer un client lié au prospect
         $this->client = Client::factory()->create([
             'prospect_id' => $this->prospect->id,
-            'client_number' => 'CLI-' . rand(10000, 99999),
+            'client_number' => 'CLI-'.rand(10000, 99999),
             'status' => Client::STATUS_ACTIVE,
             'payment_status' => Client::PAYMENT_STATUS_PENDING,
             'visa_status' => Client::VISA_STATUS_NOT_STARTED,
@@ -58,7 +58,7 @@ class ClientResourceTest extends TestCase
         $additionalProspects = Prospect::factory()
             ->count(5)
             ->create(['status' => Prospect::STATUS_APPROVED]);
-        
+
         $additionalClients = [];
         foreach ($additionalProspects as $prospect) {
             $additionalClients[] = Client::factory()->create([
@@ -91,7 +91,7 @@ class ClientResourceTest extends TestCase
 
         $newClientData = [
             'prospect_id' => $newProspect->id,
-            'client_number' => 'CLI-' . rand(10000, 99999),
+            'client_number' => 'CLI-'.rand(10000, 99999),
             'status' => Client::STATUS_ACTIVE,
             'payment_status' => Client::PAYMENT_STATUS_PENDING,
             'visa_status' => Client::VISA_STATUS_NOT_STARTED,
@@ -174,7 +174,7 @@ class ClientResourceTest extends TestCase
         $additionalProspects = Prospect::factory()
             ->count(3)
             ->create(['status' => Prospect::STATUS_APPROVED]);
-        
+
         $clientsToDelete = [];
         foreach ($additionalProspects as $prospect) {
             $clientsToDelete[] = Client::factory()->create([
@@ -197,7 +197,7 @@ class ClientResourceTest extends TestCase
     {
         // Créer un utilisateur sans permissions
         $userWithoutPermissions = User::factory()->create();
-        
+
         $response = $this->actingAs($userWithoutPermissions)
             ->get(ClientResource::getUrl('index'));
 

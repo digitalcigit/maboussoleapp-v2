@@ -65,8 +65,8 @@ class TestDataSeeder extends Seeder
         // Création des prospects de test
         for ($i = 1; $i <= 5; $i++) {
             $prospect = Prospect::create([
-                'reference_number' => 'PROS' . str_pad($i, 4, '0', STR_PAD_LEFT),
-                'first_name' => "Prospect",
+                'reference_number' => 'PROS'.str_pad($i, 4, '0', STR_PAD_LEFT),
+                'first_name' => 'Prospect',
                 'last_name' => "Test $i",
                 'email' => "prospect$i@test.com",
                 'phone' => '+33612345678',
@@ -84,7 +84,7 @@ class TestDataSeeder extends Seeder
                 ],
                 'status' => Prospect::STATUS_NEW,
                 'assigned_to' => $advisors[array_rand($advisors)]->id,
-                'commercial_code' => 'COM' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'commercial_code' => 'COM'.str_pad($i, 4, '0', STR_PAD_LEFT),
                 'partner_id' => $partners[array_rand($partners)]->id,
             ]);
 
@@ -107,8 +107,8 @@ class TestDataSeeder extends Seeder
         for ($i = 1; $i <= 3; $i++) {
             $client = Client::create([
                 'prospect_id' => Prospect::inRandomOrder()->first()->id,
-                'client_number' => 'CLI' . str_pad($i, 4, '0', STR_PAD_LEFT),
-                'passport_number' => 'PASS' . str_pad($i, 6, '0', STR_PAD_LEFT),
+                'client_number' => 'CLI'.str_pad($i, 4, '0', STR_PAD_LEFT),
+                'passport_number' => 'PASS'.str_pad($i, 6, '0', STR_PAD_LEFT),
                 'passport_expiry' => Carbon::now()->addYears(5),
                 'visa_status' => Client::VISA_STATUS_NOT_STARTED,
                 'travel_preferences' => [

@@ -53,7 +53,7 @@ class RBACTest extends TestCase
         $user = User::factory()->create();
         $role = Role::create(['name' => 'manager']);
         $permission = Permission::create(['name' => 'prospects.view']);
-        
+
         $role->givePermissionTo($permission);
         $user->assignRole($role);
 

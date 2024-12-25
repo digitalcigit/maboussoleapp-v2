@@ -15,6 +15,7 @@ abstract class DuskTestCase extends BaseTestCase
      * Prepare for Dusk test execution.
      *
      * @beforeClass
+     *
      * @return void
      */
     public static function prepare()
@@ -51,7 +52,6 @@ abstract class DuskTestCase extends BaseTestCase
      *
      * @param  \Laravel\Dusk\Browser  $browser
      * @param  string  $name
-     * @param  array  $options
      * @return void
      */
     protected function percy($browser, $name, array $options = [])
@@ -67,7 +67,7 @@ abstract class DuskTestCase extends BaseTestCase
 
             // Attendre que la page soit complètement chargée
             $browser->waitFor('body');
-            
+
             // Masquer les éléments dynamiques
             $browser->script("
                 document.querySelectorAll('[data-testid=\"timestamp\"]')

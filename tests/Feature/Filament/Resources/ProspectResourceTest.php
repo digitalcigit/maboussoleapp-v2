@@ -18,19 +18,20 @@ use Tests\Traits\FilamentPermissionsTrait;
 
 class ProspectResourceTest extends TestCase
 {
-    use RefreshDatabase;
     use FilamentPermissionsTrait;
+    use RefreshDatabase;
 
     protected User $user;
+
     protected Prospect $prospect;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Créer un manager avec toutes les permissions nécessaires
         $this->user = $this->createManager();
-        
+
         // Créer un prospect pour les tests
         $this->prospect = Prospect::factory()->create([
             'status' => Prospect::STATUS_NEW,
@@ -128,7 +129,7 @@ class ProspectResourceTest extends TestCase
     public function it_can_assign_prospect()
     {
         $assignee = User::factory()->create([
-            'email' => 'assignee_' . uniqid() . '@example.com',
+            'email' => 'assignee_'.uniqid().'@example.com',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -181,10 +182,10 @@ class ProspectResourceTest extends TestCase
     public function it_can_paginate_prospects()
     {
         $prospects = Prospect::factory()->count(25)->create();
-        
+
         // Get prospects ordered by created_at desc since that's the default sort
         $orderedProspects = $prospects->sortByDesc('created_at')->values();
-        
+
         $page1Prospects = $orderedProspects->take(10);
         $page2Prospects = $orderedProspects->slice(10, 10);
 
@@ -262,14 +263,14 @@ class ProspectResourceTest extends TestCase
             'ownerRecord' => $this->prospect,
             'pageClass' => EditProspect::class,
         ])
-        ->assertSuccessful()
-        ->callTableAction('create', data: [
-            'title' => $activity->title,
-            'type' => $activity->type,
-            'description' => $activity->description,
-            'scheduled_at' => $activity->scheduled_at,
-        ])
-        ->assertHasNoActionErrors();
+            ->assertSuccessful()
+            ->callTableAction('create', data: [
+                'title' => $activity->title,
+                'type' => $activity->type,
+                'description' => $activity->description,
+                'scheduled_at' => $activity->scheduled_at,
+            ])
+            ->assertHasNoActionErrors();
 
         $this->assertDatabaseHas('activities', [
             'subject_id' => $this->prospect->id,
@@ -303,7 +304,7 @@ class ProspectResourceTest extends TestCase
     public function it_validates_unique_reference_number()
     {
         $existingProspect = Prospect::factory()->create();
-        
+
         Livewire::test(CreateProspect::class)
             ->fillForm([
                 'reference_number' => $existingProspect->reference_number,

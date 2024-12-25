@@ -13,12 +13,12 @@ use Illuminate\Contracts\Support\Htmlable;
 class SuperAdminDashboard extends Dashboard
 {
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
-    
+
     protected static ?int $navigationSort = 1;
-    
+
     protected static ?string $navigationGroup = 'Tableaux de Bord';
-    
-    public function getColumns(): int | array
+
+    public function getColumns(): int|array
     {
         return [
             'default' => 1,
@@ -27,17 +27,17 @@ class SuperAdminDashboard extends Dashboard
             'lg' => 4,
         ];
     }
-    
+
     public static function shouldRegister(): bool
     {
         return auth()->user()->hasRole('super-admin');
     }
-    
+
     public function getTitle(): string|Htmlable
     {
         return __('Tableau de Bord Administrateur');
     }
-    
+
     protected function getHeaderWidgets(): array
     {
         return [
@@ -47,14 +47,14 @@ class SuperAdminDashboard extends Dashboard
             MonthlyGoalsWidget::class,
         ];
     }
-    
+
     protected function getFooterWidgets(): array
     {
         return [
             LatestTransactionsWidget::class,
         ];
     }
-    
+
     public function getWidgets(): array
     {
         return [

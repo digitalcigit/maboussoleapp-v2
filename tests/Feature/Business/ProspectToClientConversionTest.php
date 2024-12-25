@@ -14,7 +14,9 @@ class ProspectToClientConversionTest extends TestCase
     use RefreshDatabase;
 
     protected User $manager;
+
     protected User $conseiller;
+
     protected Prospect $prospect;
 
     protected function setUp(): void
@@ -45,7 +47,7 @@ class ProspectToClientConversionTest extends TestCase
         $lastClient = Client::orderBy('id', 'desc')->first();
         $nextId = $lastClient ? $lastClient->id + 1 : 1;
 
-        return 'CLI' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+        return 'CLI'.str_pad($nextId, 6, '0', STR_PAD_LEFT);
     }
 
     /**

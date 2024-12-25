@@ -148,13 +148,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'access_filament',
             'access_admin_panel',
             'view_admin_panel',
-            
+
             // Permissions utilisateurs
             'users.view',
             'users.create',
             'users.edit',
             'users.delete',
-            
+
             // Permissions prospects
             'prospects.view',
             'prospects.create',
@@ -164,7 +164,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'prospects.convert',
             'prospects.view_any',
             'prospects.update',
-            
+
             // Permissions clients
             'clients.view',
             'clients.create',
@@ -172,7 +172,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'clients.delete',
             'clients.view_any',
             'clients.update',
-            
+
             // Permissions activités
             'activities.view',
             'activities.create',
@@ -180,7 +180,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'activities.delete',
             'activities.view_any',
             'activities.update',
-            
+
             // Autres permissions
             'reports.view',
             'reports.export',

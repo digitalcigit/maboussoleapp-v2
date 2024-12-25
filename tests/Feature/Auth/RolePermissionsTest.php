@@ -26,7 +26,7 @@ class RolePermissionsTest extends TestCase
         $user->assignRole('super-admin');
 
         $allPermissions = Permission::all();
-        
+
         foreach ($allPermissions as $permission) {
             $this->assertTrue(
                 $user->can($permission->name),

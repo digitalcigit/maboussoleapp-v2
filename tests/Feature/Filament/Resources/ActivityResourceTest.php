@@ -16,21 +16,21 @@ use Tests\Traits\FilamentPermissionsTrait;
 
 class ActivityResourceTest extends TestCase
 {
-    use RefreshDatabase;
     use FilamentPermissionsTrait;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Créer un manager avec toutes les permissions nécessaires
         $this->user = $this->createManager();
-        
+
         // Créer un client pour les tests
         $this->client = Client::factory()->create([
             'status' => Client::STATUS_ACTIVE,
         ]);
-        
+
         // Créer une activité pour les tests
         $this->activity = Activity::factory()->create([
             'subject_type' => Client::class,
@@ -522,7 +522,7 @@ class ActivityResourceTest extends TestCase
     {
         $user = User::factory()->create();
         $prospect = Prospect::factory()->create();
-        
+
         $activity = Activity::factory()->create([
             'user_id' => $user->id,
             'prospect_id' => $prospect->id,

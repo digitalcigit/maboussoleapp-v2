@@ -14,6 +14,7 @@ class ResourceLoadingTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected $startTime;
 
     protected function setUp(): void
@@ -41,18 +42,18 @@ class ResourceLoadingTest extends TestCase
             ->create();
 
         $start = microtime(true);
-        
+
         // Simuler la requête de liste avec pagination
         $response = $this->actingAs($this->admin)
             ->get('/admin/prospects');
 
         $loadTime = (microtime(true) - $start) * 1000; // en millisecondes
-        
+
         $this->assertTrue(
             $loadTime < 1000, // max 1 seconde
             "La liste des prospects a mis {$loadTime}ms à charger"
         );
-        
+
         $response->assertStatus(200);
     }
 
@@ -63,18 +64,18 @@ class ResourceLoadingTest extends TestCase
         Prospect::factory()->count(500)->create();
 
         $start = microtime(true);
-        
+
         // Simuler une recherche
         $response = $this->actingAs($this->admin)
             ->get('/admin/prospects?search=test');
 
         $searchTime = (microtime(true) - $start) * 1000;
-        
+
         $this->assertTrue(
             $searchTime < 500, // max 500ms
             "La recherche a mis {$searchTime}ms"
         );
-        
+
         $response->assertStatus(200);
     }
 
@@ -89,18 +90,18 @@ class ResourceLoadingTest extends TestCase
             ->create();
 
         $start = microtime(true);
-        
+
         // Charger la liste avec relations
         $response = $this->actingAs($this->admin)
             ->get('/admin/activities');
 
         $loadTime = (microtime(true) - $start) * 1000;
-        
+
         $this->assertTrue(
             $loadTime < 1500, // max 1.5 secondes
             "La liste des activités a mis {$loadTime}ms à charger"
         );
-        
+
         $response->assertStatus(200);
     }
 
@@ -113,7 +114,7 @@ class ResourceLoadingTest extends TestCase
             ->create();
 
         DB::enableQueryLog();
-        
+
         // Simuler une requête typique de listing
         $prospects = Prospect::with(['activities', 'user'])
             ->withCount('activities')
@@ -121,7 +122,7 @@ class ResourceLoadingTest extends TestCase
 
         $queries = DB::getQueryLog();
         $queryCount = count($queries);
-        
+
         $this->assertLessThan(
             5, // Maximum 4 requêtes attendues
             $queryCount,

@@ -14,7 +14,7 @@ class SystemInitializationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Seed the roles and permissions before each test
         $this->seed(RolesAndPermissionsSeeder::class);
     }
@@ -23,7 +23,7 @@ class SystemInitializationTest extends TestCase
     public function system_redirects_to_initialization_when_no_users_exist()
     {
         $response = $this->get('/admin');
-        
+
         $response->assertRedirect('/system/initialization');
     }
 
@@ -46,7 +46,7 @@ class SystemInitializationTest extends TestCase
 
         $user = User::where('email', 'admin@maboussole.fr')->first();
         $this->assertTrue($user->hasRole('super-admin'));
-        
+
         $response->assertRedirect('/admin');
     }
 
@@ -59,7 +59,7 @@ class SystemInitializationTest extends TestCase
 
         // Essayer d'accéder à la page d'initialisation
         $response = $this->get('/system/initialization');
-        
+
         $response->assertRedirect('/admin');
     }
 

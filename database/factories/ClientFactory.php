@@ -22,8 +22,8 @@ class ClientFactory extends Factory
     {
         return [
             'prospect_id' => Prospect::factory(),
-            'client_number' => 'CLI-' . $this->faker->unique()->randomNumber(5),
-            'passport_number' => strtoupper($this->faker->lexify('??')) . $this->faker->unique()->randomNumber(6),
+            'client_number' => 'CLI-'.$this->faker->unique()->randomNumber(5),
+            'passport_number' => strtoupper($this->faker->lexify('??')).$this->faker->unique()->randomNumber(6),
             'passport_expiry' => $this->faker->dateTimeBetween('+1 year', '+10 years'),
             'visa_status' => $this->faker->randomElement([
                 Client::VISA_STATUS_NOT_STARTED,

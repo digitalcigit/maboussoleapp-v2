@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
         // Enregistrer le mapping de type ENUM pour MySQL
         $connection = config('database.default');
         $driver = config("database.connections.{$connection}.driver");
-        
+
         if ($driver === 'mysql') {
             $platform = \DB::connection()->getDoctrineSchemaManager()->getDatabasePlatform();
             $platform->registerDoctrineTypeMapping('enum', 'string');

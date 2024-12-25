@@ -15,7 +15,7 @@ class SuperAdminDashboardTest extends DuskTestCase
 
     protected User $superAdmin;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->superAdmin = User::factory()->create(['email' => 'super-admin@maboussole.fr']);
@@ -37,8 +37,8 @@ class SuperAdminDashboardTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
-                   ->visit('/admin')
-                   ->waitFor('@stats-overview-widget');
+                ->visit('/admin')
+                ->waitFor('@stats-overview-widget');
 
             // Test du dashboard complet
             $this->percy($browser, 'dashboard-overview', [
@@ -59,8 +59,8 @@ class SuperAdminDashboardTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
-                   ->visit('/admin')
-                   ->waitFor('@stats-overview-widget');
+                ->visit('/admin')
+                ->waitFor('@stats-overview-widget');
 
             // Capturer les états vides
             $this->percy($browser, 'dashboard-empty');
@@ -72,21 +72,21 @@ class SuperAdminDashboardTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->superAdmin)
-                   ->visit('/admin')
-                   ->waitFor('@stats-overview-widget');
+                ->visit('/admin')
+                ->waitFor('@stats-overview-widget');
 
             // État initial
             $this->percy($browser, 'dashboard-initial');
 
             // Après filtrage
             $browser->click('@filter-status')
-                   ->click('@filter-completed')
-                   ->waitForTextIn('@filtered-count', '20');
+                ->click('@filter-completed')
+                ->waitForTextIn('@filtered-count', '20');
             $this->percy($browser, 'dashboard-filtered');
 
             // Après tri
             $browser->click('@sort-amount')
-                   ->waitForTextIn('@first-row', '50.000');
+                ->waitForTextIn('@first-row', '50.000');
             $this->percy($browser, 'dashboard-sorted');
         });
     }

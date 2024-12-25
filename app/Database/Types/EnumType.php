@@ -9,7 +9,7 @@ class EnumType extends Type
 {
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return 'ENUM(' . implode(', ', array_map(fn ($val) => "'$val'", $column['allowed'])) . ')';
+        return 'ENUM('.implode(', ', array_map(fn ($val) => "'$val'", $column['allowed'])).')';
     }
 
     public function getName()

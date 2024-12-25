@@ -17,7 +17,7 @@ class EditUser extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-    
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         if (isset($data['password']) && $data['password']) {
@@ -25,10 +25,10 @@ class EditUser extends EditRecord
         } else {
             unset($data['password']);
         }
-        
+
         return $data;
     }
-    
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

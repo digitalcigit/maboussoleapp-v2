@@ -5,7 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -22,16 +23,16 @@ return new class extends Migration {
             if (! Schema::hasColumn('activities', 'title')) {
                 $table->string('title')->after('id');
             }
-            
+
             if (! Schema::hasColumn('activities', 'status')) {
                 $table->enum('status', ['planifié', 'en_cours', 'terminé', 'annulé'])->after('type');
             }
-            
+
             if (! Schema::hasColumn('activities', 'client_id')) {
                 $table->unsignedBigInteger('client_id')->nullable();
                 $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             }
-            
+
             if (! Schema::hasColumn('activities', 'prospect_id')) {
                 $table->unsignedBigInteger('prospect_id')->nullable();
                 $table->foreign('prospect_id')->references('id')->on('prospects')->onDelete('cascade');
@@ -52,7 +53,7 @@ return new class extends Migration {
             if (Schema::hasColumn('activities', 'prospect_id')) {
                 $table->dropForeign(['prospect_id']);
             }
-            
+
             // Drop columns if they exist
             $columns = ['title', 'status', 'client_id', 'prospect_id'];
             foreach ($columns as $column) {

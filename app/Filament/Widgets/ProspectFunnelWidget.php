@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\DB;
 class ProspectFunnelWidget extends ChartWidget
 {
     protected static ?string $heading = 'Entonnoir de Conversion';
-    
+
     protected static ?int $sort = 2;
-    
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     protected function getData(): array
     {

@@ -14,9 +14,10 @@ class ProspectConversionService
     /**
      * Convertit un prospect en client
      *
-     * @param Prospect $prospect Le prospect à convertir
-     * @param array $additionalData Données supplémentaires pour le client (passport, visa, etc.)
+     * @param  Prospect  $prospect  Le prospect à convertir
+     * @param  array  $additionalData  Données supplémentaires pour le client (passport, visa, etc.)
      * @return Client Le client créé
+     *
      * @throws AuthorizationException Si l'utilisateur n'a pas la permission
      * @throws \Exception Si le prospect n'est pas approuvé
      */
@@ -80,6 +81,6 @@ class ProspectConversionService
         $lastClient = Client::orderBy('id', 'desc')->first();
         $nextId = $lastClient ? $lastClient->id + 1 : 1;
 
-        return 'CLI' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+        return 'CLI'.str_pad($nextId, 6, '0', STR_PAD_LEFT);
     }
 }

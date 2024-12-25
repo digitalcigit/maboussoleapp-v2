@@ -8,6 +8,7 @@ use Symfony\Component\Process\Process;
 class DevMigrate extends Command
 {
     protected $signature = 'dev:migrate {--fresh : Recréer la base de données} {--seed : Exécuter les seeders}';
+
     protected $description = 'Exécute les tests de base de données puis applique les migrations si les tests passent';
 
     public function handle()
@@ -47,12 +48,12 @@ class DevMigrate extends Command
 
         // 4. Appliquer les migrations
         $this->info('🔄 Application des migrations...');
-        
+
         $command = ['php', 'artisan', 'migrate'];
         if ($this->option('fresh')) {
             $command[] = '--fresh';
         }
-        
+
         $migrateProcess = new Process($command);
         $migrateProcess->run(function ($type, $buffer) {
             $this->output->write($buffer);

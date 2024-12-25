@@ -15,7 +15,7 @@ class RoleManagementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Exécuter le seeder des rôles et permissions
         $this->artisan('db:seed', ['--class' => 'RolesAndPermissionsSeeder']);
     }
@@ -25,7 +25,7 @@ class RoleManagementTest extends TestCase
     {
         $user = User::factory()->create();
         $superAdminRole = Role::findByName('super-admin');
-        
+
         $user->assignRole($superAdminRole);
 
         $this->assertTrue($user->hasRole('super-admin'));
@@ -75,7 +75,7 @@ class RoleManagementTest extends TestCase
     public function user_can_have_multiple_roles()
     {
         $user = User::factory()->create();
-        
+
         $user->assignRole('manager', 'conseiller');
 
         $this->assertTrue($user->hasRole('manager'));
@@ -89,7 +89,7 @@ class RoleManagementTest extends TestCase
         $this->actingAs($user);
 
         $response = $this->get('/admin/settings');
-        
+
         $response->assertStatus(403);
     }
 

@@ -115,7 +115,7 @@ class ClientResource extends Resource
                             ->tel()
                             ->rules(['regex:/^([0-9\s\-\+\(\)]*)$/']),
                     ])->columns(2),
-                
+
                 Forms\Components\Section::make('Suivi')
                     ->schema([
                         Forms\Components\Select::make('status')
@@ -155,7 +155,7 @@ class ClientResource extends Resource
                                     return function (string $attribute, $value, $fail) use ($get) {
                                         $totalAmount = (float) $get('total_amount');
                                         if ((float) $value > $totalAmount) {
-                                            $fail("Le montant payé ne peut pas être supérieur au montant total.");
+                                            $fail('Le montant payé ne peut pas être supérieur au montant total.');
                                         }
                                     };
                                 },

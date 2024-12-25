@@ -65,7 +65,7 @@ class StatsOverviewWidget extends BaseWidget
                     'dusk' => 'total-prospects-kpi',
                 ]),
 
-            Stat::make('Taux Conversion', $conversionRate . '%')
+            Stat::make('Taux Conversion', $conversionRate.'%')
                 ->description('Ce mois-ci')
                 ->chart([4, 5, 3, 6, 3, 4, $conversionRate])
                 ->color($conversionRate >= 20 ? 'success' : 'warning')
@@ -76,7 +76,7 @@ class StatsOverviewWidget extends BaseWidget
                     'dusk' => 'conversion-rate-kpi',
                 ]),
 
-            Stat::make('CA du Mois', number_format($currentMonthRevenue, 0, ',', ' ') . ' €')
+            Stat::make('CA du Mois', number_format($currentMonthRevenue, 0, ',', ' ').' €')
                 ->description($revenueTrend >= 0 ? "+$revenueTrend € vs mois dernier" : "$revenueTrend € vs mois dernier")
                 ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($revenueTrend >= 0 ? 'success' : 'danger')

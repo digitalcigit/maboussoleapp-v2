@@ -33,7 +33,7 @@ class ProspectResource extends Resource
                         Forms\Components\TextInput::make('reference_number')
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->default(fn () => 'PROS-' . random_int(10000, 99999)),
+                            ->default(fn () => 'PROS-'.random_int(10000, 99999)),
                         Forms\Components\TextInput::make('first_name')
                             ->required()
                             ->maxLength(255)
@@ -53,7 +53,7 @@ class ProspectResource extends Resource
                             ->maxLength(255)
                             ->label('Téléphone'),
                     ])->columns(2),
-                
+
                 Forms\Components\Section::make('Suivi')
                     ->schema([
                         Forms\Components\Select::make('status')
@@ -176,14 +176,14 @@ class ProspectResource extends Resource
             ])
             ->defaultSort('created_at', 'desc');
     }
-    
+
     public static function getRelations(): array
     {
         return [
             RelationManagers\ActivitiesRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [

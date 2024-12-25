@@ -26,10 +26,10 @@ class ConvertToClient extends Page
                 ->label('Convertir en client')
                 ->action(function () {
                     $prospect = $this->getRecord();
-                    
+
                     // Créer un nouveau client
                     $client = Client::create([
-                        'client_number' => 'CLI-' . Str::random(5),
+                        'client_number' => 'CLI-'.Str::random(5),
                         'first_name' => $prospect->first_name,
                         'last_name' => $prospect->last_name,
                         'email' => $prospect->email,

@@ -24,7 +24,7 @@ class MultipleRolesTest extends TestCase
     public function test_user_can_have_multiple_roles(): void
     {
         $user = User::factory()->create();
-        
+
         // Assigner deux rôles
         $user->assignRole(['conseiller', 'commercial']);
 
@@ -39,7 +39,7 @@ class MultipleRolesTest extends TestCase
     public function test_permissions_are_cumulative(): void
     {
         $user = User::factory()->create();
-        
+
         // Assigner conseiller et commercial
         $user->assignRole(['conseiller', 'commercial']);
 
@@ -69,7 +69,7 @@ class MultipleRolesTest extends TestCase
     public function test_higher_role_encompasses_lower_role_permissions(): void
     {
         $user = User::factory()->create();
-        
+
         // Assigner manager et conseiller
         $user->assignRole(['manager', 'conseiller']);
 
@@ -89,7 +89,7 @@ class MultipleRolesTest extends TestCase
     public function test_role_revocation_maintains_other_role_permissions(): void
     {
         $user = User::factory()->create();
-        
+
         // Assigner deux rôles
         $user->assignRole(['conseiller', 'commercial']);
 
@@ -115,7 +115,7 @@ class MultipleRolesTest extends TestCase
     public function test_permission_conflicts_between_roles(): void
     {
         $user = User::factory()->create();
-        
+
         // Créer un nouveau rôle avec des permissions restrictives
         $restrictedRole = Role::create(['name' => 'restricted']);
         $restrictedRole->givePermissionTo([
@@ -139,7 +139,7 @@ class MultipleRolesTest extends TestCase
     public function test_super_admin_role_overrides_all(): void
     {
         $user = User::factory()->create();
-        
+
         // Assigner d'abord des rôles restrictifs
         $user->assignRole(['conseiller', 'commercial']);
 

@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
 class LatestTransactionsWidget extends BaseWidget
 {
     protected static ?int $sort = 4;
-    
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -27,17 +27,17 @@ class LatestTransactionsWidget extends BaseWidget
                     ->label('Client')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Montant')
                     ->money('eur')
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('paid_amount')
                     ->label('Payé')
                     ->money('eur')
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('payment_status')
                     ->label('Paiement')
                     ->badge()
@@ -52,7 +52,7 @@ class LatestTransactionsWidget extends BaseWidget
                         'en_attente' => 'En attente',
                     })
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date')
                     ->date('d/m/Y')
@@ -65,7 +65,7 @@ class LatestTransactionsWidget extends BaseWidget
                         'partiel' => 'Partiel',
                         'en_attente' => 'En attente',
                     ]),
-                    
+
                 Tables\Filters\Filter::make('high_value')
                     ->label('Haute valeur')
                     ->query(fn (Builder $query): Builder => $query->where('total_amount', '>', 10000)),

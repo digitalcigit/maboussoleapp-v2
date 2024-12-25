@@ -17,15 +17,15 @@ class ClientPermissionsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Créer un utilisateur admin
         $this->admin = User::factory()->create();
         $this->admin->assignRole('super-admin');
-        
+
         // Créer un utilisateur normal
         $this->user = User::factory()->create();
         $this->user->assignRole('conseiller');
-        
+
         // Créer un client pour les tests
         $this->client = Client::factory()->create([
             'created_by' => $this->admin->id,

@@ -8,13 +8,14 @@ use Scripts\DocumentationGenerator;
 class GenerateDocumentation extends Command
 {
     protected $signature = 'docs:generate {--type=all : Type de documentation à générer (all, models, controllers)}';
+
     protected $description = 'Génère automatiquement la documentation du projet';
 
     public function handle()
     {
         $this->info('Génération de la documentation...');
 
-        $generator = new DocumentationGenerator();
+        $generator = new DocumentationGenerator;
         $type = $this->option('type');
 
         switch ($type) {

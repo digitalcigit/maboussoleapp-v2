@@ -15,19 +15,27 @@ class Client extends Model
 
     // Statuts de base du client
     public const STATUS_ACTIVE = 'actif';
+
     public const STATUS_INACTIVE = 'inactif';
+
     public const STATUS_PENDING = 'en_attente';
+
     public const STATUS_ARCHIVED = 'archive';
 
     // Statuts de paiement
     public const PAYMENT_STATUS_PENDING = 'en_attente';
+
     public const PAYMENT_STATUS_PARTIAL = 'partiel';
+
     public const PAYMENT_STATUS_COMPLETED = 'complete';
 
     // Statuts de visa
     public const VISA_STATUS_NOT_STARTED = 'non_demarre';
+
     public const VISA_STATUS_IN_PROGRESS = 'en_cours';
+
     public const VISA_STATUS_OBTAINED = 'obtenu';
+
     public const VISA_STATUS_REJECTED = 'refuse';
 
     protected $fillable = [
@@ -93,7 +101,7 @@ class Client extends Model
      */
     public function getStatusLabel(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_ACTIVE => 'Actif',
             self::STATUS_INACTIVE => 'Inactif',
             self::STATUS_PENDING => 'En attente',
@@ -107,7 +115,7 @@ class Client extends Model
      */
     public function getPaymentStatusLabel(): string
     {
-        return match($this->payment_status) {
+        return match ($this->payment_status) {
             self::PAYMENT_STATUS_PENDING => 'En attente',
             self::PAYMENT_STATUS_PARTIAL => 'Partiel',
             self::PAYMENT_STATUS_COMPLETED => 'Complété',
@@ -120,7 +128,7 @@ class Client extends Model
      */
     public function getVisaStatusLabel(): string
     {
-        return match($this->visa_status) {
+        return match ($this->visa_status) {
             self::VISA_STATUS_NOT_STARTED => 'Non démarré',
             self::VISA_STATUS_IN_PROGRESS => 'En cours',
             self::VISA_STATUS_OBTAINED => 'Obtenu',

@@ -15,7 +15,7 @@ trait HasTestPermissions
     {
         // Crée un utilisateur de test avec un email unique
         $this->user = User::factory()->create([
-            'email' => 'test_' . uniqid() . '@example.com',
+            'email' => 'test_'.uniqid().'@example.com',
             'password' => Hash::make('password'),
         ]);
 
@@ -44,7 +44,7 @@ trait HasTestPermissions
             'access_filament',
             'access_admin_panel',
             'view_admin_panel',
-            
+
             // Permissions pour les activités
             'activities.view',
             'activities.create',
@@ -53,7 +53,7 @@ trait HasTestPermissions
             'activities.view_any',  // Permission Filament
             'activities.update',    // Permission Filament
             'manage activities',    // Permission Filament
-            
+
             // Permissions pour les clients
             'clients.view',
             'clients.create',
@@ -62,7 +62,7 @@ trait HasTestPermissions
             'clients.view_any',     // Permission Filament
             'clients.update',       // Permission Filament
             'manage clients',       // Permission Filament
-            
+
             // Permissions pour les prospects
             'prospects.view',
             'prospects.create',
@@ -98,7 +98,7 @@ trait HasTestPermissions
 
         // Assigne le rôle admin à l'utilisateur de test
         $this->user->assignRole('admin');
-        
+
         // Donne directement les permissions à l'utilisateur
         $this->user->syncPermissions($createdPermissions);
     }
@@ -109,7 +109,7 @@ trait HasTestPermissions
     protected function filament(string $method, string $uri, array $data = [])
     {
         $method = strtoupper($method);
-        
+
         // Filament utilise toujours POST avec _method pour les autres méthodes
         $actualMethod = 'POST';
         if (in_array($method, ['PUT', 'PATCH', 'DELETE'])) {

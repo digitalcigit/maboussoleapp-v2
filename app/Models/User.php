@@ -14,8 +14,8 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens;
     use HasFactory;
-    use Notifiable;
     use HasRoles;
+    use Notifiable;
 
     protected $fillable = [
         'name',
@@ -37,7 +37,7 @@ class User extends Authenticatable implements FilamentUser
     {
         // Vérifier si l'utilisateur a un rôle qui lui permet d'accéder au panel
         $authorizedRoles = ['super-admin', 'manager', 'conseiller'];
-        
+
         return $this->hasAnyRole($authorizedRoles);
     }
 }

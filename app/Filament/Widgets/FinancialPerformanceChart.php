@@ -8,7 +8,7 @@ use Filament\Widgets\ChartWidget;
 class FinancialPerformanceChart extends ChartWidget
 {
     protected static ?string $heading = 'Performance Financière';
-    
+
     protected static ?int $sort = 3;
 
     protected function getData(): array

@@ -10,10 +10,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class MonthlyGoalsWidget extends BaseWidget
 {
     protected static ?string $pollingInterval = '30s';
-    
+
     protected static ?int $sort = 5;
-    
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     protected function getStats(): array
     {
@@ -25,10 +25,10 @@ class MonthlyGoalsWidget extends BaseWidget
         // Valeurs actuelles
         $currentRevenue = Client::whereMonth('created_at', now()->month)
             ->sum('total_amount');
-        
+
         $currentProspects = Prospect::whereMonth('created_at', now()->month)
             ->count();
-        
+
         $convertedProspects = Client::whereMonth('created_at', now()->month)
             ->count();
         $totalProspects = Prospect::whereMonth('created_at', now()->month)
@@ -43,7 +43,7 @@ class MonthlyGoalsWidget extends BaseWidget
         $conversionProgress = min(100, round(($conversionRate / $conversionGoal) * 100));
 
         return [
-            Stat::make('Objectif CA', number_format($revenueGoal, 0, ',', ' ') . ' €')
+            Stat::make('Objectif CA', number_format($revenueGoal, 0, ',', ' ').' €')
                 ->description("$revenueProgress% atteint")
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->chart([0, $revenueProgress, 100])

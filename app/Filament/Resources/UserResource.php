@@ -18,7 +18,7 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
-    
+
     protected static ?string $navigationGroup = 'Administration';
 
     protected static ?int $navigationSort = 1;
@@ -31,13 +31,13 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->label('Nom complet'),
-                    
+
                 TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
-                    
+
                 TextInput::make('password')
                     ->password()
                     ->required(fn ($context) => $context === 'create')
@@ -45,14 +45,14 @@ class UserResource extends Resource
                     ->same('passwordConfirmation')
                     ->dehydrated(fn ($state) => filled($state))
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
-                    
+
                 TextInput::make('passwordConfirmation')
                     ->password()
                     ->label('Confirmation du mot de passe')
                     ->required(fn ($context) => $context === 'create')
                     ->minLength(8)
                     ->dehydrated(false),
-                    
+
                 Select::make('roles')
                     ->multiple()
                     ->relationship('roles', 'name')
@@ -69,15 +69,15 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->label('Nom'),
-                    
+
                 TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
-                    
+
                 TextColumn::make('roles.name')
                     ->badge()
                     ->label('Rôles'),
-                    
+
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
@@ -96,14 +96,14 @@ class UserResource extends Resource
                 ]),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -112,7 +112,7 @@ class UserResource extends Resource
             'edit' => Pages\EditUser::route('/users/{record}/edit'),
         ];
     }
-    
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery();

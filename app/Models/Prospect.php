@@ -15,9 +15,13 @@ class Prospect extends Model
 
     // Statuts des prospects
     public const STATUS_NEW = 'nouveau';
+
     public const STATUS_ANALYZING = 'en_analyse';
+
     public const STATUS_APPROVED = 'approuve';
+
     public const STATUS_REJECTED = 'refuse';
+
     public const STATUS_CONVERTED = 'converti';
 
     protected $fillable = [
@@ -68,7 +72,7 @@ class Prospect extends Model
      */
     public function getStatusLabel(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_NEW => 'Nouveau',
             self::STATUS_ANALYZING => 'En analyse',
             self::STATUS_APPROVED => 'Approuvé',

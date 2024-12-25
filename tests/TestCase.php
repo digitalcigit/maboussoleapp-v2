@@ -17,7 +17,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create and authenticate a user for each test
         $user = User::factory()->create();
         $this->actingAs($user);

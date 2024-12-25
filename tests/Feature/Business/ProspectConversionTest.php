@@ -16,8 +16,11 @@ class ProspectConversionTest extends TestCase
     use RefreshDatabase;
 
     protected User $manager;
+
     protected User $conseiller;
+
     protected Prospect $prospect;
+
     protected ProspectConversionService $conversionService;
 
     protected function setUp(): void
@@ -35,7 +38,7 @@ class ProspectConversionTest extends TestCase
 
         // Créer un prospect approuvé
         $this->prospect = Prospect::factory()->create([
-            'reference_number' => 'PROS-' . random_int(10000, 99999),
+            'reference_number' => 'PROS-'.random_int(10000, 99999),
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'john@example.com',
@@ -58,7 +61,7 @@ class ProspectConversionTest extends TestCase
             'partner_id' => null,
         ]);
 
-        $this->conversionService = new ProspectConversionService();
+        $this->conversionService = new ProspectConversionService;
     }
 
     /** @test */
@@ -187,7 +190,7 @@ class ProspectConversionTest extends TestCase
         // Vérifier le format des numéros de client
         $this->assertMatchesRegularExpression('/^CLI\d{6}$/', $client1->client_number);
         $this->assertMatchesRegularExpression('/^CLI\d{6}$/', $client2->client_number);
-        
+
         // Vérifier que le second numéro est plus grand que le premier
         $this->assertGreaterThan(
             intval(substr($client1->client_number, 3)),

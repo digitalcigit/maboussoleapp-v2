@@ -29,7 +29,7 @@ trait FilamentTestHelpers
         // Créer l'utilisateur
         $user = User::create([
             'name' => ucfirst($roleName),
-            'email' => $roleName . '@maboussole.ci',
+            'email' => $roleName.'@maboussole.ci',
             'password' => Hash::make('password'),
         ]);
 

@@ -89,7 +89,7 @@ trait FilamentPermissionsTrait
     /**
      * Crée un utilisateur de test avec des permissions spécifiques
      */
-    protected function createUserWithPermissions(array $permissions, string $role = null): User
+    protected function createUserWithPermissions(array $permissions, ?string $role = null): User
     {
         $this->createAllPermissions();
 
@@ -112,7 +112,7 @@ trait FilamentPermissionsTrait
     protected function createSuperAdmin(): User
     {
         $this->createAllPermissions();
-        
+
         $superAdmin = User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'super_admin@maboussole.ci',

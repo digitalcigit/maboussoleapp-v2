@@ -17,9 +17,9 @@ class EnumColumnsTest extends TestCase
         $prospect = Prospect::create([
             'status' => 'nouveau',
         ]);
-        
+
         $this->assertEquals('nouveau', $prospect->status);
-        
+
         // Test invalid value
         try {
             Prospect::create([
@@ -37,7 +37,7 @@ class EnumColumnsTest extends TestCase
             'status' => 'actif',
             'payment_status' => 'en_attente',
         ]);
-        
+
         $this->assertEquals('actif', $client->status);
         $this->assertEquals('en_attente', $client->payment_status);
     }
@@ -48,7 +48,7 @@ class EnumColumnsTest extends TestCase
             'status' => 'planifie',
             'type' => 'appel',
         ]);
-        
+
         $this->assertEquals('planifie', $activity->status);
         $this->assertEquals('appel', $activity->type);
     }

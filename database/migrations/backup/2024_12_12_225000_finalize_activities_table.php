@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -26,8 +27,8 @@ return new class extends Migration {
 
                 if (! Schema::hasColumn('activities', 'status')) {
                     $table->enum('status', ['planned', 'in_progress', 'completed', 'cancelled'])
-                          ->default('planned')
-                          ->after('type');
+                        ->default('planned')
+                        ->after('type');
                 }
 
                 // Add polymorphic relationship if it doesn't exist
@@ -39,17 +40,17 @@ return new class extends Migration {
                 if (! Schema::hasColumn('activities', 'client_id')) {
                     $table->unsignedBigInteger('client_id')->nullable();
                     $table->foreign('client_id')
-                          ->references('id')
-                          ->on('clients')
-                          ->onDelete('cascade');
+                        ->references('id')
+                        ->on('clients')
+                        ->onDelete('cascade');
                 }
 
                 if (! Schema::hasColumn('activities', 'prospect_id')) {
                     $table->unsignedBigInteger('prospect_id')->nullable();
                     $table->foreign('prospect_id')
-                          ->references('id')
-                          ->on('prospects')
-                          ->onDelete('cascade');
+                        ->references('id')
+                        ->on('prospects')
+                        ->onDelete('cascade');
                 }
             });
         }
@@ -63,7 +64,7 @@ return new class extends Migration {
         Schema::table('activities', function (Blueprint $table) {
             // Only drop columns that we added
             $columns = ['title', 'status', 'client_id', 'prospect_id'];
-            
+
             foreach ($columns as $column) {
                 if (Schema::hasColumn('activities', $column)) {
                     if (in_array($column, ['client_id', 'prospect_id'])) {

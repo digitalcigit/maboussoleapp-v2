@@ -12,17 +12,19 @@ use Tests\Traits\FilamentTestHelpers;
 
 class AuthenticationWorkflowTest extends TestCase
 {
-    use RefreshDatabase;
     use FilamentTestHelpers;
+    use RefreshDatabase;
 
     private User $superAdmin;
+
     private User $manager;
+
     private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Création des utilisateurs avec leurs rôles respectifs
         $this->superAdmin = $this->createSuperAdmin();
         $this->manager = $this->createManager();
@@ -40,7 +42,7 @@ class AuthenticationWorkflowTest extends TestCase
             'password' => 'wrong_password',
             'remember' => false,
         ]);
-        
+
         $this->assertGuest();
 
         // 2. Connexion réussie
@@ -84,7 +86,7 @@ class AuthenticationWorkflowTest extends TestCase
         $this->assertAuthenticated();
 
         $this->post('/admin/logout');
-        
+
         Event::assertDispatched(Logout::class);
         $this->assertGuest();
     }
@@ -108,7 +110,7 @@ class AuthenticationWorkflowTest extends TestCase
         $this->assertTrue($this->manager->can('prospects.view'));
         $this->assertTrue($this->manager->can('prospects.create'));
         $this->assertFalse($this->manager->can('users.view'));
-        
+
         // Test des permissions de l'utilisateur standard
         $this->assertTrue($this->user->can('prospects.view'));
         $this->assertTrue($this->user->can('activities.view'));

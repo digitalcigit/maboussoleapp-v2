@@ -5,12 +5,13 @@ namespace Scripts;
 class DocumentationGenerator
 {
     private $basePath;
+
     private $docsPath;
 
     public function __construct()
     {
         $this->basePath = dirname(__DIR__);
-        $this->docsPath = $this->basePath . '/docs';
+        $this->docsPath = $this->basePath.'/docs';
     }
 
     /**
@@ -18,14 +19,14 @@ class DocumentationGenerator
      */
     public function generateModelsDocs()
     {
-        $modelsPath = $this->basePath . '/app/Models';
-        $modelsDocs = $this->docsPath . '/technical/models';
+        $modelsPath = $this->basePath.'/app/Models';
+        $modelsDocs = $this->docsPath.'/technical/models';
 
-        if (!is_dir($modelsDocs)) {
+        if (! is_dir($modelsDocs)) {
             mkdir($modelsDocs, 0755, true);
         }
 
-        foreach (glob($modelsPath . '/*.php') as $modelFile) {
+        foreach (glob($modelsPath.'/*.php') as $modelFile) {
             $this->documentModel($modelFile, $modelsDocs);
         }
     }
@@ -37,20 +38,20 @@ class DocumentationGenerator
     {
         $className = basename($modelFile, '.php');
         $reflection = new \ReflectionClass("App\\Models\\$className");
-        
+
         $documentation = "# $className\n\n";
         $documentation .= "## Propriétés\n";
-        
+
         // Documenter les propriétés
         foreach ($reflection->getProperties() as $property) {
-            $documentation .= "- " . $property->getName() . "\n";
+            $documentation .= '- '.$property->getName()."\n";
         }
 
         // Documenter les relations
         $documentation .= "\n## Relations\n";
         foreach ($reflection->getMethods() as $method) {
             if ($this->isRelationMethod($method)) {
-                $documentation .= "- " . $method->getName() . "\n";
+                $documentation .= '- '.$method->getName()."\n";
             }
         }
 
@@ -63,11 +64,13 @@ class DocumentationGenerator
     private function isRelationMethod(\ReflectionMethod $method)
     {
         $returnType = $method->getReturnType();
-        if (!$returnType) return false;
+        if (! $returnType) {
+            return false;
+        }
 
         $relationTypes = [
             'HasOne', 'HasMany', 'BelongsTo', 'BelongsToMany',
-            'MorphTo', 'MorphOne', 'MorphMany'
+            'MorphTo', 'MorphOne', 'MorphMany',
         ];
 
         foreach ($relationTypes as $type) {
@@ -84,14 +87,14 @@ class DocumentationGenerator
      */
     public function generateControllersDocs()
     {
-        $controllersPath = $this->basePath . '/app/Http/Controllers';
-        $controllersDocs = $this->docsPath . '/technical/controllers';
+        $controllersPath = $this->basePath.'/app/Http/Controllers';
+        $controllersDocs = $this->docsPath.'/technical/controllers';
 
-        if (!is_dir($controllersDocs)) {
+        if (! is_dir($controllersDocs)) {
             mkdir($controllersDocs, 0755, true);
         }
 
-        foreach (glob($controllersPath . '/*.php') as $controllerFile) {
+        foreach (glob($controllersPath.'/*.php') as $controllerFile) {
             $this->documentController($controllerFile, $controllersDocs);
         }
     }
@@ -103,13 +106,13 @@ class DocumentationGenerator
     {
         $className = basename($controllerFile, '.php');
         $reflection = new \ReflectionClass("App\\Http\\Controllers\\$className");
-        
+
         $documentation = "# $className\n\n";
         $documentation .= "## Actions\n";
-        
+
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             if ($method->class === $reflection->getName()) {
-                $documentation .= "### " . $method->getName() . "\n";
+                $documentation .= '### '.$method->getName()."\n";
                 $documentation .= $this->getMethodDocumentation($method);
                 $documentation .= "\n";
             }
@@ -124,7 +127,9 @@ class DocumentationGenerator
     private function getMethodDocumentation(\ReflectionMethod $method)
     {
         $doc = $method->getDocComment();
-        if (!$doc) return "Pas de documentation disponible.\n";
+        if (! $doc) {
+            return "Pas de documentation disponible.\n";
+        }
 
         return $this->formatDocComment($doc);
     }
@@ -135,11 +140,11 @@ class DocumentationGenerator
     private function formatDocComment($docComment)
     {
         $lines = explode("\n", $docComment);
-        $formatted = "";
-        
+        $formatted = '';
+
         foreach ($lines as $line) {
             $line = trim($line, "/* \t");
-            if ($line && !str_starts_with($line, '@')) {
+            if ($line && ! str_starts_with($line, '@')) {
                 $formatted .= "$line\n";
             }
         }
@@ -153,32 +158,32 @@ class DocumentationGenerator
     public function generateCoverageReport()
     {
         $report = "# Rapport de Couverture de la Documentation\n\n";
-        $report .= "Généré le : " . date('Y-m-d H:i:s') . "\n\n";
+        $report .= 'Généré le : '.date('Y-m-d H:i:s')."\n\n";
 
         // Vérification des modèles
         $report .= "## Modèles\n";
-        $modelsPath = $this->basePath . '/app/Models';
-        $totalModels = count(glob($modelsPath . '/*.php'));
-        $documentedModels = count(glob($this->docsPath . '/technical/models/*.md'));
+        $modelsPath = $this->basePath.'/app/Models';
+        $totalModels = count(glob($modelsPath.'/*.php'));
+        $documentedModels = count(glob($this->docsPath.'/technical/models/*.md'));
         $report .= "- Total : $totalModels\n";
         $report .= "- Documentés : $documentedModels\n";
-        $report .= "- Couverture : " . ($totalModels ? round(($documentedModels / $totalModels) * 100) : 0) . "%\n\n";
+        $report .= '- Couverture : '.($totalModels ? round(($documentedModels / $totalModels) * 100) : 0)."%\n\n";
 
         // Vérification des contrôleurs
         $report .= "## Contrôleurs\n";
-        $controllersPath = $this->basePath . '/app/Http/Controllers';
-        $totalControllers = count(glob($controllersPath . '/*.php'));
-        $documentedControllers = count(glob($this->docsPath . '/technical/controllers/*.md'));
+        $controllersPath = $this->basePath.'/app/Http/Controllers';
+        $totalControllers = count(glob($controllersPath.'/*.php'));
+        $documentedControllers = count(glob($this->docsPath.'/technical/controllers/*.md'));
         $report .= "- Total : $totalControllers\n";
         $report .= "- Documentés : $documentedControllers\n";
-        $report .= "- Couverture : " . ($totalControllers ? round(($documentedControllers / $totalControllers) * 100) : 0) . "%\n";
+        $report .= '- Couverture : '.($totalControllers ? round(($documentedControllers / $totalControllers) * 100) : 0)."%\n";
 
-        file_put_contents($this->docsPath . '/coverage-report.md', $report);
+        file_put_contents($this->docsPath.'/coverage-report.md', $report);
     }
 }
 
 // Exécution
-$generator = new DocumentationGenerator();
+$generator = new DocumentationGenerator;
 $generator->generateModelsDocs();
 $generator->generateControllersDocs();
 $generator->generateCoverageReport();

@@ -21,7 +21,7 @@ class ProspectFactory extends Factory
     public function definition(): array
     {
         return [
-            'reference_number' => 'PROS-' . random_int(10000, 99999),
+            'reference_number' => 'PROS-'.random_int(10000, 99999),
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
             'email' => $this->faker->unique()->safeEmail(),
@@ -40,7 +40,7 @@ class ProspectFactory extends Factory
             ],
             'status' => Prospect::STATUS_NEW,
             'assigned_to' => User::factory(),
-            'commercial_code' => 'COM' . random_int(100, 999),
+            'commercial_code' => 'COM'.random_int(100, 999),
             'partner_id' => null,
             'last_action_at' => null,
             'analysis_deadline' => $this->faker->dateTimeBetween('now', '+30 days'),

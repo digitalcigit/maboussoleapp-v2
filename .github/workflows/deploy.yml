@@ -62,8 +62,8 @@ jobs:
         VERSION: ${{ steps.version.outputs.version }}
       run: |
         echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
-        # Créer le dossier de destination avec sudo
-        ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "sudo mkdir -p ${{ secrets.DEPLOY_PATH }} && sudo chown ${{ secrets.SERVER_USER }}:${{ secrets.SERVER_USER }} ${{ secrets.DEPLOY_PATH }}"
+        # Créer le dossier de destination si nécessaire
+        ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${{ secrets.DEPLOY_PATH }}"
         
         # Synchroniser les fichiers
         rsync -avz --delete -e "ssh -p 5022" \
@@ -128,6 +128,5 @@ jobs:
       with:
         status: ${{ job.status }}
         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-        text: Deploiement ${{ steps.version.outputs.version }} vers ${{ steps.version.outputs.environment }}
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
