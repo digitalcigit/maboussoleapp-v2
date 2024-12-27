@@ -8,6 +8,10 @@ Le projet maintient une documentation exhaustive dans le dossier `docs/` :
 ### Documentation Principale
 ```yaml
 docs/
+├── .cascade/                  # Documentation spécifique à l'IA
+│   ├── CASCADE_CONTEXT_PRIMER.md    # Contexte initial
+│   ├── CASCADE_SESSION_CLOSER.md    # Clôture de session
+│   └── AI_AUGMENTED_ARCHITECT_PROFILE.md  # Profil de l'architecte augmenté
 ├── context/                    # Contexte actuel et décisions
 │   ├── current-state.md       # État ACTUEL du projet
 │   ├── decisions-log.md       # Historique des décisions
@@ -109,7 +113,8 @@ graph TD
 
 ### Consultation
 1. **Hiérarchie de Lecture**
-   - `ai-context.md` en premier
+   - `AI_AUGMENTED_ARCHITECT_PROFILE.md` pour comprendre l'approche de l'architecte
+   - `ai-context.md` pour le contexte global
    - Dossier `context/` pour les détails
    - ADRs pour les décisions techniques
 
@@ -117,6 +122,7 @@ graph TD
    - Conformité avec le stack technique
    - Respect des workflows définis
    - Standards de code et tests
+   - Alignement avec la méthodologie de l'architecte augmenté
 
 ### Maintenance
 1. **Documentation**
@@ -147,7 +153,7 @@ graph TD
    - Gestion des ressources
 
 ## Note Finale
-Cette structure est conçue pour maintenir la cohérence et la qualité du projet. Chaque modification doit respecter ces standards et être documentée selon ces directives. Référez-vous systématiquement à cette documentation pour guider vos décisions et actions.
+Cette structure est conçue pour maintenir la cohérence et la qualité du projet. Le document `AI_AUGMENTED_ARCHITECT_PROFILE.md` définit l'approche unique de l'architecte dans l'utilisation de l'IA comme multiplicateur de force. Chaque modification doit respecter ces standards et être documentée selon ces directives.
 
 ---
-> Dernière mise à jour : 2024-12-25
+> Dernière mise à jour : 2024-12-27
