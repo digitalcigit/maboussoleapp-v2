@@ -18,6 +18,10 @@ docs/
 ├── features/
 │   ├── implemented/           # Fonctionnalités complétées
 │   └── planned/              # Fonctionnalités à venir
+├── debugging/                # Documentation des sessions de débogage
+│   ├── middleware/           # Problèmes liés aux middlewares
+│   ├── database/            # Problèmes liés à la base de données
+│   └── ui/                  # Problèmes d'interface utilisateur
 ├── sessions/                  # Résumés des sessions
 └── ai-context.md             # Résumé global pour l'IA
 ```
@@ -90,6 +94,16 @@ graph TD
    - Mise à jour continue des ADRs
    - Documentation en français
    - Diagrammes Mermaid pour les workflows
+
+### Documentation du Débogage
+- Chaque session de débogage doit être documentée en détail
+- La documentation doit inclure :
+  - Contexte initial du problème
+  - Chronologie des tentatives de résolution
+  - Solutions testées (réussies et échouées)
+  - Leçons apprises
+- Les documents de débogage servent de base de connaissances
+- Objectif : Capitaliser sur l'expérience pour les problèmes futurs
 
 ## 5. Vos Responsabilités
 

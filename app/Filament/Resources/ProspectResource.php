@@ -174,7 +174,8 @@ class ProspectResource extends Resource
                         }),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->persistSortInSession();
     }
 
     public static function getRelations(): array

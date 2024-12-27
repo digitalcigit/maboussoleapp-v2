@@ -163,6 +163,64 @@ protected function getStats(): array
 }
 ```
 
+### 6. Problèmes d'Affichage Filament
+
+#### Symptômes
+- Page blanche dans l'interface admin
+- Styles CSS non chargés
+- Assets manquants
+- Erreurs de console liées aux ressources non trouvées
+
+#### Diagnostic
+1. **Vérification des Logs**
+   ```bash
+   tail -f storage/logs/laravel.log
+   ```
+   - Rechercher les erreurs liées à Filament
+   - Vérifier les problèmes d'autorisation
+
+2. **Inspection du Navigateur**
+   - Ouvrir les outils de développement (F12)
+   - Vérifier l'onglet "Network" pour les ressources 404
+   - Examiner la console pour les erreurs JavaScript
+
+#### Solution
+1. **Nettoyage du Cache**
+   ```bash
+   php artisan optimize:clear
+   php artisan view:clear
+   php artisan cache:clear
+   ```
+
+2. **Reconstruction des Assets**
+   ```bash
+   npm install
+   npm run build
+   ```
+
+3. **En Cas de Problème Persistant**
+   ```bash
+   # Retour à un état stable
+   git reset --hard
+   git checkout -b develop
+   
+   # Reconstruction de l'environnement
+   composer install
+   npm install
+   npm run build
+   php artisan optimize:clear
+   ```
+
+#### Prévention
+- Toujours tester l'interface après les modifications
+- Commiter les changements fonctionnels
+- Suivre l'ADR-004 pour la gestion des assets
+- Maintenir une branche stable
+
+#### Références
+- [ADR-004: Gestion des Assets Filament](/docs/architecture/adr/ADR-004-gestion-assets-filament.md)
+- Documentation officielle Filament 3.x
+
 ## Outils de Diagnostic
 
 ### Logs

@@ -1,9 +1,9 @@
 # Planning Agile MaBoussole CRM v2 - Focus Livrables Client
 
-## État Actuel (Sprint 2 - 80% complété)
-- Interface d'administration de base
-- Gestion des utilisateurs et rôles
-- Structure de base de données consolidée
+## État Actuel (Sprint 2 - 85% complété)
+- ✅ Interface d'administration de base
+- ✅ Gestion des utilisateurs et rôles
+- ✅ Structure de base de données consolidée et documentée
 
 ## Planning des Incréments
 
