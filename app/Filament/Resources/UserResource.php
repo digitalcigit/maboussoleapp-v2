@@ -9,19 +9,21 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
+    protected static ?string $modelLabel = 'Utilisateur';
+    protected static ?string $pluralModelLabel = 'Utilisateurs';
+    protected static ?string $navigationLabel = 'Utilisateurs';
     protected static ?string $navigationIcon = 'heroicon-o-users';
-
     protected static ?string $navigationGroup = 'Administration';
-
     protected static ?int $navigationSort = 1;
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {
@@ -65,27 +67,31 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->searchable()
+                Tables\Columns\TextColumn::make('id')
                     ->sortable()
-                    ->label('Nom'),
-
-                TextColumn::make('email')
+                    ->label('ID'),
+                
+                Tables\Columns\TextColumn::make('name')
+                    ->sortable()
                     ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('roles.name')
-                    ->badge()
-                    ->label('Rôles'),
-
-                TextColumn::make('created_at')
+                    ->label('Nom'),
+                
+                Tables\Columns\TextColumn::make('email')
+                    ->sortable()
+                    ->searchable(),
+                
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Rôles')
+                    ->badge(),
+                
+                Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->label('Créé le'),
+                    ->label('Date de création'),
             ])
-            ->filters([
-                //
-            ])
+            ->defaultSort('created_at', 'desc')
+            ->persistSortInSession()
+            ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -97,24 +103,12 @@ class UserResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/users'),
-            'create' => Pages\CreateUser::route('/users/create'),
-            'edit' => Pages\EditUser::route('/users/{record}/edit'),
+            'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery();
     }
 }
