@@ -20,7 +20,27 @@
    - Permissions are documented with French descriptions
 
 ## Recent Changes (Last Session)
-1. **Database Restructuring** (2024-12-24)
+1. **Interface Admin** (2024-12-26)
+   - Résolution des problèmes d'affichage Filament
+   - Retour à la configuration standard
+   - Création de la branche develop
+   - ADR-004 créé pour documentation
+   - Status: Completed
+   - Files Affected:
+     * app/Providers/Filament/AdminPanelProvider.php
+     * resources/css/filament/admin/theme.css
+     * vite.config.js
+
+2. **Middleware Debug Documentation** (2024-12-26)
+   - Mise en place d'une documentation détaillée du débogage
+   - Création du dossier docs/debugging/
+   - Documentation du problème de type null dans le middleware
+   - Status: Completed
+   - Files Affected:
+     * docs/debugging/middleware/DEBUG_MIDDLEWARE.md
+     * docs/.cascade/CASCADE_CONTEXT_PRIMER.md
+
+3. **Database Restructuring** (2024-12-24)
    - Updated Client, Prospect, and Activity models
    - Added French status constants
    - Fixed migration order dependencies
@@ -31,25 +51,19 @@
      * app/Models/Activity.php
      * database/migrations/*_create_consolidated_*.php
 
-2. **Seeder Updates** (2024-12-24)
+4. **Seeder Updates** (2024-12-24)
    - Consolidated RoleSeeder into RolesAndPermissionsSeeder
    - Updated TestDataSeeder for new model structure
    - Added description field to permissions table
 
 ## Known Issues
-1. **Testing Environment**
-   - Some Filament tests failing (403/405 errors)
-   - Status: Under Investigation
-   - Priority: High
-
-2. **Technical Debt**
+1. **Technical Debt**
    - Need to clean up old migrations
    - Some duplicate permission definitions
    - Status: Tracked, Low Priority
 
 ## Next Actions
 1. **High Priority**
-   - [ ] Fix Filament test issues
    - [ ] Complete permission system implementation
    - [ ] Add missing model validations
 
@@ -76,6 +90,7 @@
 
 ## Architecture Decisions
 1. **Active**
+   - ADR-004: Filament Configuration Standardization (2024-12-26)
    - ADR-003: Visual-First Approach (2024-12-25)
    - ADR-002: Database Migrations Cleanup (2024-12-23)
    - ADR-001: Role Management System (2024-12-22)
@@ -84,17 +99,28 @@
    - Notification System Architecture
    - Audit Log Implementation
 
-## Development Approach
-1. **Visual-First Development**
+## Development Practices
+1. **Code Quality**
+   - PHPStan level 8 for static analysis
+   - Pest for unit and feature testing
+   - Conventional Commits format
+
+2. **Documentation**
+   - ADRs pour les décisions d'architecture
+   - Documentation en français privilégiée
+   - Documentation systématique du débogage
+   - Base de connaissances évolutive
+
+3. **Development Flow**
    - All features must follow VISUAL_APPROACH.md guidelines
    - UI/UX prototypes required before implementation
    - Visual documentation with screenshots/videos
    - Interactive demonstrations prioritized
 
 ## Session Markers
-- Last Session ID: 2024122401
-- Last Major Change: Database Models Restructuring
-- Current Context Hash: DB_RESTRUCTURE_24122024
+- Last Session ID: 2024122601
+- Last Major Change: Interface Admin
+- Current Context Hash: INTERFACE_ADMIN_26122024
 
 ## Related Documentation
 - Technical Specifications: docs/technical/
