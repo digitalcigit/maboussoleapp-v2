@@ -101,3 +101,4 @@ Les tests sont exécutés automatiquement à chaque push sur la branche main.
 ## Statut
 
 ![Laravel CI/CD](https://github.com/[votre-nom]/maboussoleapp-v2/actions/workflows/laravel-ci.yml/badge.svg)
+![Deploy Status](https://github.com/digitalcigit/maboussoleapp-v2/actions/workflows/deploy.yml/badge.svg)
