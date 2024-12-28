@@ -127,7 +127,10 @@ jobs:
       if: always()
       uses: 8398a7/action-slack@v3
       with:
-        status: ${{ job.status }}
+        status: ${{ steps.deploy.outputs.deploy_status == 'success' && 'success' || 'failure' }}
         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        text: |
+          Déploiement ${{ steps.version.outputs.version }} vers ${{ steps.version.outputs.environment }}
+          ${{ steps.deploy.outputs.deploy_status == 'success' && '✅ Succès' || '❌ Échec' }}
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
