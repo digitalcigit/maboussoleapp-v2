@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/', function () {
+    return redirect('/admin');
+});
+
 Route::get('/system/initialization', [SystemInitializationController::class, 'showInitializationForm'])
     ->name('system.initialization');
 
 Route::post('/system/initialize', [SystemInitializationController::class, 'initialize'])
     ->name('system.initialize');
-
-Route::get('/', function () {
-    return redirect('/admin');
-});

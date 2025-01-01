@@ -19,7 +19,6 @@ jobs:
       checks: write
       id-token: write
     
-    # Définir l'environnement en fonction de la branche
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     
     steps:
@@ -46,6 +45,21 @@ jobs:
         token: ${{ github.token }}
         environment: ${{ steps.version.outputs.environment }}
         description: 'Deploying ${{ steps.version.outputs.version }}'
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Prepare Release
+      run: |
+        chmod +x scripts/prepare-release.sh
+        ./scripts/prepare-release.sh
         
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.8.0
@@ -66,16 +80,18 @@ jobs:
         VERSION: ${{ steps.version.outputs.version }}
       run: |
         echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
+        RELEASE_FILE=$(ls releases/release-*.zip | sort -r | head -n1)
+        
         # Créer le dossier de destination si nécessaire
         ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${{ secrets.DEPLOY_PATH }}"
         
-        # Synchroniser les fichiers
-        rsync -avz --delete -e "ssh -p 5022" \
-          --exclude='.git*' \
-          --exclude='node_modules' \
-          --exclude='vendor' \
-          --exclude='.env' \
-          ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}
+        # Transférer et décompresser l'archive
+        scp -P 5022 "$RELEASE_FILE" ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/release.zip
+        ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && \
+          unzip -o release.zip && \
+          rm release.zip && \
+          mv release-*/* . && \
+          rm -rf release-*"
         
         if [ $? -eq 0 ]; then
           echo "deploy_status=success" >> $GITHUB_OUTPUT
@@ -99,41 +115,11 @@ jobs:
         tag_name: ${{ steps.version.outputs.version }}
         name: Release ${{ steps.version.outputs.version }}
         body: |
-          Release ${{ steps.version.outputs.version }}
+          🚀 Release ${{ steps.version.outputs.version }}
           
-          ## Changements
+          ### Déploiement
+          - Environnement: ${{ steps.version.outputs.environment }}
+          - Status: ${{ steps.deploy.outputs.deploy_status }}
+          
+          ### Changements
           ${{ github.event.head_commit.message }}
-          
-          ## Commits
-          https://github.com/${{ github.repository }}/compare/${{ github.event.before }}...${{ github.sha }}
-        draft: false
-        prerelease: false
-        
-    - name: Create Beta Release
-      if: github.ref == 'refs/heads/develop' && steps.deploy.outputs.deploy_status == 'success'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ steps.version.outputs.version }}
-        name: Beta Release ${{ steps.version.outputs.version }}
-        body: |
-          Beta Release ${{ steps.version.outputs.version }}
-          
-          ## Changements
-          ${{ github.event.head_commit.message }}
-          
-          ## Commits
-          https://github.com/${{ github.repository }}/compare/${{ github.event.before }}...${{ github.sha }}
-        draft: false
-        prerelease: true
-        
-    - name: Notify Slack
-      if: always()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ steps.deploy.outputs.deploy_status == 'success' && 'success' || 'failure' }}
-        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-        text: |
-          Déploiement ${{ steps.version.outputs.version }} vers ${{ steps.version.outputs.environment }}
-          ${{ steps.deploy.outputs.deploy_status == 'success' && '✅ Succès' || '❌ Échec' }}
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
