@@ -46,21 +46,6 @@ jobs:
         environment: ${{ steps.version.outputs.environment }}
         description: 'Deploying ${{ steps.version.outputs.version }}'
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        
-    - name: Prepare Release
-      run: |
-        chmod +x scripts/prepare-release.sh
-        ./scripts/prepare-release.sh
-        
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.8.0
       with:
@@ -70,7 +55,7 @@ jobs:
       run: |
         mkdir -p ~/.ssh
         touch ~/.ssh/known_hosts
-        ssh-keyscan -H -p 5022 ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
         chmod 644 ~/.ssh/known_hosts
         
     - name: Deploy Application
@@ -78,20 +63,18 @@ jobs:
       env:
         DEPLOY_ENV: ${{ steps.version.outputs.environment }}
         VERSION: ${{ steps.version.outputs.version }}
+        REMOTE_USER: ${{ secrets.SERVER_USER }}
+        REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+        REMOTE_PORT: ${{ secrets.SERVER_PORT }}
+        REMOTE_BASE_DIR: ${{ secrets.DEPLOY_PATH }}
       run: |
         echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
-        RELEASE_FILE=$(ls releases/release-*.zip | sort -r | head -n1)
         
-        # Créer le dossier de destination si nécessaire
-        ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${{ secrets.DEPLOY_PATH }}"
+        # Transférer le script de déploiement
+        scp -P $REMOTE_PORT scripts/deploy-production.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
         
-        # Transférer et décompresser l'archive
-        scp -P 5022 "$RELEASE_FILE" ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/release.zip
-        ssh -p 5022 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && \
-          unzip -o release.zip && \
-          rm release.zip && \
-          mv release-*/* . && \
-          rm -rf release-*"
+        # Exécuter le script de déploiement
+        ssh -p $REMOTE_PORT ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "chmod +x /tmp/deploy-production.sh && /tmp/deploy-production.sh"
         
         if [ $? -eq 0 ]; then
           echo "deploy_status=success" >> $GITHUB_OUTPUT
@@ -105,21 +88,18 @@ jobs:
       uses: chrnorm/deployment-status@v2
       with:
         token: ${{ github.token }}
-        deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+        environment-url: https://crm-app.maboussole.net
         state: ${{ steps.deploy.outputs.deploy_status == 'success' && 'success' || 'failure' }}
-        
-    - name: Create Release
-      if: github.ref == 'refs/heads/main' && steps.deploy.outputs.deploy_status == 'success'
-      uses: softprops/action-gh-release@v1
+        deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+
+    - name: Notify on Failure
+      if: failure()
+      uses: actions/github-script@v6
       with:
-        tag_name: ${{ steps.version.outputs.version }}
-        name: Release ${{ steps.version.outputs.version }}
-        body: |
-          🚀 Release ${{ steps.version.outputs.version }}
-          
-          ### Déploiement
-          - Environnement: ${{ steps.version.outputs.environment }}
-          - Status: ${{ steps.deploy.outputs.deploy_status }}
-          
-          ### Changements
-          ${{ github.event.head_commit.message }}
+        script: |
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Deployment failed: ${process.env.VERSION}`,
+            body: `Deployment to ${process.env.DEPLOY_ENV} failed.\nPlease check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for more details.`
+          });
