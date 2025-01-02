@@ -1,18 +1,25 @@
 #!/bin/bash
 
 # Configuration
-REMOTE_USER="${REMOTE_USER:-crmmaboussole}"
-REMOTE_HOST="${REMOTE_HOST:-crm-app.maboussole.net}"
-REMOTE_PORT="${REMOTE_PORT:-22}"
+REMOTE_USER="${REMOTE_USER}"
+REMOTE_HOST="${REMOTE_HOST}"
+REMOTE_PORT="${REMOTE_PORT}"
 RELEASE_NAME="release-$(date +%Y%m%d-%H%M%S)"
-REMOTE_BASE_DIR="${REMOTE_BASE_DIR:-/var/www/laravel/crm-app.maboussole.net}"
+REMOTE_BASE_DIR="${REMOTE_BASE_DIR}"
 MAX_RELEASES=5
+
+# Vérification des variables requises
+if [ -z "$REMOTE_USER" ] || [ -z "$REMOTE_HOST" ] || [ -z "$REMOTE_PORT" ] || [ -z "$REMOTE_BASE_DIR" ]; then
+    echo "Error: Missing required environment variables"
+    echo "Required variables: REMOTE_USER, REMOTE_HOST, REMOTE_PORT, REMOTE_BASE_DIR"
+    exit 1
+fi
 
 # SSH connection string
 SSH_CONNECTION="ssh -p ${REMOTE_PORT} ${REMOTE_USER}@${REMOTE_HOST}"
 
 echo "Starting deployment process..."
-echo "Deploying to ${REMOTE_HOST} as ${REMOTE_USER}"
+echo "Deploying to ${REMOTE_HOST}:${REMOTE_PORT} as ${REMOTE_USER}"
 echo "Release: ${RELEASE_NAME}"
 echo "Base directory: ${REMOTE_BASE_DIR}"
 

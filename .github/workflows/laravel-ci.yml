@@ -65,8 +65,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
+    - name: Update Composer
+      run: composer update --no-interaction --no-scripts --no-progress --prefer-dist
+
     - name: Install Composer Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      run: |
+        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
     - name: Install NPM Dependencies
       run: |
