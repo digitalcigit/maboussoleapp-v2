@@ -46,12 +46,15 @@ jobs:
         environment: ${{ steps.version.outputs.environment }}
         description: 'Deploying ${{ steps.version.outputs.version }}'
 
-    - name: Setup SSH Configuration
+    - name: Setup SSH
       run: |
         mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
         echo "Host *" > ~/.ssh/config
         echo "  StrictHostKeyChecking no" >> ~/.ssh/config
         echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+        echo "  IdentityFile ~/.ssh/id_rsa" >> ~/.ssh/config
         chmod 600 ~/.ssh/config
         
     - name: Add Known Hosts
