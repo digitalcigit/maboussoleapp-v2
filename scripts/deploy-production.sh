@@ -1,17 +1,20 @@
 #!/bin/bash
 
 # Configuration
-REMOTE_USER="crmmaboussole"
-REMOTE_HOST="crm-app.maboussole.net"
-REMOTE_PORT="22"
+REMOTE_USER="${REMOTE_USER:-crmmaboussole}"
+REMOTE_HOST="${REMOTE_HOST:-crm-app.maboussole.net}"
+REMOTE_PORT="${REMOTE_PORT:-22}"
 RELEASE_NAME="release-$(date +%Y%m%d-%H%M%S)"
-REMOTE_BASE_DIR="/var/www/laravel/crm-app.maboussole.net"
+REMOTE_BASE_DIR="${REMOTE_BASE_DIR:-/var/www/laravel/crm-app.maboussole.net}"
 MAX_RELEASES=5
 
 # SSH connection string
 SSH_CONNECTION="ssh -p ${REMOTE_PORT} ${REMOTE_USER}@${REMOTE_HOST}"
 
 echo "Starting deployment process..."
+echo "Deploying to ${REMOTE_HOST} as ${REMOTE_USER}"
+echo "Release: ${RELEASE_NAME}"
+echo "Base directory: ${REMOTE_BASE_DIR}"
 
 # 0. Check SSH connection
 echo "Checking SSH connection..."
