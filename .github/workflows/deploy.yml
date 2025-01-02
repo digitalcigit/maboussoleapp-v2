@@ -61,15 +61,10 @@ jobs:
         REMOTE_PORT: ${{ secrets.SERVER_PORT }}
         REMOTE_BASE_DIR: ${{ secrets.DEPLOY_PATH }}
       run: |
-        # Configure SSH to disable host key checking
-        mkdir -p ~/.ssh
-        echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null" > ~/.ssh/config
-        chmod 600 ~/.ssh/config
-        
         echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
         
         # Transférer le script de déploiement
-        scp -P $REMOTE_PORT scripts/deploy-production.sh $REMOTE_USER@$REMOTE_HOST:/tmp/
+        scp -P $REMOTE_PORT scripts/deploy-production.sh $REMOTE_USER@$REMOTE_HOST:/tmp/ || { echo "SCP failed"; exit 1; }
         
         # Exécuter le script de déploiement avec les variables d'environnement
         ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "bash -s" << 'ENDSSH'
@@ -77,16 +72,9 @@ jobs:
           export REMOTE_HOST='$REMOTE_HOST'
           export REMOTE_PORT='$REMOTE_PORT'
           export REMOTE_BASE_DIR='$REMOTE_BASE_DIR'
-          chmod +x /tmp/deploy-production.sh
-          /tmp/deploy-production.sh
+          chmod +x /tmp/deploy-production.sh || { echo "chmod failed"; exit 1; }
+          /tmp/deploy-production.sh || { echo "Remote script failed"; exit 1; }
 ENDSSH
-        
-        if [ $? -eq 0 ]; then
-          echo "deploy_status=success" >> $GITHUB_OUTPUT
-        else
-          echo "deploy_status=failure" >> $GITHUB_OUTPUT
-          exit 1
-        fi
 
     - name: Update Deployment Status
       if: always()
