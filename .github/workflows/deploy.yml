@@ -74,7 +74,7 @@ jobs:
           export REMOTE_BASE_DIR='$REMOTE_BASE_DIR'
           chmod +x /tmp/deploy-production.sh || { echo "chmod failed"; exit 1; }
           /tmp/deploy-production.sh || { echo "Remote script failed"; exit 1; }
-ENDSSH
+        ENDSSH
 
     - name: Update Deployment Status
       if: always()
