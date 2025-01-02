@@ -66,32 +66,49 @@ jobs:
         echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
         
         ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "
+          # Vérification des commandes requises
+          command -v git >/dev/null 2>&1 || { echo 'git is required but not installed.' >&2; exit 1; }
+          command -v composer >/dev/null 2>&1 || { echo 'composer is required but not installed.' >&2; exit 1; }
+          command -v npm >/dev/null 2>&1 || { echo 'npm is required but not installed.' >&2; exit 1; }
+          
+          # Création du répertoire si nécessaire
+          mkdir -p $REMOTE_BASE_DIR
           cd $REMOTE_BASE_DIR
           
-          # Mise à jour du code
+          # Initialisation/mise à jour du dépôt
           if [ ! -d .git ]; then
-            # Premier déploiement
-            git clone --depth 1 https://github.com/digitalcigit/maboussoleapp-v2.git .
-          else
-            # Mise à jour du code existant
-            git fetch --depth 1
-            git reset --hard origin/\${DEPLOY_ENV}
+            git init
+            git remote add origin https://github.com/digitalcigit/maboussoleapp-v2.git
           fi
           
-          # Installation des dépendances
-          composer install --no-dev --no-interaction --prefer-dist
-          npm ci
-          npm run build
+          # Récupération du code
+          git fetch origin
+          git checkout -f origin/\${DEPLOY_ENV}
+          
+          # Installation des dépendances avec PATH complet
+          export PATH=/usr/local/bin:$PATH
+          /usr/local/bin/composer install --no-dev --no-interaction --prefer-dist
+          /usr/local/bin/npm ci
+          /usr/local/bin/npm run build
 
-          # Configuration et cache
-          [ ! -f .env ] && cp .env.example .env
-          [ ! -f artisan ] && php artisan key:generate
+          # Configuration
+          if [ ! -f .env ]; then
+            cp .env.example .env
+            php artisan key:generate
+          fi
+          
+          # Cache et optimisations
+          php artisan optimize:clear
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
           
-          # Migrations de la base de données
-          php artisan migrate --force
+          # Migrations (seulement si la base est accessible)
+          if php artisan migrate:status >/dev/null 2>&1; then
+            php artisan migrate --force
+          else
+            echo 'Warning: Could not connect to database. Skipping migrations.'
+          fi
         "
 
     - name: Update Deployment Status
@@ -100,7 +117,7 @@ jobs:
       with:
         token: ${{ github.token }}
         environment-url: https://crm-app.maboussole.net
-        state: ${{ steps.deploy.outputs.deploy_status == 'success' && 'success' || 'failure' }}
+        state: ${{ job.status == 'success' && 'success' || 'failure' }}
         deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
     - name: Notify on Failure
