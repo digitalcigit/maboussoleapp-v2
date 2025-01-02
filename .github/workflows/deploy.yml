@@ -47,21 +47,10 @@ jobs:
         description: 'Deploying ${{ steps.version.outputs.version }}'
 
     - name: Setup SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        echo "Host *" > ~/.ssh/config
-        echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-        echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
-        echo "  IdentityFile ~/.ssh/id_rsa" >> ~/.ssh/config
-        chmod 600 ~/.ssh/config
-        
-    - name: Add Known Hosts
-      run: |
-        ssh-keyscan -H -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
-        chmod 644 ~/.ssh/known_hosts
-        
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
     - name: Deploy Application
       id: deploy
       env:
@@ -72,19 +61,25 @@ jobs:
         REMOTE_PORT: ${{ secrets.SERVER_PORT }}
         REMOTE_BASE_DIR: ${{ secrets.DEPLOY_PATH }}
       run: |
+        # Configure SSH to disable host key checking
+        mkdir -p ~/.ssh
+        echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null" > ~/.ssh/config
+        chmod 600 ~/.ssh/config
+        
         echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
         
         # Transférer le script de déploiement
-        scp -P $REMOTE_PORT scripts/deploy-production.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
+        scp -P $REMOTE_PORT scripts/deploy-production.sh $REMOTE_USER@$REMOTE_HOST:/tmp/
         
         # Exécuter le script de déploiement avec les variables d'environnement
-        ssh -p $REMOTE_PORT ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-          "export REMOTE_USER='$REMOTE_USER' && \
-           export REMOTE_HOST='$REMOTE_HOST' && \
-           export REMOTE_PORT='$REMOTE_PORT' && \
-           export REMOTE_BASE_DIR='$REMOTE_BASE_DIR' && \
-           chmod +x /tmp/deploy-production.sh && \
-           /tmp/deploy-production.sh"
+        ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "bash -s" << 'ENDSSH'
+          export REMOTE_USER='$REMOTE_USER'
+          export REMOTE_HOST='$REMOTE_HOST'
+          export REMOTE_PORT='$REMOTE_PORT'
+          export REMOTE_BASE_DIR='$REMOTE_BASE_DIR'
+          chmod +x /tmp/deploy-production.sh
+          /tmp/deploy-production.sh
+ENDSSH
         
         if [ $? -eq 0 ]; then
           echo "deploy_status=success" >> $GITHUB_OUTPUT
