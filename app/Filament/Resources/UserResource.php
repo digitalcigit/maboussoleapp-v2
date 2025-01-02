@@ -10,7 +10,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -18,11 +17,17 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $modelLabel = 'Utilisateur';
+
     protected static ?string $pluralModelLabel = 'Utilisateurs';
+
     protected static ?string $navigationLabel = 'Utilisateurs';
+
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $navigationGroup = 'Administration';
+
     protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
@@ -70,20 +75,20 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->sortable()
                     ->label('ID'),
-                
+
                 Tables\Columns\TextColumn::make('name')
                     ->sortable()
                     ->searchable()
                     ->label('Nom'),
-                
+
                 Tables\Columns\TextColumn::make('email')
                     ->sortable()
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rôles')
                     ->badge(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
