@@ -27,7 +27,7 @@ $SSH_CONNECTION "mkdir -p ${REMOTE_BASE_DIR}/releases/${RELEASE_NAME}"
 # 2. Clone repository
 echo "Cloning repository..."
 $SSH_CONNECTION "cd ${REMOTE_BASE_DIR}/releases && \
-    git clone --depth 1 https://github.com/votre-repo/maboussoleapp-v2.git ${RELEASE_NAME}"
+    git clone --depth 1 https://github.com/digitalcigit/maboussoleapp-v2.git ${RELEASE_NAME}"
 
 # 3. Install dependencies and build
 echo "Installing dependencies and building assets..."
