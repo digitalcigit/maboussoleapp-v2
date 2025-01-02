@@ -73,8 +73,14 @@ jobs:
         # Transférer le script de déploiement
         scp -P $REMOTE_PORT scripts/deploy-production.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
         
-        # Exécuter le script de déploiement
-        ssh -p $REMOTE_PORT ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "chmod +x /tmp/deploy-production.sh && /tmp/deploy-production.sh"
+        # Exécuter le script de déploiement avec les variables d'environnement
+        ssh -p $REMOTE_PORT ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+          "export REMOTE_USER='$REMOTE_USER' && \
+           export REMOTE_HOST='$REMOTE_HOST' && \
+           export REMOTE_PORT='$REMOTE_PORT' && \
+           export REMOTE_BASE_DIR='$REMOTE_BASE_DIR' && \
+           chmod +x /tmp/deploy-production.sh && \
+           /tmp/deploy-production.sh"
         
         if [ $? -eq 0 ]; then
           echo "deploy_status=success" >> $GITHUB_OUTPUT
