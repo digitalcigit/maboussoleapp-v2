@@ -24,18 +24,53 @@ jobs:
       id-token: write
 ```
 
-### Configuration des Secrets
-1. **GitHub Repository**
-   - `SSH_PRIVATE_KEY`
-   - `SERVER_HOST`
-   - `SERVER_USER`
-   - `DEPLOY_PATH`
-   - `SLACK_WEBHOOK_URL`
+### Configuration des Secrets GitHub
 
-2. **Slack**
-   - Création du webhook
-   - Configuration du canal
-   - Test de l'intégration
+### Secrets Requis
+
+Pour le déploiement automatisé via GitHub Actions, les secrets suivants doivent être configurés dans le repository :
+
+| Secret | Description | Exemple |
+|--------|-------------|---------|
+| `SSH_PRIVATE_KEY` | Clé SSH privée pour l'authentification au serveur | `-----BEGIN OPENSSH PRIVATE KEY-----\n...` |
+| `SERVER_HOST` | Adresse IP du serveur | `104.37.188.51` |
+| `SERVER_USER` | Utilisateur SSH sur le serveur | `crmmaboussole` |
+| `SERVER_PORT` | Port SSH personnalisé | `8483` |
+| `DEPLOY_PATH` | Chemin de déploiement sur le serveur | `/var/www/laravel/crm-app.maboussole.net` |
+| `SLACK_WEBHOOK_URL` | URL du webhook Slack | `https://hooks.slack.com/services/...` |
+
+### Configuration des Secrets
+
+1. Accédez aux paramètres du repository sur GitHub
+2. Naviguez vers "Settings" > "Secrets and variables" > "Actions"
+3. Cliquez sur "New repository secret"
+4. Ajoutez chaque secret avec sa valeur correspondante
+
+### Génération de la Clé SSH
+
+Pour générer une nouvelle paire de clés SSH pour le déploiement :
+
+```bash
+# Générer la clé
+ssh-keygen -t ed25519 -C "github-actions-deploy@crm-app.maboussole.net" -f ~/.ssh/maboussole_github_deploy
+
+# Configurer le fichier SSH config
+Host crmmaboussole-github
+    HostName 104.37.188.51
+    User crmmaboussole
+    Port 8483
+    IdentityFile ~/.ssh/maboussole_github_deploy
+
+# Ajouter la clé publique sur le serveur
+ssh-copy-id -i ~/.ssh/maboussole_github_deploy.pub -p 8483 crmmaboussole@104.37.188.51
+```
+
+### Sécurité
+
+- Les secrets sont chiffrés dans GitHub
+- Les valeurs des secrets ne sont jamais exposées dans les logs
+- Le port SSH non standard (8483) ajoute une couche de sécurité supplémentaire
+- L'utilisation d'une clé SSH dédiée permet une meilleure traçabilité
 
 ## Étapes du Déploiement
 
@@ -59,7 +94,7 @@ steps:
 ```yaml
 - name: Deploy Application
   run: |
-    rsync -avz --delete -e "ssh -p 5022" \
+    rsync -avz --delete -e "ssh -p ${secrets.SERVER_PORT}" \
       --exclude='.git*' \
       --exclude='node_modules' \
       --exclude='vendor' \
@@ -113,7 +148,7 @@ steps:
 ```bash
 mkdir -p ~/.ssh
 touch ~/.ssh/known_hosts
-ssh-keyscan -H -p 5022 ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+ssh-keyscan -H -p ${secrets.SERVER_PORT} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 chmod 644 ~/.ssh/known_hosts
 ```
 

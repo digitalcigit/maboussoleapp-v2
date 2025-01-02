@@ -62,7 +62,63 @@ maboussole-crm-v2/
 │   └── Notifications/   # Système de notifications
 ```
 
-## 3. Workflows Métier
+## 3. Conventions de Documentation
+
+### Résumés de Session
+```yaml
+Location: /docs/sessions/
+Format: SESSION-YYYY-MM-DD.md
+Contenu:
+  - État initial
+  - Modifications effectuées
+  - Décisions prises
+  - Prochaines étapes
+```
+
+### Décisions Architecturales
+```yaml
+Location: /docs/decisions/
+Format: XXX-nom-descriptif.md (où XXX est un numéro séquentiel)
+Quand:
+  - Changements majeurs d'architecture
+  - Nouvelles approches techniques
+  - Modifications de sécurité importantes
+```
+
+### Documentation Technique
+```yaml
+Location: /docs/technical/
+Format: 
+  - README.md pour vue d'ensemble
+  - Sous-dossiers par domaine
+Mise à jour:
+  - Immédiate pour les changements critiques
+  - En fin de session pour les améliorations
+```
+
+## 4. Règles de Décision
+
+### Priorités
+1. Sécurité et Protection des Données
+2. Maintenabilité du Code
+3. Performance et Optimisation
+4. Expérience Utilisateur
+
+### Processus Décisionnel
+```yaml
+Analyse:
+  - Impact sur la sécurité
+  - Cohérence avec l'architecture existante
+  - Facilité de maintenance
+  - Besoins en documentation
+
+Documentation:
+  - Création immédiate des ADRs
+  - Mise à jour du contexte technique
+  - Documentation des impacts
+```
+
+## 5. Workflows Métier
 
 ### Gestion des Prospects
 ```mermaid
@@ -81,7 +137,7 @@ graph TD
 - Suivi visa et admission
 - Relances programmées
 
-## 4. Standards et Pratiques
+## 6. Standards et Pratiques
 
 ### Développement
 1. **Code**
@@ -109,7 +165,7 @@ graph TD
 - Les documents de débogage servent de base de connaissances
 - Objectif : Capitaliser sur l'expérience pour les problèmes futurs
 
-## 5. Vos Responsabilités
+## 7. Vos Responsabilités
 
 ### Consultation
 1. **Hiérarchie de Lecture**
@@ -135,7 +191,7 @@ graph TD
    - Documentation des workflows
    - Gestion de la dette technique
 
-## 6. Règles Critiques
+## 8. Règles Critiques
 
 1. **Langue**
    - Interface utilisateur en français
