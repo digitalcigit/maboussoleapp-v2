@@ -18,14 +18,10 @@ jobs:
       actions: read
       checks: write
       id-token: write
-    
+
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
-    
+
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    
     - name: Set version
       id: version
       run: |
@@ -51,6 +47,12 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+    - name: Configure Known Hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        chmod 644 ~/.ssh/known_hosts
+
     - name: Deploy Application
       id: deploy
       env:
@@ -63,18 +65,34 @@ jobs:
       run: |
         echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
         
-        # Transférer le script de déploiement
-        scp -P $REMOTE_PORT scripts/deploy-production.sh $REMOTE_USER@$REMOTE_HOST:/tmp/ || { echo "SCP failed"; exit 1; }
-        
-        # Exécuter le script de déploiement avec les variables d'environnement
-        ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "bash -s" << 'ENDSSH'
-          export REMOTE_USER='$REMOTE_USER'
-          export REMOTE_HOST='$REMOTE_HOST'
-          export REMOTE_PORT='$REMOTE_PORT'
-          export REMOTE_BASE_DIR='$REMOTE_BASE_DIR'
-          chmod +x /tmp/deploy-production.sh || { echo "chmod failed"; exit 1; }
-          /tmp/deploy-production.sh || { echo "Remote script failed"; exit 1; }
-        ENDSSH
+        ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "
+          cd $REMOTE_BASE_DIR
+          
+          # Mise à jour du code
+          if [ ! -d .git ]; then
+            # Premier déploiement
+            git clone --depth 1 https://github.com/digitalcigit/maboussoleapp-v2.git .
+          else
+            # Mise à jour du code existant
+            git fetch --depth 1
+            git reset --hard origin/\${DEPLOY_ENV}
+          fi
+          
+          # Installation des dépendances
+          composer install --no-dev --no-interaction --prefer-dist
+          npm ci
+          npm run build
+
+          # Configuration et cache
+          [ ! -f .env ] && cp .env.example .env
+          [ ! -f artisan ] && php artisan key:generate
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          
+          # Migrations de la base de données
+          php artisan migrate --force
+        "
 
     - name: Update Deployment Status
       if: always()
