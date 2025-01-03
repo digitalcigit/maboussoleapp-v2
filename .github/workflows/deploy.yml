@@ -108,17 +108,17 @@ jobs:
           
           # Vérification et création du répertoire de déploiement
           echo 'Configuration du répertoire de déploiement...'
-          if [ ! -d "$DEPLOY_PATH" ]; then
+          if [ ! -d \"\$DEPLOY_PATH\" ]; then
             echo 'Le répertoire de déploiement n'existe pas. Veuillez le créer et configurer les permissions appropriées.'
             exit 1
           fi
           
           # Navigation vers le répertoire de déploiement
-          cd $DEPLOY_PATH || exit 1
+          cd \"\$DEPLOY_PATH\" || exit 1
           
           # Nettoyage si nécessaire (pour un déploiement propre)
           if [ -d .git ]; then
-            rm -rf * .[^.]*
+            rm -rf ./* ./.[!.]*
           fi
           
           # Clone du dépôt (nouveau clone propre)
@@ -127,7 +127,7 @@ jobs:
           
           # Installation des dépendances
           echo 'Installation des dépendances PHP...'
-          export PATH=/usr/local/bin:/usr/bin:$PATH
+          export PATH=/usr/local/bin:/usr/bin:\$PATH
           composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
           
           echo 'Installation des dépendances Node.js...'
