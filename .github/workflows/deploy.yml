@@ -19,28 +19,35 @@ jobs:
       checks: write
       id-token: write
 
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
-
     steps:
-    - name: Set version
-      id: version
-      run: |
-        VERSION=$(date '+%Y%m%d.%H%M')
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          echo "version=v$VERSION" >> $GITHUB_OUTPUT
-          echo "environment=production" >> $GITHUB_OUTPUT
-        else
-          echo "version=v$VERSION-beta" >> $GITHUB_OUTPUT
-          echo "environment=staging" >> $GITHUB_OUTPUT
-        fi
-
-    - name: Create GitHub Deployment
-      id: deployment
-      uses: chrnorm/deployment-action@v2
+    - uses: actions/checkout@v3
       with:
-        token: ${{ github.token }}
-        environment: ${{ steps.version.outputs.environment }}
-        description: 'Deploying ${{ steps.version.outputs.version }}'
+        fetch-depth: 0
+
+    - name: Set deployment variables
+      id: vars
+      run: |
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "deploy_path=${{ secrets.DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          echo "db_host=${{ secrets.DB_HOST }}" >> $GITHUB_OUTPUT
+          echo "db_port=${{ secrets.DB_PORT }}" >> $GITHUB_OUTPUT
+          echo "db_database=${{ secrets.DB_DATABASE }}" >> $GITHUB_OUTPUT
+          echo "db_username=${{ secrets.DB_USERNAME }}" >> $GITHUB_OUTPUT
+          echo "db_password=${{ secrets.DB_PASSWORD }}" >> $GITHUB_OUTPUT
+          echo "app_url=https://crm-app.maboussole.net" >> $GITHUB_OUTPUT
+          echo "app_env=production" >> $GITHUB_OUTPUT
+          echo "app_debug=false" >> $GITHUB_OUTPUT
+        else
+          echo "deploy_path=${{ secrets.STAGING_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          echo "db_host=${{ secrets.STAGING_DB_HOST }}" >> $GITHUB_OUTPUT
+          echo "db_port=${{ secrets.STAGING_DB_PORT }}" >> $GITHUB_OUTPUT
+          echo "db_database=${{ secrets.STAGING_DB_DATABASE }}" >> $GITHUB_OUTPUT
+          echo "db_username=${{ secrets.STAGING_DB_USERNAME }}" >> $GITHUB_OUTPUT
+          echo "db_password=${{ secrets.STAGING_DB_PASSWORD }}" >> $GITHUB_OUTPUT
+          echo "app_url=https://staging-crm-app.maboussole.net" >> $GITHUB_OUTPUT
+          echo "app_env=staging" >> $GITHUB_OUTPUT
+          echo "app_debug=true" >> $GITHUB_OUTPUT
+        fi
 
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.8.0
@@ -53,17 +60,43 @@ jobs:
         ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
         chmod 644 ~/.ssh/known_hosts
 
+    - name: Create Environment File
+      run: |
+        cat > .env.deploy << 'EOF'
+        APP_NAME="Ma Boussole"
+        APP_ENV=${{ steps.vars.outputs.app_env }}
+        APP_DEBUG=${{ steps.vars.outputs.app_debug }}
+        APP_URL=${{ steps.vars.outputs.app_url }}
+
+        LOG_CHANNEL=stack
+        LOG_LEVEL=debug
+
+        DB_CONNECTION=mysql
+        DB_HOST=${{ steps.vars.outputs.db_host }}
+        DB_PORT=${{ steps.vars.outputs.db_port }}
+        DB_DATABASE=${{ steps.vars.outputs.db_database }}
+        DB_USERNAME=${{ steps.vars.outputs.db_username }}
+        DB_PASSWORD=${{ steps.vars.outputs.db_password }}
+
+        BROADCAST_DRIVER=log
+        CACHE_DRIVER=file
+        FILESYSTEM_DISK=local
+        QUEUE_CONNECTION=sync
+        SESSION_DRIVER=file
+        SESSION_LIFETIME=120
+        EOF
+
     - name: Deploy Application
-      id: deploy
       env:
-        DEPLOY_ENV: ${{ steps.version.outputs.environment }}
-        VERSION: ${{ steps.version.outputs.version }}
+        DEPLOY_PATH: ${{ steps.vars.outputs.deploy_path }}
         REMOTE_USER: ${{ secrets.SERVER_USER }}
         REMOTE_HOST: ${{ secrets.SERVER_HOST }}
         REMOTE_PORT: ${{ secrets.SERVER_PORT }}
-        REMOTE_BASE_DIR: ${{ secrets.DEPLOY_PATH }}
       run: |
-        echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
+        echo "Déploiement vers ${{ steps.vars.outputs.app_env }} en cours..."
+        
+        # Copier le fichier .env sur le serveur
+        scp -P $REMOTE_PORT .env.deploy $REMOTE_USER@$REMOTE_HOST:/tmp/.env
         
         ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "
           # Vérification des commandes requises
@@ -72,8 +105,8 @@ jobs:
           command -v npm >/dev/null 2>&1 || { echo 'npm is required but not installed.' >&2; exit 1; }
           
           # Création du répertoire si nécessaire
-          mkdir -p $REMOTE_BASE_DIR
-          cd $REMOTE_BASE_DIR
+          mkdir -p $DEPLOY_PATH
+          cd $DEPLOY_PATH
           
           # Initialisation/mise à jour du dépôt
           if [ ! -d .git ]; then
@@ -83,19 +116,17 @@ jobs:
           
           # Récupération du code
           git fetch origin
-          git checkout -f origin/\${DEPLOY_ENV}
+          git checkout -f ${{ github.ref_name }}
           
-          # Installation des dépendances avec PATH complet
+          # Installation des dépendances
           export PATH=/usr/local/bin:/usr/bin:$PATH
           composer install --no-dev --no-interaction --prefer-dist
           npm ci
           npm run build
 
           # Configuration
-          if [ ! -f .env ]; then
-            cp .env.example .env
-            php artisan key:generate
-          fi
+          mv /tmp/.env .env
+          php artisan key:generate --force
           
           # Cache et optimisations
           php artisan optimize:clear
@@ -103,7 +134,7 @@ jobs:
           php artisan route:cache
           php artisan view:cache
           
-          # Migrations (seulement si la base est accessible)
+          # Migrations
           if php artisan migrate:status >/dev/null 2>&1; then
             php artisan migrate --force
           else
@@ -111,23 +142,9 @@ jobs:
           fi
         "
 
-    - name: Update Deployment Status
-      if: always()
-      uses: chrnorm/deployment-status@v2
-      with:
-        token: ${{ github.token }}
-        environment-url: https://crm-app.maboussole.net
-        state: ${{ job.status == 'success' && 'success' || 'failure' }}
-        deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-
-    - name: Notify on Failure
+    - name: Notify Slack on Failure
       if: failure()
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const issue = await github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: `Deployment failed: ${process.env.VERSION}`,
-            body: `Deployment to ${process.env.DEPLOY_ENV} failed.\nPlease check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for more details.`
-          });
+      run: |
+        curl -X POST -H 'Content-type: application/json' --data '{
+          "text": "❌ Le déploiement sur ${{ steps.vars.outputs.app_env }} a échoué !\nBranche: ${{ github.ref_name }}\nCommit: ${{ github.sha }}"
+        }' ${{ secrets.SLACK_WEBHOOK_URL }}
