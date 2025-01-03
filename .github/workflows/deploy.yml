@@ -99,47 +99,71 @@ jobs:
         scp -P $REMOTE_PORT .env.deploy $REMOTE_USER@$REMOTE_HOST:/tmp/.env
         
         ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "
+          set -e  # Arrêter le script en cas d'erreur
+          
           # Vérification des commandes requises
           command -v git >/dev/null 2>&1 || { echo 'git is required but not installed.' >&2; exit 1; }
           command -v composer >/dev/null 2>&1 || { echo 'composer is required but not installed.' >&2; exit 1; }
           command -v npm >/dev/null 2>&1 || { echo 'npm is required but not installed.' >&2; exit 1; }
           
-          # Création du répertoire si nécessaire
-          mkdir -p $DEPLOY_PATH
-          cd $DEPLOY_PATH
-          
-          # Initialisation/mise à jour du dépôt
-          if [ ! -d .git ]; then
-            git init
-            git remote add origin https://github.com/digitalcigit/maboussoleapp-v2.git
+          # Vérification et création du répertoire de déploiement
+          echo 'Configuration du répertoire de déploiement...'
+          if [ ! -d "$DEPLOY_PATH" ]; then
+            echo 'Le répertoire de déploiement n'existe pas. Veuillez le créer et configurer les permissions appropriées.'
+            exit 1
           fi
           
-          # Récupération du code
-          git fetch origin
-          git checkout -f ${{ github.ref_name }}
+          # Navigation vers le répertoire de déploiement
+          cd $DEPLOY_PATH || exit 1
+          
+          # Nettoyage si nécessaire (pour un déploiement propre)
+          if [ -d .git ]; then
+            rm -rf * .[^.]*
+          fi
+          
+          # Clone du dépôt (nouveau clone propre)
+          echo 'Clonage du dépôt...'
+          git clone --depth 1 -b ${{ github.ref_name }} https://github.com/digitalcigit/maboussoleapp-v2.git .
           
           # Installation des dépendances
+          echo 'Installation des dépendances PHP...'
           export PATH=/usr/local/bin:/usr/bin:$PATH
-          composer install --no-dev --no-interaction --prefer-dist
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          
+          echo 'Installation des dépendances Node.js...'
           npm ci
           npm run build
-
-          # Configuration
+          
+          # Configuration de l'application
+          echo 'Configuration de l'application...'
           mv /tmp/.env .env
           php artisan key:generate --force
           
+          # Création des répertoires nécessaires
+          mkdir -p storage/framework/{sessions,views,cache}
+          mkdir -p storage/logs
+          chmod -R 775 storage bootstrap/cache
+          
           # Cache et optimisations
+          echo 'Optimisation de l'application...'
           php artisan optimize:clear
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
           
+          # Création des liens symboliques
+          echo 'Création des liens symboliques...'
+          php artisan storage:link
+          
           # Migrations
+          echo 'Exécution des migrations...'
           if php artisan migrate:status >/dev/null 2>&1; then
             php artisan migrate --force
           else
             echo 'Warning: Could not connect to database. Skipping migrations.'
           fi
+          
+          echo 'Déploiement terminé avec succès!'
         "
 
     - name: Notify Slack on Failure

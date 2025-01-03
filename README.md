@@ -51,6 +51,10 @@ We would like to extend our thanks to the following sponsors for funding Laravel
 
 ## Contributing
 
+Please read our [Contributing Guide](docs/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+
+## Contributing
+
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
 ## Code of Conduct
