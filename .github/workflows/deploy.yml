@@ -86,10 +86,10 @@ jobs:
           git checkout -f origin/\${DEPLOY_ENV}
           
           # Installation des dépendances avec PATH complet
-          export PATH=/usr/local/bin:$PATH
-          /usr/local/bin/composer install --no-dev --no-interaction --prefer-dist
-          /usr/local/bin/npm ci
-          /usr/local/bin/npm run build
+          export PATH=/usr/local/bin:/usr/bin:$PATH
+          composer install --no-dev --no-interaction --prefer-dist
+          npm ci
+          npm run build
 
           # Configuration
           if [ ! -f .env ]; then
