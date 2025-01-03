@@ -124,14 +124,14 @@ jobs:
           echo 'Configuration du répertoire de déploiement...'
           if [ ! -d \"\$DEPLOY_PATH\" ]; then
             echo 'Création du répertoire de déploiement...'
-            mkdir -p \"\$DEPLOY_PATH\"
+            sudo mkdir -p \"\$DEPLOY_PATH\"
+            sudo chown \$USER:\$USER \"\$DEPLOY_PATH\"
           else
             echo 'Nettoyage du répertoire de déploiement...'
-            # S'assurer d'avoir les permissions avant de supprimer
-            find \"\$DEPLOY_PATH\" -type f -exec chmod 644 {} \;
-            find \"\$DEPLOY_PATH\" -type d -exec chmod 755 {} \;
-            # Supprimer tous les fichiers, y compris les cachés, mais pas le répertoire lui-même
-            rm -rf \"\$DEPLOY_PATH\"/{*,.[!.]*}
+            # Supprimer tous les fichiers avec sudo
+            sudo rm -rf \"\$DEPLOY_PATH\"/*
+            sudo rm -rf \"\$DEPLOY_PATH\"/.[!.]*
+            sudo chown \$USER:\$USER \"\$DEPLOY_PATH\"
           fi
           
           # Navigation vers le répertoire de déploiement
@@ -140,6 +140,9 @@ jobs:
           # Clone du dépôt (nouveau clone propre)
           echo 'Clonage du dépôt...'
           git clone --depth 1 -b ${{ github.ref_name }} https://github.com/digitalcigit/maboussoleapp-v2.git .
+          
+          # Configuration des permissions
+          sudo chown -R \$USER:\$USER .
           
           # Installation des dépendances
           echo 'Installation des dépendances PHP...'
@@ -158,7 +161,8 @@ jobs:
           # Création des répertoires nécessaires
           mkdir -p storage/framework/{sessions,views,cache}
           mkdir -p storage/logs
-          chmod -R 775 storage bootstrap/cache
+          sudo chown -R www-data:www-data storage bootstrap/cache
+          sudo chmod -R 775 storage bootstrap/cache
           
           # Cache et optimisations
           echo 'Optimisation de l'\''application...'
