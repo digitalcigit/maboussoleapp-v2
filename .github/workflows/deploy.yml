@@ -135,9 +135,16 @@ jobs:
           # Navigation vers le répertoire de déploiement
           cd \"\$DEPLOY_PATH\" || exit 1
           
+          # Configuration sécurisée de SSH pour GitHub
+          # Cette étape ajoute la clé publique de GitHub aux known_hosts
+          # C'est une approche plus sécurisée que de désactiver StrictHostKeyChecking
+          echo 'Configuration de SSH pour GitHub...'
+          mkdir -p ~/.ssh
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          
           # Clone du dépôt (nouveau clone propre)
+          # Note: Assurez-vous que la clé SSH du serveur est ajoutée à GitHub
           echo 'Clonage du dépôt...'
-          export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
           git clone --depth 1 -b ${{ github.ref_name }} git@github.com:digitalcigit/maboussoleapp-v2.git .
           
           # S'assurer que les nouveaux fichiers appartiennent au groupe www-data
