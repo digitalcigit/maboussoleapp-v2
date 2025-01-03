@@ -106,20 +106,22 @@ jobs:
           command -v composer >/dev/null 2>&1 || { echo 'composer is required but not installed.' >&2; exit 1; }
           command -v npm >/dev/null 2>&1 || { echo 'npm is required but not installed.' >&2; exit 1; }
           
-          # Vérification et création du répertoire de déploiement
+          # Vérification et nettoyage du répertoire de déploiement
           echo 'Configuration du répertoire de déploiement...'
           if [ ! -d \"\$DEPLOY_PATH\" ]; then
-            echo 'Le répertoire de déploiement n'\''existe pas. Veuillez le créer et configurer les permissions appropriées.'
-            exit 1
+            echo 'Création du répertoire de déploiement...'
+            mkdir -p \"\$DEPLOY_PATH\"
+          else
+            echo 'Nettoyage du répertoire de déploiement...'
+            # S'assurer d'avoir les permissions avant de supprimer
+            find \"\$DEPLOY_PATH\" -type f -exec chmod 644 {} \;
+            find \"\$DEPLOY_PATH\" -type d -exec chmod 755 {} \;
+            # Supprimer tous les fichiers, y compris les cachés, mais pas le répertoire lui-même
+            rm -rf \"\$DEPLOY_PATH\"/{*,.[!.]*}
           fi
           
           # Navigation vers le répertoire de déploiement
           cd \"\$DEPLOY_PATH\" || exit 1
-          
-          # Nettoyage si nécessaire (pour un déploiement propre)
-          if [ -d .git ]; then
-            rm -rf ./* ./.[!.]*
-          fi
           
           # Clone du dépôt (nouveau clone propre)
           echo 'Clonage du dépôt...'
