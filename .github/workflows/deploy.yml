@@ -137,6 +137,7 @@ jobs:
           
           # Clone du dépôt (nouveau clone propre)
           echo 'Clonage du dépôt...'
+          export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
           git clone --depth 1 -b ${{ github.ref_name }} git@github.com:digitalcigit/maboussoleapp-v2.git .
           
           # S'assurer que les nouveaux fichiers appartiennent au groupe www-data
