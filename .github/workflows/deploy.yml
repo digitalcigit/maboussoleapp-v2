@@ -137,7 +137,7 @@ jobs:
           
           # Clone du dépôt (nouveau clone propre)
           echo 'Clonage du dépôt...'
-          git clone --depth 1 -b ${{ github.ref_name }} https://github.com/digitalcigit/maboussoleapp-v2.git .
+          git clone --depth 1 -b ${{ github.ref_name }} git@github.com:digitalcigit/maboussoleapp-v2.git .
           
           # S'assurer que les nouveaux fichiers appartiennent au groupe www-data
           find . -type f -exec chmod 664 {} \;
