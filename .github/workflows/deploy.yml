@@ -123,15 +123,13 @@ jobs:
           # Vérification et nettoyage du répertoire de déploiement
           echo 'Configuration du répertoire de déploiement...'
           if [ ! -d \"\$DEPLOY_PATH\" ]; then
-            echo 'Création du répertoire de déploiement...'
-            sudo mkdir -p \"\$DEPLOY_PATH\"
-            sudo chown \$USER:\$USER \"\$DEPLOY_PATH\"
+            echo 'Error: Le répertoire de déploiement n'\''existe pas. Veuillez le créer avec les bonnes permissions.'
+            exit 1
           else
             echo 'Nettoyage du répertoire de déploiement...'
-            # Supprimer tous les fichiers avec sudo
-            sudo rm -rf \"\$DEPLOY_PATH\"/*
-            sudo rm -rf \"\$DEPLOY_PATH\"/.[!.]*
-            sudo chown \$USER:\$USER \"\$DEPLOY_PATH\"
+            # On a les permissions via le groupe www-data
+            rm -rf \"\$DEPLOY_PATH\"/*
+            rm -rf \"\$DEPLOY_PATH\"/.[!.]*
           fi
           
           # Navigation vers le répertoire de déploiement
@@ -141,8 +139,9 @@ jobs:
           echo 'Clonage du dépôt...'
           git clone --depth 1 -b ${{ github.ref_name }} https://github.com/digitalcigit/maboussoleapp-v2.git .
           
-          # Configuration des permissions
-          sudo chown -R \$USER:\$USER .
+          # S'assurer que les nouveaux fichiers appartiennent au groupe www-data
+          find . -type f -exec chmod 664 {} \;
+          find . -type d -exec chmod 775 {} \;
           
           # Installation des dépendances
           echo 'Installation des dépendances PHP...'
@@ -158,11 +157,14 @@ jobs:
           mv /tmp/.env .env
           php artisan key:generate --force
           
-          # Création des répertoires nécessaires
+          # Création des répertoires nécessaires avec les bonnes permissions
           mkdir -p storage/framework/{sessions,views,cache}
           mkdir -p storage/logs
-          sudo chown -R www-data:www-data storage bootstrap/cache
-          sudo chmod -R 775 storage bootstrap/cache
+          chmod -R 775 storage bootstrap/cache
+          find storage -type f -exec chmod 664 {} \;
+          find storage -type d -exec chmod 775 {} \;
+          find bootstrap/cache -type f -exec chmod 664 {} \;
+          find bootstrap/cache -type d -exec chmod 775 {} \;
           
           # Cache et optimisations
           echo 'Optimisation de l'\''application...'
