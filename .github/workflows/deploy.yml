@@ -109,7 +109,7 @@ jobs:
           # Vérification et création du répertoire de déploiement
           echo 'Configuration du répertoire de déploiement...'
           if [ ! -d \"\$DEPLOY_PATH\" ]; then
-            echo 'Le répertoire de déploiement n'existe pas. Veuillez le créer et configurer les permissions appropriées.'
+            echo 'Le répertoire de déploiement n'\''existe pas. Veuillez le créer et configurer les permissions appropriées.'
             exit 1
           fi
           
@@ -135,7 +135,7 @@ jobs:
           npm run build
           
           # Configuration de l'application
-          echo 'Configuration de l'application...'
+          echo 'Configuration de l'\''application...'
           mv /tmp/.env .env
           php artisan key:generate --force
           
@@ -145,7 +145,7 @@ jobs:
           chmod -R 775 storage bootstrap/cache
           
           # Cache et optimisations
-          echo 'Optimisation de l'application...'
+          echo 'Optimisation de l'\''application...'
           php artisan optimize:clear
           php artisan config:cache
           php artisan route:cache
