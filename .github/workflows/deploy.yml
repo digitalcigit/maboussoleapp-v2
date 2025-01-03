@@ -98,8 +98,22 @@ jobs:
         # Copier le fichier .env sur le serveur
         scp -P $REMOTE_PORT .env.deploy $REMOTE_USER@$REMOTE_HOST:/tmp/.env
         
+        # Exporter le chemin de déploiement pour le script SSH
+        export DEPLOY_PATH="${DEPLOY_PATH}"
+        
         ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "
           set -e  # Arrêter le script en cas d'erreur
+          
+          # Définir le chemin de déploiement
+          DEPLOY_PATH='${DEPLOY_PATH}'
+          
+          # Vérifier que le chemin est défini
+          if [ -z \"\$DEPLOY_PATH\" ]; then
+            echo 'Error: DEPLOY_PATH is not set'
+            exit 1
+          fi
+          
+          echo \"Using deploy path: \$DEPLOY_PATH\"
           
           # Vérification des commandes requises
           command -v git >/dev/null 2>&1 || { echo 'git is required but not installed.' >&2; exit 1; }
