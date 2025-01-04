@@ -100,8 +100,8 @@ jobs:
             
           # Création du fichier .env
           echo 'Configuration du fichier .env...'
-          cat > .env << EOL
-APP_NAME="Ma Boussole"
+          cat > .env << 'EOL'
+APP_NAME=Ma Boussole
 APP_ENV=${{ steps.vars.outputs.app_env }}
 APP_KEY=
 APP_DEBUG=${{ steps.vars.outputs.app_debug }}
