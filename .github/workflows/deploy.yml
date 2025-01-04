@@ -100,57 +100,59 @@ jobs:
             
           # Création du fichier .env
           echo 'Configuration du fichier .env...'
-          cat > .env << 'EOF'
-          APP_NAME="Ma Boussole"
-          APP_ENV=${{ steps.vars.outputs.app_env }}
-          APP_KEY=
-          APP_DEBUG=${{ steps.vars.outputs.app_debug }}
-          APP_URL=${{ steps.vars.outputs.app_url }}
-
-          LOG_CHANNEL=stack
-          LOG_LEVEL=debug
-
-          DB_CONNECTION=mysql
-          DB_HOST=${{ secrets.STAGING_DB_HOST }}
-          DB_PORT=${{ secrets.STAGING_DB_PORT }}
-          DB_DATABASE=${{ secrets.STAGING_DB_DATABASE }}
-          DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}
-
-          BROADCAST_DRIVER=log
-          CACHE_DRIVER=file
-          FILESYSTEM_DISK=local
-          QUEUE_CONNECTION=sync
-          SESSION_DRIVER=file
-          SESSION_LIFETIME=120
-          EOF
+          cp .env.example .env
+          sed -i "s|APP_NAME=.*|APP_NAME=\"Ma Boussole\"|g" .env
+          sed -i "s|APP_ENV=.*|APP_ENV=${{ steps.vars.outputs.app_env }}|g" .env
+          sed -i "s|APP_DEBUG=.*|APP_DEBUG=${{ steps.vars.outputs.app_debug }}|g" .env
+          sed -i "s|APP_URL=.*|APP_URL=${{ steps.vars.outputs.app_url }}|g" .env
             
-          # Installation des dépendances PHP
+          # Configuration de la base de données
+          sed -i "s|DB_HOST=.*|DB_HOST=${{ secrets.STAGING_DB_HOST }}|g" .env
+          sed -i "s|DB_PORT=.*|DB_PORT=${{ secrets.STAGING_DB_PORT }}|g" .env
+          sed -i "s|DB_DATABASE=.*|DB_DATABASE=${{ secrets.STAGING_DB_DATABASE }}|g" .env
+          sed -i "s|DB_USERNAME=.*|DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }}|g" .env
+          sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}|g" .env
+            
+          # Vérification des permissions
+          echo 'Vérification des permissions...'
+          ls -la
+            
+          # Installation des dépendances PHP avec plus de verbosité
           echo 'Installation des dépendances PHP...'
-          composer install --no-dev --no-interaction --optimize-autoloader
+          composer install --no-dev --no-interaction --optimize-autoloader -v
             
-          # Installation des dépendances Node.js et build
+          # Installation des dépendances Node.js et build avec plus de verbosité
           echo 'Installation des dépendances Node.js...'
-          npm ci
-          npm run build
+          npm ci --verbose
+          npm run build --verbose
             
-          # Configuration de l'application
+          # Configuration de l'application avec plus de logs
           echo 'Configuration de l'\''application...'
-          php artisan key:generate --force
-          php artisan storage:link --force
+          php artisan key:generate --force --verbose
+          php artisan storage:link --force --verbose
             
-          # Optimisations
+          # Vérification du storage
+          echo 'Vérification du storage...'
+          ls -la storage
+          ls -la public
+            
+          # Optimisations avec plus de verbosité
           echo 'Optimisation de l'\''application...'
-          php artisan optimize:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
+          php artisan optimize:clear --verbose
+          php artisan config:cache --verbose
+          php artisan route:cache --verbose
+          php artisan view:cache --verbose
             
-          # Migrations (si la base de données est accessible)
+          # Vérification des logs d'erreur
+          echo 'Vérification des logs...'
+          tail -n 50 storage/logs/laravel.log || echo "Pas de fichier de log trouvé"
+            
+          # Migrations avec plus de verbosité
           echo 'Vérification des migrations...'
-          if php artisan migrate:status &>/dev/null; then
+          php artisan migrate:status --verbose
+          if [ $? -eq 0 ]; then
             echo 'Exécution des migrations...'
-            php artisan migrate --force
+            php artisan migrate --force --verbose
           else
             echo 'Warning: Base de données non accessible. Les migrations seront ignorées.'
           fi
