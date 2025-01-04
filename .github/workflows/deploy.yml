@@ -103,7 +103,7 @@ jobs:
           cat > .env << EOF
             APP_NAME=Ma Boussole
             APP_ENV=${{ steps.vars.outputs.app_env }}
-            APP_KEY=
+            APP_KEY=${{ secrets.STAGING_APP_KEY }}
             APP_DEBUG=${{ steps.vars.outputs.app_debug }}
             APP_URL=${{ steps.vars.outputs.app_url }}
 
