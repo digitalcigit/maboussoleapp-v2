@@ -153,13 +153,31 @@ jobs:
           # Note: Permissions 775/664 sont volontairement permissives pour l'environnement de staging
           # afin de faciliter le débogage et les tests. Ne pas utiliser en production.
           echo 'Configuration des permissions...'
+          
+          # S'assurer que tous les dossiers parents ont les bonnes permissions
+          chmod 775 .
+          chmod 775 storage
+          chmod 775 storage/logs
+          chmod 775 storage/app
+          chmod 775 storage/app/public
+          chmod 775 bootstrap
+          chmod 775 bootstrap/cache
+          
+          # Configurer les permissions récursivement pour les nouveaux fichiers
           find storage -type d -exec chmod 775 {} \;
-          find bootstrap/cache -type d -exec chmod 775 {} \;
           find storage -type f -exec chmod 664 {} \;
+          find bootstrap/cache -type d -exec chmod 775 {} \;
+          find bootstrap/cache -type f -exec chmod 664 {} \;
           
           # Création et configuration du fichier de log
           touch storage/logs/laravel.log
           chmod 664 storage/logs/laravel.log
+          
+          # Vérification des permissions
+          echo 'Vérification des permissions...'
+          ls -la storage/logs/laravel.log
+          ls -la storage/logs
+          ls -la storage
           
           php artisan storage:link --force --verbose
             
