@@ -123,11 +123,15 @@ jobs:
             QUEUE_CONNECTION=sync
             SESSION_DRIVER=file
             SESSION_LIFETIME=120
-          EOF
+            EOF
 
-          # Vérification du contenu du .env
-          echo 'Vérification du fichier .env...'
-          cat .env
+            # Génération de la clé d'application
+            echo 'Génération de la clé d'\''application...'
+            php artisan key:generate --force
+
+            # Vérification du contenu du .env
+            echo 'Vérification du fichier .env...'
+            cat .env
             
           # Installation des dépendances PHP avec plus de verbosité
           echo 'Installation des dépendances PHP...'
@@ -140,7 +144,6 @@ jobs:
             
           # Configuration de l'application avec plus de logs
           echo 'Configuration de l'\''application...'
-          php artisan key:generate --force --verbose
           php artisan storage:link --force --verbose
             
           # Vérification du storage
