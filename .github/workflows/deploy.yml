@@ -101,7 +101,7 @@ jobs:
           # Création du fichier .env
           echo "Configuration du fichier .env..."
             
-          echo 'APP_NAME="Ma Boussole"' > .env
+          echo "APP_NAME=MaBoussole" > .env
           echo "APP_ENV=${{ steps.vars.outputs.app_env }}" >> .env
           echo "APP_KEY=${{ secrets.STAGING_APP_KEY }}" >> .env
           echo "APP_DEBUG=${{ steps.vars.outputs.app_debug }}" >> .env
