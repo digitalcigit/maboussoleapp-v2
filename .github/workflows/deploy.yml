@@ -184,28 +184,15 @@ jobs:
           echo 'Test de connexion à la base de données...'
           php artisan tinker --execute="try { DB::connection()->getPdo(); echo 'Connexion réussie à la base de données.'; } catch (\Exception \$e) { echo 'Erreur de connexion : ' . \$e->getMessage(); }"
           
-          # Migrations
+          # Migrations et seeders
           echo 'Vérification des migrations...'
           php artisan migrate:install --verbose || echo 'Table des migrations déjà existante'
           php artisan migrate:status --verbose
           php artisan migrate --force --verbose
           
-          # Création de l'utilisateur admin si non existant
-          echo 'Création de l'\''utilisateur admin...'
-          php artisan tinker --execute="
-            \$email = 'admin@maboussole.net';
-            if (!\App\Models\User::where('email', \$email)->exists()) {
-              \App\Models\User::create([
-                'name' => 'Admin',
-                'email' => \$email,
-                'password' => bcrypt('${{ secrets.ADMIN_PASSWORD }}'),
-                'email_verified_at' => now()
-              ]);
-              echo 'Utilisateur admin créé.';
-            } else {
-              echo 'Utilisateur admin existe déjà.';
-            }
-          "
+          # Exécution du seeder pour l'utilisateur admin
+          echo 'Création de l'\''utilisateur admin via seeder...'
+          php artisan db:seed --class=AdminUserSeeder --force --verbose
           
           echo 'Déploiement terminé avec succès!'
         "
