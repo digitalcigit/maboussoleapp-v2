@@ -117,6 +117,10 @@ jobs:
           echo 'Exécution des migrations...'
           php artisan migrate --force --verbose
           
+          # Création des rôles et permissions
+          echo 'Création des rôles et permissions...'
+          php artisan db:seed --class=RoleAndPermissionSeeder --force --verbose
+          
           # Exécution du seeder pour l'utilisateur admin
           echo 'Création de l'\''utilisateur admin via seeder...'
           php artisan db:seed --class=AdminUserSeeder --force --verbose
