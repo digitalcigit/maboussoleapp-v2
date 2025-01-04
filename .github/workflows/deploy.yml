@@ -18,6 +18,8 @@ jobs:
       actions: read
       checks: write
       id-token: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
 
     steps:
     - uses: actions/checkout@v3
@@ -142,10 +144,9 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H github.com >> ~/.ssh/known_hosts
           
-          # Clone du dépôt (nouveau clone propre)
-          # Note: Assurez-vous que la clé SSH du serveur est ajoutée à GitHub
+          # Clone du dépôt avec le token
           echo 'Clonage du dépôt...'
-          git clone --depth 1 -b ${{ github.ref_name }} git@github.com:digitalcigit/maboussoleapp-v2.git .
+          git clone --depth 1 -b ${{ github.ref_name }} https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
           
           # S'assurer que les nouveaux fichiers appartiennent au groupe www-data
           find . -type f -exec chmod 664 {} \;
