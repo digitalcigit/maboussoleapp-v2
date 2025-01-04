@@ -137,15 +137,22 @@ jobs:
           echo 'Configuration des permissions...'
           
           # Création des dossiers nécessaires
+          echo 'Création des dossiers...'
           mkdir -p storage/logs
           mkdir -p storage/app/public
           mkdir -p bootstrap/cache
           
+          # Création du fichier de log
+          echo 'Création du fichier de log...'
+          touch storage/logs/laravel.log
+          
           # Configuration des permissions de base
+          echo 'Configuration des permissions de base...'
           find . -type d -exec chmod 755 {} \;
           find . -type f -exec chmod 644 {} \;
           
           # Configuration des permissions spécifiques pour les dossiers qui nécessitent l'écriture
+          echo 'Configuration des permissions spécifiques...'
           chmod -R 775 storage
           chmod -R 775 bootstrap/cache
           chmod 664 storage/logs/laravel.log
@@ -157,6 +164,8 @@ jobs:
           ls -la storage
           ls -la .
           
+          # Création du lien symbolique storage
+          echo 'Création du lien symbolique storage...'
           php artisan storage:link --force --verbose
             
           # Vérification du storage
