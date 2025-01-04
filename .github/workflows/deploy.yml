@@ -176,6 +176,14 @@ jobs:
           echo 'Vérification des logs...'
           tail -n 50 storage/logs/laravel.log || echo 'Pas de fichier de log trouvé'
             
+          # Vérification de la configuration de la base de données
+          echo 'Vérification de la configuration de la base de données...'
+          php artisan db:show --verbose || echo "Erreur de connexion à la base de données"
+          
+          # Test de connexion à la base de données
+          echo 'Test de connexion à la base de données...'
+          php artisan tinker --execute="try { DB::connection()->getPdo(); echo 'Connexion réussie à la base de données.'; } catch (\Exception \$e) { echo 'Erreur de connexion : ' . \$e->getMessage(); }"
+          
           # Migrations
           echo 'Vérification des migrations...'
           php artisan migrate:install --verbose || echo 'Table des migrations déjà existante'
