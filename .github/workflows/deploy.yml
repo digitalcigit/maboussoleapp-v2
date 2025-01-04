@@ -99,79 +99,79 @@ jobs:
           git clone --depth 1 -b ${{ github.ref_name }} https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
             
           # Création du fichier .env
-          echo "Configuration du fichier .env..."
+          echo 'Configuration du fichier .env...'
             
-          echo "APP_NAME=MaBoussole" > .env
-          echo "APP_ENV=${{ steps.vars.outputs.app_env }}" >> .env
-          echo "APP_KEY=${{ secrets.STAGING_APP_KEY }}" >> .env
-          echo "APP_DEBUG=${{ steps.vars.outputs.app_debug }}" >> .env
-          echo "APP_URL=${{ steps.vars.outputs.app_url }}" >> .env
-          echo "" >> .env
-          echo "LOG_CHANNEL=stack" >> .env
-          echo "LOG_LEVEL=debug" >> .env
-          echo "" >> .env
-          echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=${{ secrets.STAGING_DB_HOST }}" >> .env
-          echo "DB_PORT=${{ secrets.STAGING_DB_PORT }}" >> .env
-          echo "DB_DATABASE=${{ secrets.STAGING_DB_DATABASE }}" >> .env
-          echo "DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}" >> .env
-          echo "" >> .env
-          echo "BROADCAST_DRIVER=log" >> .env
-          echo "CACHE_DRIVER=file" >> .env
-          echo "FILESYSTEM_DISK=local" >> .env
-          echo "QUEUE_CONNECTION=sync" >> .env
-          echo "SESSION_DRIVER=file" >> .env
-          echo "SESSION_LIFETIME=120" >> .env
+          echo 'APP_NAME=MaBoussole' > .env
+          echo 'APP_ENV=${{ steps.vars.outputs.app_env }}' >> .env
+          echo 'APP_KEY=${{ secrets.STAGING_APP_KEY }}' >> .env
+          echo 'APP_DEBUG=${{ steps.vars.outputs.app_debug }}' >> .env
+          echo 'APP_URL=${{ steps.vars.outputs.app_url }}' >> .env
+          echo '' >> .env
+          echo 'LOG_CHANNEL=stack' >> .env
+          echo 'LOG_LEVEL=debug' >> .env
+          echo '' >> .env
+          echo 'DB_CONNECTION=mysql' >> .env
+          echo 'DB_HOST=${{ secrets.STAGING_DB_HOST }}' >> .env
+          echo 'DB_PORT=${{ secrets.STAGING_DB_PORT }}' >> .env
+          echo 'DB_DATABASE=${{ secrets.STAGING_DB_DATABASE }}' >> .env
+          echo 'DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }}' >> .env
+          echo 'DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}' >> .env
+          echo '' >> .env
+          echo 'BROADCAST_DRIVER=log' >> .env
+          echo 'CACHE_DRIVER=file' >> .env
+          echo 'FILESYSTEM_DISK=local' >> .env
+          echo 'QUEUE_CONNECTION=sync' >> .env
+          echo 'SESSION_DRIVER=file' >> .env
+          echo 'SESSION_LIFETIME=120' >> .env
 
-          echo "Vérification du fichier .env..."
+          echo 'Vérification du fichier .env...'
           cat .env
 
           # Installation des dépendances PHP avec plus de verbosité
-          echo "Installation des dépendances PHP..."
+          echo 'Installation des dépendances PHP...'
           composer install --no-dev --no-interaction --optimize-autoloader -v
             
           # Installation des dépendances Node.js et build avec plus de verbosité
-          echo "Installation des dépendances Node.js..."
+          echo 'Installation des dépendances Node.js...'
           npm ci --verbose
           npm run build --verbose
             
           # Configuration de l'application avec plus de logs
-          echo "Configuration de l'application..."
+          echo 'Configuration de l'\''application...'
             
           # Génération de la clé d'application
-          echo "Génération de la clé d'application..."
+          echo 'Génération de la clé d'\''application...'
           php artisan key:generate --force --verbose
             
           php artisan storage:link --force --verbose
             
           # Vérification du storage
-          echo "Vérification du storage..."
+          echo 'Vérification du storage...'
           ls -la storage
           ls -la public
             
           # Optimisations avec plus de verbosité
-          echo "Optimisation de l'application..."
+          echo 'Optimisation de l'\''application...'
           php artisan optimize:clear --verbose
           php artisan config:cache --verbose
           php artisan route:cache --verbose
           php artisan view:cache --verbose
             
           # Vérification des logs d'erreur
-          echo "Vérification des logs..."
-          tail -n 50 storage/logs/laravel.log || echo "Pas de fichier de log trouvé"
+          echo 'Vérification des logs...'
+          tail -n 50 storage/logs/laravel.log || echo 'Pas de fichier de log trouvé'
             
           # Migrations avec plus de verbosité
-          echo "Vérification des migrations..."
+          echo 'Vérification des migrations...'
           php artisan migrate:status --verbose
-          if [ $? -eq 0 ]; then
-            echo "Exécution des migrations..."
+          if [ \$? -eq 0 ]; then
+            echo 'Exécution des migrations...'
             php artisan migrate --force --verbose
           else
-            echo "Warning: Base de données non accessible. Les migrations seront ignorées."
+            echo 'Warning: Base de données non accessible. Les migrations seront ignorées.'
           fi
             
-          echo "Déploiement terminé avec succès!"
+          echo 'Déploiement terminé avec succès!'
         "
 
     - name: Notify Slack on Failure
