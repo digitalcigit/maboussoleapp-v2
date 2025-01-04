@@ -94,9 +94,15 @@ jobs:
           echo 'Clonage du dépôt...'
           git clone --depth 1 -b develop https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
           
+          # Configuration des permissions
+          echo 'Configuration des permissions...'
+          find . -type f -exec chmod 664 {} \;
+          find . -type d -exec chmod 775 {} \;
+          
           # Restauration du fichier .env
           echo 'Restauration du fichier .env...'
           cp /var/www/laravel/.env \"\$DEPLOY_PATH/.env\"
+          chmod 664 .env
           
           # Installation des dépendances
           echo 'Installation des dépendances...'
@@ -110,6 +116,11 @@ jobs:
           mkdir -p storage/logs
           mkdir -p bootstrap/cache
           chmod -R 775 storage bootstrap/cache
+          
+          # Création des fichiers de log
+          echo 'Création des fichiers de log...'
+          touch storage/logs/laravel.log
+          chmod 664 storage/logs/laravel.log
           
           # Configuration de Laravel
           echo 'Configuration de Laravel...'
