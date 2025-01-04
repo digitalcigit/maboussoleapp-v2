@@ -97,7 +97,35 @@ jobs:
           # Clone du dépôt avec le token
           echo 'Clonage du dépôt...'
           git clone --depth 1 -b ${{ github.ref_name }} https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
-            
+          
+          # Création du fichier .env
+          echo 'Configuration du fichier .env...'
+          echo 'APP_NAME=MaBoussole' > .env
+          echo 'APP_ENV=${{ steps.vars.outputs.app_env }}' >> .env
+          echo 'APP_KEY=${{ secrets.STAGING_APP_KEY }}' >> .env
+          echo 'APP_DEBUG=${{ steps.vars.outputs.app_debug }}' >> .env
+          echo 'APP_URL=${{ steps.vars.outputs.app_url }}' >> .env
+          echo '' >> .env
+          echo 'LOG_CHANNEL=stack' >> .env
+          echo 'LOG_LEVEL=debug' >> .env
+          echo '' >> .env
+          echo 'DB_CONNECTION=mysql' >> .env
+          echo 'DB_HOST=${{ secrets.STAGING_DB_HOST }}' >> .env
+          echo 'DB_PORT=${{ secrets.STAGING_DB_PORT }}' >> .env
+          echo 'DB_DATABASE=${{ secrets.STAGING_DB_DATABASE }}' >> .env
+          echo 'DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }}' >> .env
+          echo 'DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}' >> .env
+          echo '' >> .env
+          echo 'BROADCAST_DRIVER=log' >> .env
+          echo 'CACHE_DRIVER=file' >> .env
+          echo 'FILESYSTEM_DISK=local' >> .env
+          echo 'QUEUE_CONNECTION=sync' >> .env
+          echo 'SESSION_DRIVER=file' >> .env
+          echo 'SESSION_LIFETIME=120' >> .env
+          
+          echo 'Vérification du fichier .env...'
+          cat .env
+          
           # Installation des dépendances PHP
           echo 'Installation des dépendances PHP...'
           composer install --no-dev --no-interaction --optimize-autoloader -v
@@ -125,7 +153,7 @@ jobs:
           find . -type d -exec chmod 755 {} \;
           find . -type f -exec chmod 644 {} \;
           
-          # Configuration des permissions spécifiques pour les dossiers qui nécessitent l'écriture
+          # Configuration des permissions spécifiques
           echo 'Configuration des permissions spécifiques...'
           chmod -R 775 storage
           chmod -R 775 bootstrap/cache
@@ -138,16 +166,10 @@ jobs:
           ls -la storage
           ls -la .
           
-          # Création du lien symbolique storage
-          echo 'Création du lien symbolique storage...'
+          # Commandes Artisan
+          echo 'Configuration de Laravel...'
           php artisan storage:link --force --verbose
-          
-          # Génération de la clé d'application
-          echo 'Génération de la clé d'\''application...'
           php artisan key:generate --force --verbose
-          
-          # Optimisations
-          echo 'Optimisation de l'\''application...'
           php artisan optimize:clear --verbose
           
           # Vérification des logs d'erreur
