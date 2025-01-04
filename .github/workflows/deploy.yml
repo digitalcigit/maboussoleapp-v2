@@ -127,55 +127,27 @@ jobs:
           echo 'Vérification du fichier .env...'
           cat .env
 
-          # Installation des dépendances PHP avec plus de verbosité
-          echo 'Installation des dépendances PHP...'
-          composer install --no-dev --no-interaction --optimize-autoloader -v
-            
-          # Installation des dépendances Node.js et build avec plus de verbosité
-          echo 'Installation des dépendances Node.js...'
-          npm ci --verbose
-          npm run build --verbose
-            
-          # Configuration de l'application avec plus de logs
-          echo 'Configuration de l'\''application...'
-            
-          # Génération de la clé d'application
-          echo 'Génération de la clé d'\''application...'
-          php artisan key:generate --force --verbose
-            
-          # Création des dossiers nécessaires
-          echo 'Création des dossiers nécessaires...'
-          mkdir -p storage/logs
-          mkdir -p storage/app/public
-          mkdir -p bootstrap/cache
+          # Note: Ce workflow nécessite une configuration préalable du serveur
+          # À faire manuellement sur le serveur (une seule fois) :
+          # 1. sudo chown -R www-data:www-data /var/www/laravel/staging-crm-app.maboussole.net
+          # 2. sudo chmod -R 775 /var/www/laravel/staging-crm-app.maboussole.net
+          # 3. sudo usermod -a -G www-data $USER
           
-          # Configuration des permissions des dossiers
-          # Note: Permissions 775/664 sont volontairement permissives pour l'environnement de staging
-          # afin de faciliter le débogage et les tests. Ne pas utiliser en production.
+          # Configuration automatique des permissions
           echo 'Configuration des permissions...'
           
-          # Définir les variables de groupe et utilisateur web
-          WEB_GROUP=$(groups www-data | cut -d' ' -f3)
-          echo "Groupe web serveur : $WEB_GROUP"
-          
-          # S'assurer que le groupe a accès aux dossiers
-          # Note: Nous utilisons g+s pour que les nouveaux fichiers héritent du groupe
-          find . -type d -exec chmod 2775 {} \;
-          find . -type f -exec chmod 664 {} \;
-          
-          # Création et configuration spécifique des dossiers sensibles
+          # Création des dossiers nécessaires
           mkdir -p storage/logs
           mkdir -p storage/app/public
           mkdir -p bootstrap/cache
           
-          # Configuration des permissions des dossiers sensibles
-          find storage -type d -exec chmod 2775 {} \;
-          find storage -type f -exec chmod 664 {} \;
-          find bootstrap/cache -type d -exec chmod 2775 {} \;
-          find bootstrap/cache -type f -exec chmod 664 {} \;
+          # Configuration des permissions de base
+          find . -type d -exec chmod 755 {} \;
+          find . -type f -exec chmod 644 {} \;
           
-          # Création et configuration du fichier de log
-          touch storage/logs/laravel.log
+          # Configuration des permissions spécifiques pour les dossiers qui nécessitent l'écriture
+          chmod -R 775 storage
+          chmod -R 775 bootstrap/cache
           chmod 664 storage/logs/laravel.log
           
           # Vérification des permissions
@@ -191,6 +163,22 @@ jobs:
           echo 'Vérification du storage...'
           ls -la storage
           ls -la public
+            
+          # Installation des dépendances PHP avec plus de verbosité
+          echo 'Installation des dépendances PHP...'
+          composer install --no-dev --no-interaction --optimize-autoloader -v
+            
+          # Installation des dépendances Node.js et build avec plus de verbosité
+          echo 'Installation des dépendances Node.js...'
+          npm ci --verbose
+          npm run build --verbose
+            
+          # Configuration de l'application avec plus de logs
+          echo 'Configuration de l'\''application...'
+            
+          # Génération de la clé d'application
+          echo 'Génération de la clé d'\''application...'
+          php artisan key:generate --force --verbose
             
           # Optimisations avec plus de verbosité
           echo 'Optimisation de l'\''application...'
