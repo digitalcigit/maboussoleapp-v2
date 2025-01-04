@@ -93,38 +93,52 @@ jobs:
             
           # Navigation vers le répertoire de déploiement
           cd \"\$DEPLOY_PATH\" || exit 1
-            
+          
+          # Sauvegarde du fichier .env s'il existe
+          echo 'Sauvegarde de la configuration...'
+          if [ -f .env ]; then
+            cp .env .env.backup
+          fi
+          
+          # Nettoyage du répertoire de déploiement
+          echo 'Nettoyage du répertoire de déploiement...'
+          find . -mindepth 1 -maxdepth 1 ! -name '.env.backup' -exec rm -rf {} +
+          
           # Clone du dépôt avec le token
           echo 'Clonage du dépôt...'
           git clone --depth 1 -b ${{ github.ref_name }} https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
           
-          # Création du fichier .env
-          echo 'Configuration du fichier .env...'
-          echo 'APP_NAME=MaBoussole' > .env
-          echo 'APP_ENV=${{ steps.vars.outputs.app_env }}' >> .env
-          echo 'APP_KEY=${{ secrets.STAGING_APP_KEY }}' >> .env
-          echo 'APP_DEBUG=${{ steps.vars.outputs.app_debug }}' >> .env
-          echo 'APP_URL=${{ steps.vars.outputs.app_url }}' >> .env
-          echo '' >> .env
-          echo 'LOG_CHANNEL=stack' >> .env
-          echo 'LOG_LEVEL=debug' >> .env
-          echo '' >> .env
-          echo 'DB_CONNECTION=mysql' >> .env
-          echo 'DB_HOST=${{ secrets.STAGING_DB_HOST }}' >> .env
-          echo 'DB_PORT=${{ secrets.STAGING_DB_PORT }}' >> .env
-          echo 'DB_DATABASE=${{ secrets.STAGING_DB_DATABASE }}' >> .env
-          echo 'DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }}' >> .env
-          echo 'DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}' >> .env
-          echo '' >> .env
-          echo 'BROADCAST_DRIVER=log' >> .env
-          echo 'CACHE_DRIVER=file' >> .env
-          echo 'FILESYSTEM_DISK=local' >> .env
-          echo 'QUEUE_CONNECTION=sync' >> .env
-          echo 'SESSION_DRIVER=file' >> .env
-          echo 'SESSION_LIFETIME=120' >> .env
-          
-          echo 'Vérification du fichier .env...'
-          cat .env
+          # Restauration du fichier .env
+          echo 'Restauration de la configuration...'
+          if [ -f .env.backup ]; then
+            mv .env.backup .env
+            echo 'Fichier .env restauré'
+          else
+            # Création du fichier .env si pas de backup
+            echo 'Création d'\''un nouveau fichier .env...'
+            echo 'APP_NAME=MaBoussole' > .env
+            echo 'APP_ENV=${{ steps.vars.outputs.app_env }}' >> .env
+            echo 'APP_KEY=${{ secrets.STAGING_APP_KEY }}' >> .env
+            echo 'APP_DEBUG=${{ steps.vars.outputs.app_debug }}' >> .env
+            echo 'APP_URL=${{ steps.vars.outputs.app_url }}' >> .env
+            echo '' >> .env
+            echo 'LOG_CHANNEL=stack' >> .env
+            echo 'LOG_LEVEL=debug' >> .env
+            echo '' >> .env
+            echo 'DB_CONNECTION=mysql' >> .env
+            echo 'DB_HOST=${{ secrets.STAGING_DB_HOST }}' >> .env
+            echo 'DB_PORT=${{ secrets.STAGING_DB_PORT }}' >> .env
+            echo 'DB_DATABASE=${{ secrets.STAGING_DB_DATABASE }}' >> .env
+            echo 'DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }}' >> .env
+            echo 'DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}' >> .env
+            echo '' >> .env
+            echo 'BROADCAST_DRIVER=log' >> .env
+            echo 'CACHE_DRIVER=file' >> .env
+            echo 'FILESYSTEM_DISK=local' >> .env
+            echo 'QUEUE_CONNECTION=sync' >> .env
+            echo 'SESSION_DRIVER=file' >> .env
+            echo 'SESSION_LIFETIME=120' >> .env
+          fi
           
           # Installation des dépendances PHP
           echo 'Installation des dépendances PHP...'
@@ -135,59 +149,26 @@ jobs:
           npm ci
           npm run build
           
-          # Configuration automatique des permissions
+          # Configuration des permissions
           echo 'Configuration des permissions...'
-          
-          # Création des dossiers nécessaires
-          echo 'Création des dossiers...'
           mkdir -p storage/logs
           mkdir -p storage/app/public
           mkdir -p bootstrap/cache
-          
-          # Création du fichier de log
-          echo 'Création du fichier de log...'
-          touch storage/logs/laravel.log
-          
-          # Configuration des permissions de base
-          echo 'Configuration des permissions de base...'
-          find . -type d -exec chmod 755 {} \;
-          find . -type f -exec chmod 644 {} \;
-          
-          # Configuration des permissions spécifiques
-          echo 'Configuration des permissions spécifiques...'
           chmod -R 775 storage
           chmod -R 775 bootstrap/cache
-          chmod 664 storage/logs/laravel.log
           
-          # Vérification des permissions
-          echo 'Vérification des permissions...'
-          ls -la storage/logs/laravel.log
-          ls -la storage/logs
-          ls -la storage
-          ls -la .
-          
-          # Commandes Artisan
+          # Configuration de Laravel
           echo 'Configuration de Laravel...'
           php artisan storage:link --force --verbose
           php artisan key:generate --force --verbose
           php artisan optimize:clear --verbose
-          
-          # Vérification des logs d'erreur
-          echo 'Vérification des logs...'
-          tail -n 50 storage/logs/laravel.log || echo 'Pas de fichier de log trouvé'
-            
-          # Vérification de la configuration de la base de données
-          echo 'Vérification de la configuration de la base de données...'
-          php artisan db:show --verbose || echo "Erreur de connexion à la base de données"
           
           # Test de connexion à la base de données
           echo 'Test de connexion à la base de données...'
           php artisan tinker --execute=\"echo DB::connection()->getDatabaseName();\"
           
           # Migrations et seeders
-          echo 'Vérification des migrations...'
-          php artisan migrate:install --verbose || echo 'Table des migrations déjà existante'
-          php artisan migrate:status --verbose
+          echo 'Exécution des migrations...'
           php artisan migrate --force --verbose
           
           # Exécution du seeder pour l'utilisateur admin
