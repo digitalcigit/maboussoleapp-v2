@@ -97,6 +97,38 @@ jobs:
           # Clone du dépôt avec le token
           echo 'Clonage du dépôt...'
           git clone --depth 1 -b ${{ github.ref_name }} https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
+            
+          # Installation des dépendances PHP
+          echo 'Installation des dépendances PHP...'
+          composer install --no-dev --no-interaction --optimize-autoloader
+            
+          # Installation des dépendances Node.js et build
+          echo 'Installation des dépendances Node.js...'
+          npm ci
+          npm run build
+            
+          # Configuration de l'application
+          echo 'Configuration de l'\''application...'
+          php artisan key:generate --force
+          php artisan storage:link --force
+            
+          # Optimisations
+          echo 'Optimisation de l'\''application...'
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+            
+          # Migrations (si la base de données est accessible)
+          echo 'Vérification des migrations...'
+          if php artisan migrate:status &>/dev/null; then
+            echo 'Exécution des migrations...'
+            php artisan migrate --force
+          else
+            echo 'Warning: Base de données non accessible. Les migrations seront ignorées.'
+          fi
+            
+          echo 'Déploiement terminé avec succès!'
         "
 
     - name: Notify Slack on Failure
