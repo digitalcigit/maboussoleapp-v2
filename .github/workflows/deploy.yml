@@ -192,7 +192,20 @@ jobs:
           
           # Création de l'utilisateur admin si non existant
           echo 'Création de l'\''utilisateur admin...'
-          php artisan tinker --execute="if (!\App\Models\User::where('email', 'admin@maboussole.net')->exists()) { \App\Models\User::create(['name' => 'Admin', 'email' => 'admin@maboussole.net', 'password' => bcrypt('${{ secrets.ADMIN_PASSWORD }}'), 'email_verified_at' => now()]); echo 'Utilisateur admin créé.'; } else { echo 'Utilisateur admin existe déjà.'; }"
+          php artisan tinker --execute="
+            \$email = 'admin@maboussole.net';
+            if (!\App\Models\User::where('email', \$email)->exists()) {
+              \App\Models\User::create([
+                'name' => 'Admin',
+                'email' => \$email,
+                'password' => bcrypt('${{ secrets.ADMIN_PASSWORD }}'),
+                'email_verified_at' => now()
+              ]);
+              echo 'Utilisateur admin créé.';
+            } else {
+              echo 'Utilisateur admin existe déjà.';
+            }
+          "
           
           echo 'Déploiement terminé avec succès!'
         "
