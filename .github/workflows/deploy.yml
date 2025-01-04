@@ -125,26 +125,27 @@ jobs:
             SESSION_LIFETIME=120
             EOF
 
-            # Génération de la clé d'application
-            echo 'Génération de la clé d'\''application...'
-            php artisan key:generate --force
-
             # Vérification du contenu du .env
             echo 'Vérification du fichier .env...'
             cat .env
             
-          # Installation des dépendances PHP avec plus de verbosité
-          echo 'Installation des dépendances PHP...'
-          composer install --no-dev --no-interaction --optimize-autoloader -v
+            # Installation des dépendances PHP avec plus de verbosité
+            echo 'Installation des dépendances PHP...'
+            composer install --no-dev --no-interaction --optimize-autoloader -v
             
-          # Installation des dépendances Node.js et build avec plus de verbosité
-          echo 'Installation des dépendances Node.js...'
-          npm ci --verbose
-          npm run build --verbose
+            # Installation des dépendances Node.js et build avec plus de verbosité
+            echo 'Installation des dépendances Node.js...'
+            npm ci --verbose
+            npm run build --verbose
             
-          # Configuration de l'application avec plus de logs
-          echo 'Configuration de l'\''application...'
-          php artisan storage:link --force --verbose
+            # Configuration de l'application avec plus de logs
+            echo 'Configuration de l'\''application...'
+            
+            # Génération de la clé d'application
+            echo 'Génération de la clé d'\''application...'
+            php artisan key:generate --force --verbose
+            
+            php artisan storage:link --force --verbose
             
           # Vérification du storage
           echo 'Vérification du storage...'
