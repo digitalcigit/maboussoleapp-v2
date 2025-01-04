@@ -31,21 +31,11 @@ jobs:
       run: |
         if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
           echo "deploy_path=${{ secrets.DEPLOY_PATH }}" >> $GITHUB_OUTPUT
-          echo "db_host=${{ secrets.DB_HOST }}" >> $GITHUB_OUTPUT
-          echo "db_port=${{ secrets.DB_PORT }}" >> $GITHUB_OUTPUT
-          echo "db_database=${{ secrets.DB_DATABASE }}" >> $GITHUB_OUTPUT
-          echo "db_username=${{ secrets.DB_USERNAME }}" >> $GITHUB_OUTPUT
-          echo "db_password=${{ secrets.DB_PASSWORD }}" >> $GITHUB_OUTPUT
           echo "app_url=https://crm-app.maboussole.net" >> $GITHUB_OUTPUT
           echo "app_env=production" >> $GITHUB_OUTPUT
           echo "app_debug=false" >> $GITHUB_OUTPUT
         else
           echo "deploy_path=${{ secrets.STAGING_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
-          echo "db_host=${{ secrets.STAGING_DB_HOST }}" >> $GITHUB_OUTPUT
-          echo "db_port=${{ secrets.STAGING_DB_PORT }}" >> $GITHUB_OUTPUT
-          echo "db_database=${{ secrets.STAGING_DB_DATABASE }}" >> $GITHUB_OUTPUT
-          echo "db_username=${{ secrets.STAGING_DB_USERNAME }}" >> $GITHUB_OUTPUT
-          echo "db_password=${{ secrets.STAGING_DB_PASSWORD }}" >> $GITHUB_OUTPUT
           echo "app_url=https://staging-crm-app.maboussole.net" >> $GITHUB_OUTPUT
           echo "app_env=staging" >> $GITHUB_OUTPUT
           echo "app_debug=true" >> $GITHUB_OUTPUT
@@ -62,32 +52,6 @@ jobs:
         ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
         chmod 644 ~/.ssh/known_hosts
 
-    - name: Create Environment File
-      run: |
-        cat > .env.deploy << 'EOF'
-        APP_NAME="Ma Boussole"
-        APP_ENV=${{ steps.vars.outputs.app_env }}
-        APP_DEBUG=${{ steps.vars.outputs.app_debug }}
-        APP_URL=${{ steps.vars.outputs.app_url }}
-
-        LOG_CHANNEL=stack
-        LOG_LEVEL=debug
-
-        DB_CONNECTION=mysql
-        DB_HOST=${{ steps.vars.outputs.db_host }}
-        DB_PORT=${{ steps.vars.outputs.db_port }}
-        DB_DATABASE=${{ steps.vars.outputs.db_database }}
-        DB_USERNAME=${{ steps.vars.outputs.db_username }}
-        DB_PASSWORD=${{ steps.vars.outputs.db_password }}
-
-        BROADCAST_DRIVER=log
-        CACHE_DRIVER=file
-        FILESYSTEM_DISK=local
-        QUEUE_CONNECTION=sync
-        SESSION_DRIVER=file
-        SESSION_LIFETIME=120
-        EOF
-
     - name: Deploy Application
       env:
         DEPLOY_PATH: ${{ steps.vars.outputs.deploy_path }}
@@ -96,12 +60,6 @@ jobs:
         REMOTE_PORT: ${{ secrets.SERVER_PORT }}
       run: |
         echo "Déploiement vers ${{ steps.vars.outputs.app_env }} en cours..."
-        
-        # Copier le fichier .env sur le serveur
-        scp -P $REMOTE_PORT .env.deploy $REMOTE_USER@$REMOTE_HOST:/tmp/.env
-        
-        # Exporter le chemin de déploiement pour le script SSH
-        export DEPLOY_PATH="${DEPLOY_PATH}"
         
         ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "
           set -e  # Arrêter le script en cas d'erreur
@@ -121,7 +79,7 @@ jobs:
           command -v git >/dev/null 2>&1 || { echo 'git is required but not installed.' >&2; exit 1; }
           command -v composer >/dev/null 2>&1 || { echo 'composer is required but not installed.' >&2; exit 1; }
           command -v npm >/dev/null 2>&1 || { echo 'npm is required but not installed.' >&2; exit 1; }
-          
+            
           # Vérification et nettoyage du répertoire de déploiement
           echo 'Configuration du répertoire de déploiement...'
           if [ ! -d \"\$DEPLOY_PATH\" ]; then
@@ -129,72 +87,16 @@ jobs:
             exit 1
           else
             echo 'Nettoyage du répertoire de déploiement...'
-            # On a les permissions via le groupe www-data
             rm -rf \"\$DEPLOY_PATH\"/*
             rm -rf \"\$DEPLOY_PATH\"/.[!.]*
           fi
-          
+            
           # Navigation vers le répertoire de déploiement
           cd \"\$DEPLOY_PATH\" || exit 1
-          
-          # Configuration sécurisée de SSH pour GitHub
-          # Cette étape ajoute la clé publique de GitHub aux known_hosts
-          # C'est une approche plus sécurisée que de désactiver StrictHostKeyChecking
-          echo 'Configuration de SSH pour GitHub...'
-          mkdir -p ~/.ssh
-          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-          
+            
           # Clone du dépôt avec le token
           echo 'Clonage du dépôt...'
           git clone --depth 1 -b ${{ github.ref_name }} https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
-          
-          # S'assurer que les nouveaux fichiers appartiennent au groupe www-data
-          find . -type f -exec chmod 664 {} \;
-          find . -type d -exec chmod 775 {} \;
-          
-          # Installation des dépendances
-          echo 'Installation des dépendances PHP...'
-          export PATH=/usr/local/bin:/usr/bin:\$PATH
-          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-          
-          echo 'Installation des dépendances Node.js...'
-          npm ci
-          npm run build
-          
-          # Configuration de l'application
-          echo 'Configuration de l'\''application...'
-          mv /tmp/.env .env
-          php artisan key:generate --force
-          
-          # Création des répertoires nécessaires avec les bonnes permissions
-          mkdir -p storage/framework/{sessions,views,cache}
-          mkdir -p storage/logs
-          chmod -R 775 storage bootstrap/cache
-          find storage -type f -exec chmod 664 {} \;
-          find storage -type d -exec chmod 775 {} \;
-          find bootstrap/cache -type f -exec chmod 664 {} \;
-          find bootstrap/cache -type d -exec chmod 775 {} \;
-          
-          # Cache et optimisations
-          echo 'Optimisation de l'\''application...'
-          php artisan optimize:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          
-          # Création des liens symboliques
-          echo 'Création des liens symboliques...'
-          php artisan storage:link
-          
-          # Migrations
-          echo 'Exécution des migrations...'
-          if php artisan migrate:status >/dev/null 2>&1; then
-            php artisan migrate --force
-          else
-            echo 'Warning: Could not connect to database. Skipping migrations.'
-          fi
-          
-          echo 'Déploiement terminé avec succès!'
         "
 
     - name: Notify Slack on Failure
