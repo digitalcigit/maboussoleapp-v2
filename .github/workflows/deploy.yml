@@ -83,6 +83,13 @@ jobs:
           # Navigation vers le répertoire de déploiement
           cd \"\$DEPLOY_PATH\" || exit 1
           
+          # Vérification et nettoyage du répertoire
+          echo 'Vérification du répertoire...'
+          if [ -d .git ]; then
+            echo 'Suppression du répertoire git existant...'
+            rm -rf .git
+          fi
+          
           # Clone du dépôt avec le token
           echo 'Clonage du dépôt...'
           git clone --depth 1 -b develop https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
