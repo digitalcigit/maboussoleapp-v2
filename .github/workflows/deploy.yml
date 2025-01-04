@@ -154,19 +154,24 @@ jobs:
           # afin de faciliter le débogage et les tests. Ne pas utiliser en production.
           echo 'Configuration des permissions...'
           
-          # S'assurer que tous les dossiers parents ont les bonnes permissions
-          chmod 775 .
-          chmod 775 storage
-          chmod 775 storage/logs
-          chmod 775 storage/app
-          chmod 775 storage/app/public
-          chmod 775 bootstrap
-          chmod 775 bootstrap/cache
+          # Définir les variables de groupe et utilisateur web
+          WEB_GROUP=$(groups www-data | cut -d' ' -f3)
+          echo "Groupe web serveur : $WEB_GROUP"
           
-          # Configurer les permissions récursivement pour les nouveaux fichiers
-          find storage -type d -exec chmod 775 {} \;
+          # S'assurer que le groupe a accès aux dossiers
+          # Note: Nous utilisons g+s pour que les nouveaux fichiers héritent du groupe
+          find . -type d -exec chmod 2775 {} \;
+          find . -type f -exec chmod 664 {} \;
+          
+          # Création et configuration spécifique des dossiers sensibles
+          mkdir -p storage/logs
+          mkdir -p storage/app/public
+          mkdir -p bootstrap/cache
+          
+          # Configuration des permissions des dossiers sensibles
+          find storage -type d -exec chmod 2775 {} \;
           find storage -type f -exec chmod 664 {} \;
-          find bootstrap/cache -type d -exec chmod 775 {} \;
+          find bootstrap/cache -type d -exec chmod 2775 {} \;
           find bootstrap/cache -type f -exec chmod 664 {} \;
           
           # Création et configuration du fichier de log
@@ -178,6 +183,7 @@ jobs:
           ls -la storage/logs/laravel.log
           ls -la storage/logs
           ls -la storage
+          ls -la .
           
           php artisan storage:link --force --verbose
             
