@@ -150,12 +150,16 @@ jobs:
           mkdir -p bootstrap/cache
           
           # Configuration des permissions des dossiers
-          chmod -R 755 storage
-          chmod -R 755 bootstrap/cache
+          # Note: Permissions 775/664 sont volontairement permissives pour l'environnement de staging
+          # afin de faciliter le débogage et les tests. Ne pas utiliser en production.
+          echo 'Configuration des permissions...'
+          find storage -type d -exec chmod 775 {} \;
+          find bootstrap/cache -type d -exec chmod 775 {} \;
+          find storage -type f -exec chmod 664 {} \;
           
           # Création et configuration du fichier de log
           touch storage/logs/laravel.log
-          chmod 644 storage/logs/laravel.log
+          chmod 664 storage/logs/laravel.log
           
           php artisan storage:link --force --verbose
             
