@@ -83,21 +83,29 @@ jobs:
           # Navigation vers le répertoire de déploiement
           cd \"\$DEPLOY_PATH\" || exit 1
           
-          # Initialisation/Mise à jour du dépôt Git
-          echo 'Configuration du dépôt Git...'
-          if [ ! -d .git ]; then
-            # Premier déploiement : clone en mode mirror
-            git clone --mirror https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .git
-            git config --bool core.bare false
-          else
-            # Mise à jour du dépôt existant
-            git fetch origin
+          # Sauvegarde du .env s'il existe
+          if [ -f .env ]; then
+            cp .env ../temp.env
           fi
           
-          # Checkout de la branche appropriée
-          echo 'Checkout de la branche...'
-          git checkout -f ${{ github.ref_name }}
-          git reset --hard origin/${{ github.ref_name }}
+          # Nettoyage et initialisation du dépôt Git
+          echo 'Configuration du dépôt Git...'
+          if [ -d .git ]; then
+            # Si un dépôt existe déjà, on le met à jour
+            git fetch origin
+            git checkout -f ${{ github.ref_name }}
+            git reset --hard origin/${{ github.ref_name }}
+          else
+            # Si pas de dépôt, on nettoie et on clone
+            rm -rf * .[^.]*
+            git clone https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
+            git checkout ${{ github.ref_name }}
+          fi
+          
+          # Restauration du .env sauvegardé
+          if [ -f ../temp.env ]; then
+            mv ../temp.env .env
+          fi
           
           # Configuration des permissions
           echo 'Configuration des permissions...'
