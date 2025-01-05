@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notification;
 
 class ProspectResource extends Resource
 {
@@ -29,53 +30,111 @@ class ProspectResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Informations Personnelles')
+                    ->description('Informations de base du prospect')
                     ->schema([
                         Forms\Components\TextInput::make('reference_number')
-                            ->required()
-                            ->unique(ignoreRecord: true)
-                            ->default(fn () => 'PROS-'.random_int(10000, 99999)),
+                            ->label('Reference number')
+                            ->default('PROS-' . random_int(10000, 99999))
+                            ->disabled()
+                            ->dehydrated()
+                            ->required(),
                         Forms\Components\TextInput::make('first_name')
-                            ->required()
-                            ->maxLength(255)
-                            ->label('Prénom'),
+                            ->label('Prénom')
+                            ->required(),
                         Forms\Components\TextInput::make('last_name')
-                            ->required()
-                            ->maxLength(255)
-                            ->label('Nom'),
+                            ->label('Nom')
+                            ->required(),
                         Forms\Components\TextInput::make('email')
                             ->email()
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(ignoreRecord: true),
+                            ->required(),
                         Forms\Components\TextInput::make('phone')
+                            ->label('Téléphone')
                             ->tel()
-                            ->required()
-                            ->maxLength(255)
-                            ->label('Téléphone'),
+                            ->required(),
+                        Forms\Components\DatePicker::make('birth_date')
+                            ->label('Date de naissance')
+                            ->required(),
+                        Forms\Components\TextInput::make('profession')
+                            ->label('Profession actuelle'),
+                        Forms\Components\Select::make('education_level')
+                            ->label('Niveau d\'études')
+                            ->options([
+                                'bac' => 'Baccalauréat',
+                                'bac+2' => 'Bac+2 (DUT, BTS)',
+                                'bac+3' => 'Bac+3 (Licence)',
+                                'bac+4' => 'Bac+4 (Master 1)',
+                                'bac+5' => 'Bac+5 (Master 2)',
+                                'bac+8' => 'Bac+8 (Doctorat)',
+                            ])
+                            ->required(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Suivi')
+                Forms\Components\Section::make('Situation Professionnelle')
+                    ->description('Informations sur la situation actuelle et les objectifs')
+                    ->schema([
+                        Forms\Components\TextInput::make('current_location')
+                            ->label('Localisation actuelle')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('current_field')
+                            ->label('Domaine actuel')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('desired_field')
+                            ->label('Domaine souhaité')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('desired_destination')
+                            ->label('Destination souhaitée')
+                            ->maxLength(255),
+                    ])->columns(2),
+
+                Forms\Components\Section::make('Contact d\'urgence')
+                    ->schema([
+                        Forms\Components\TextInput::make('emergency_contact.name')
+                            ->label('Nom du contact')
+                            ->required(),
+                        Forms\Components\TextInput::make('emergency_contact.relationship')
+                            ->label('Relation')
+                            ->required(),
+                        Forms\Components\TextInput::make('emergency_contact.phone')
+                            ->label('Téléphone')
+                            ->tel()
+                            ->required(),
+                    ])->columns(3),
+
+                Forms\Components\Section::make('Suivi Commercial')
                     ->schema([
                         Forms\Components\Select::make('status')
                             ->options([
-                                'nouveau' => 'Nouveau',
-                                'en_cours' => 'En cours',
-                                'converti' => 'Converti',
-                                'rejeté' => 'Rejeté',
-                                'autre' => 'Autre',
+                                Prospect::STATUS_NEW => 'Nouveau',
+                                Prospect::STATUS_ANALYZING => 'En analyse',
+                                Prospect::STATUS_APPROVED => 'Approuvé',
+                                Prospect::STATUS_REJECTED => 'Refusé',
+                                Prospect::STATUS_CONVERTED => 'Converti',
                             ])
                             ->required()
-                            ->default('nouveau')
-                            ->label('Statut'),
+                            ->default(Prospect::STATUS_NEW)
+                            ->label('Statut')
+                            ->native(false)
+                            ->selectablePlaceholder(false),
                         Forms\Components\Select::make('assigned_to')
                             ->relationship('assignedTo', 'name')
                             ->searchable()
                             ->preload()
                             ->label('Assigné à'),
+                        Forms\Components\Select::make('partner_id')
+                            ->relationship('partner', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->label('Partenaire'),
+                        Forms\Components\TextInput::make('commercial_code')
+                            ->label('Code commercial')
+                            ->maxLength(255),
+                        Forms\Components\DateTimePicker::make('analysis_deadline')
+                            ->label('Date limite d\'analyse')
+                            ->native(false),
                         Forms\Components\Textarea::make('notes')
                             ->maxLength(65535)
                             ->columnSpanFull(),
-                    ])->columns(2),
+                    ])->columns(3),
             ]);
     }
 
@@ -84,48 +143,65 @@ class ProspectResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('reference_number')
+                    ->label('Référence')
                     ->searchable()
-                    ->sortable()
-                    ->label('Référence'),
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('first_name')
+                    ->label('Prénom')
                     ->searchable()
-                    ->sortable()
-                    ->label('Prénom'),
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('last_name')
+                    ->label('Nom')
                     ->searchable()
-                    ->sortable()
-                    ->label('Nom'),
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('phone')
-                    ->searchable()
-                    ->label('Téléphone'),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'nouveau' => 'gray',
-                        'en_cours' => 'warning',
-                        'converti' => 'success',
-                        'rejeté' => 'danger',
-                        default => 'gray',
+                    ->label('Téléphone')
+                    ->searchable(),
+                Tables\Columns\BadgeColumn::make('status')
+                    ->label('Status')
+                    ->colors([
+                        'secondary' => Prospect::STATUS_NEW,
+                        'warning' => Prospect::STATUS_ANALYZING,
+                        'primary' => Prospect::STATUS_APPROVED,
+                        'danger' => Prospect::STATUS_REJECTED,
+                        'success' => Prospect::STATUS_CONVERTED,
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        Prospect::STATUS_NEW => 'Nouveau',
+                        Prospect::STATUS_ANALYZING => 'En analyse',
+                        Prospect::STATUS_APPROVED => 'Approuvé',
+                        Prospect::STATUS_REJECTED => 'Refusé',
+                        Prospect::STATUS_CONVERTED => 'Converti',
+                        default => $state,
                     })
                     ->searchable()
-                    ->sortable()
-                    ->label('Statut'),
-                Tables\Columns\TextColumn::make('source')
-                    ->searchable()
-                    ->sortable()
-                    ->label('Source'),
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('assignedTo.name')
+                    ->label('Assigné à')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('partner.name')
+                    ->label('Partenaire')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('analysis_deadline')
+                    ->label('Date limite')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Créé le')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'nouveau' => 'Nouveau',
-                        'en_cours' => 'En cours',
-                        'converti' => 'Converti',
-                        'rejeté' => 'Rejeté',
-                        'autre' => 'Autre',
+                        Prospect::STATUS_NEW => 'Nouveau',
+                        Prospect::STATUS_ANALYZING => 'En analyse',
+                        Prospect::STATUS_APPROVED => 'Approuvé',
+                        Prospect::STATUS_REJECTED => 'Refusé',
+                        Prospect::STATUS_CONVERTED => 'Converti',
                     ])
                     ->label('Statut'),
                 Tables\Filters\SelectFilter::make('source')
@@ -138,19 +214,50 @@ class ProspectResource extends Resource
                     ->label('Source'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('convert')
-                    ->label('Convertir en client')
-                    ->icon('heroicon-o-user-plus')
-                    ->color('success')
-                    ->action(function ($record) {
-                        $record->update(['status' => 'converti']);
-                        $client = $record->convertToClient();
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\Action::make('convert_to_client')
+                        ->label('Convertir en client')
+                        ->icon('heroicon-o-user-plus')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Prospect $record) {
+                            if ($record->status === Prospect::STATUS_CONVERTED) {
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Ce prospect est déjà converti en client')
+                                    ->send();
+                                return;
+                            }
 
-                        return redirect()->route('filament.admin.resources.clients.edit', ['record' => $client]);
-                    })
-                    ->requiresConfirmation()
-                    ->visible(fn ($record) => $record->status !== 'converti'),
+                            // Créer le client
+                            $client = new Client();
+                            $client->first_name = $record->first_name;
+                            $client->last_name = $record->last_name;
+                            $client->email = $record->email;
+                            $client->phone = $record->phone;
+                            $client->birth_date = $record->birth_date;
+                            $client->education_level = $record->education_level;
+                            $client->assigned_to = $record->assigned_to;
+                            $client->save();
+
+                            // Mettre à jour le statut du prospect
+                            $record->status = Prospect::STATUS_CONVERTED;
+                            $record->save();
+
+                            Notification::make()
+                                ->success()
+                                ->title('Prospect converti en client avec succès')
+                                ->send();
+
+                            // Rediriger vers la page du client
+                            return redirect()->route('filament.admin.resources.clients.edit', ['record' => $client->id]);
+                        })
+                        ->visible(fn (Prospect $record): bool => 
+                            $record->status !== Prospect::STATUS_CONVERTED && 
+                            auth()->user()->can('clients.create')
+                        ),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -161,11 +268,11 @@ class ProspectResource extends Resource
                             Forms\Components\Select::make('status')
                                 ->label('Statut')
                                 ->options([
-                                    'nouveau' => 'Nouveau',
-                                    'en_cours' => 'En cours',
-                                    'converti' => 'Converti',
-                                    'rejeté' => 'Rejeté',
-                                    'autre' => 'Autre',
+                                    Prospect::STATUS_NEW => 'Nouveau',
+                                    Prospect::STATUS_ANALYZING => 'En analyse',
+                                    Prospect::STATUS_APPROVED => 'Approuvé',
+                                    Prospect::STATUS_REJECTED => 'Refusé',
+                                    Prospect::STATUS_CONVERTED => 'Converti',
                                 ])
                                 ->required(),
                         ])

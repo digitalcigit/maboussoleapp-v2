@@ -134,24 +134,30 @@ jobs:
           
           # Configuration de Laravel
           echo 'Configuration de Laravel...'
+          php artisan --version
+          php artisan env
+          php artisan config:clear --verbose
+          php artisan cache:clear --verbose
+          php artisan view:clear --verbose
+          php artisan route:clear --verbose
           php artisan storage:link --force --verbose
-          php artisan optimize:clear --verbose
           
           # Test de connexion à la base de données
           echo 'Test de connexion à la base de données...'
-          php artisan tinker --execute=\"echo DB::connection()->getDatabaseName();\"
+          php artisan tinker --execute="try { echo DB::connection()->getDatabaseName(); } catch(\Exception \$e) { echo \$e->getMessage(); }"
           
-          # Migrations et seeders
+          # Migrations et seeders avec plus de verbosité
           echo 'Exécution des migrations...'
+          php artisan migrate:status --verbose
           php artisan migrate --force --verbose
           
-          # Création des rôles et permissions
+          # Création des rôles et permissions avec debug
           echo 'Création des rôles et permissions...'
-          php artisan db:seed --class=RoleAndPermissionSeeder --force --verbose
+          php artisan db:seed --class=RoleAndPermissionSeeder --force -vvv
           
-          # Exécution du seeder pour l'utilisateur admin
+          # Exécution du seeder pour l'utilisateur admin avec debug
           echo 'Création de l'\''utilisateur admin via seeder...'
-          php artisan db:seed --class=AdminUserSeeder --force --verbose
+          php artisan db:seed --class=AdminUserSeeder --force -vvv
           
           echo 'Déploiement terminé avec succès!'
         "

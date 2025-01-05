@@ -56,6 +56,12 @@ class RoleAndPermissionSeeder extends Seeder
         Permission::create(['name' => 'communications.email']);
         Permission::create(['name' => 'communications.sms']);
 
+        // Permissions activités
+        Permission::create(['name' => 'activities.view']);
+        Permission::create(['name' => 'activities.create']);
+        Permission::create(['name' => 'activities.edit']);
+        Permission::create(['name' => 'activities.delete']);
+
         // Permissions validation
         Permission::create(['name' => 'steps.validate']);
         Permission::create(['name' => 'settings.view']);
@@ -84,6 +90,9 @@ class RoleAndPermissionSeeder extends Seeder
             'clients.view',
             'clients.create',
             'clients.edit',
+            'activities.view',
+            'activities.create',
+            'activities.edit',
             'reports.view',
             'reports.export',
             'documents.validate',
@@ -98,6 +107,8 @@ class RoleAndPermissionSeeder extends Seeder
             'prospects.create',
             'prospects.edit',
             'prospects.delete.own',
+            'activities.view',
+            'activities.create',
             'clients.view',
             'clients.create',
             'clients.edit.own',
