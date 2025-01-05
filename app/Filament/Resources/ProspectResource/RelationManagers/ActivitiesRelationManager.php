@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ProspectResource\RelationManagers;
 use App\Models\Activity;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -163,15 +164,44 @@ class ActivitiesRelationManager extends RelationManager
                     }),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->label('Créer')
+                    ->modalHeading('Créer une activité'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('Modifier')
+                    ->modalHeading('Modifier l\'activité')
+                    ->after(function () {
+                        Notification::make()
+                            ->title('Activité modifiée')
+                            ->body('L\'activité a été modifiée avec succès.')
+                            ->success()
+                            ->send();
+                    }),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Supprimer')
+                    ->modalHeading('Supprimer l\'activité')
+                    ->after(function () {
+                        Notification::make()
+                            ->title('Activité supprimée')
+                            ->body('L\'activité a été supprimée avec succès.')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Supprimer la sélection')
+                        ->modalHeading('Supprimer les activités sélectionnées')
+                        ->after(function () {
+                            Notification::make()
+                                ->title('Activités supprimées')
+                                ->body('Les activités sélectionnées ont été supprimées avec succès.')
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ]);
     }
