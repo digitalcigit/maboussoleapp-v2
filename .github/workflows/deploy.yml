@@ -88,23 +88,14 @@ jobs:
             cp .env /tmp/env.temp
           fi
           
-          # Nettoyage et initialisation du dépôt Git
-          echo 'Configuration du dépôt Git...'
-          if [ -d .git ]; then
-            # Si un dépôt existe déjà, on le met à jour
-            git fetch origin || true
-            git reset --hard HEAD || true
-            git clean -fd || true
-            git checkout -f ${{ github.ref_name }} || git checkout -b ${{ github.ref_name }}
-            git reset --hard origin/${{ github.ref_name }}
-          else
-            # Si pas de dépôt, on nettoie et on clone
-            rm -rf * .[^.]*
-            git init
-            git remote add origin https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git
-            git fetch origin
-            git checkout -f -b ${{ github.ref_name }} origin/${{ github.ref_name }}
-          fi
+          # Nettoyage complet du répertoire
+          echo 'Nettoyage du répertoire...'
+          rm -rf .* * 2>/dev/null || true
+          
+          # Clone frais du dépôt
+          echo 'Clone du dépôt...'
+          git clone https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
+          git checkout ${{ github.ref_name }}
           
           # Restauration du .env sauvegardé
           if [ -f /tmp/env.temp ]; then
