@@ -107,6 +107,20 @@ jobs:
           find . -type f -exec chmod 664 {} \;
           find . -type d -exec chmod 775 {} \;
           
+          # Configuration des dossiers storage et cache
+          echo 'Configuration des dossiers storage et cache...'
+          mkdir -p storage/framework/{sessions,views,cache}
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+          
+          # S'assurer que les dossiers sont accessibles en écriture
+          chmod -R 775 storage bootstrap/cache
+          
+          # Création du fichier de log
+          echo 'Création des fichiers de log...'
+          touch storage/logs/laravel.log
+          chmod 664 storage/logs/laravel.log
+          
           # Restauration du fichier .env
           echo 'Restauration du fichier .env...'
           cp /var/www/laravel/.env \"\$DEPLOY_PATH/.env\"
@@ -117,18 +131,6 @@ jobs:
           composer install --no-interaction --prefer-dist --optimize-autoloader
           npm ci
           npm run build
-          
-          # Configuration des dossiers storage et cache
-          echo 'Configuration des dossiers storage et cache...'
-          mkdir -p storage/framework/{sessions,views,cache}
-          mkdir -p storage/logs
-          mkdir -p bootstrap/cache
-          chmod -R 775 storage bootstrap/cache
-          
-          # Création des fichiers de log
-          echo 'Création des fichiers de log...'
-          touch storage/logs/laravel.log
-          chmod 664 storage/logs/laravel.log
           
           # Configuration de Laravel
           echo 'Configuration de Laravel...'
