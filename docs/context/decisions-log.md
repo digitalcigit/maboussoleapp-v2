@@ -93,3 +93,25 @@
 - Sécurité renforcée
 - Flexibilité accrue
 - Maintenance simplifiée
+
+## 2025-01-05 - Correction de la Gestion des Activités
+### Contexte
+- Problèmes avec la création d'activités pour les prospects
+- Relations polymorphiques mal configurées
+- Duplication dans les relations
+
+### Décisions
+1. **Relations**
+   - Utilisation de la relation `assignedTo` au lieu de `user`
+   - Suppression de la mutation manuelle des données
+   - Utilisation des relations polymorphiques natives de Laravel
+
+2. **Implémentation**
+   - Suppression du doublon dans `getRelations()`
+   - Configuration correcte du RelationManager
+   - Documentation complète de la fonctionnalité
+
+### Impact
+- Création d'activités fonctionnelle
+- Code plus propre et maintenable
+- Documentation technique détaillée
