@@ -34,8 +34,8 @@ class FinancialMetricsWidget extends BaseWidget
         $projectedRevenue = $qualifiedProspects * $averageContractValue;
 
         return [
-            Stat::make('Chiffre d\'Affaires', number_format($currentMonthRevenue, 0, ',', ' ').' €')
-                ->description($revenueTrend >= 0 ? '+'.number_format($revenueTrend, 0, ',', ' ').' €' : number_format($revenueTrend, 0, ',', ' ').' €')
+            Stat::make('Chiffre d\'Affaires', number_format($currentMonthRevenue, 0, ',', ' ').' FCFA')
+                ->description($revenueTrend >= 0 ? '+'.number_format($revenueTrend, 0, ',', ' ').' FCFA' : number_format($revenueTrend, 0, ',', ' ').' FCFA')
                 ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->chart([
                     $lastMonthRevenue / 1000,
@@ -43,8 +43,8 @@ class FinancialMetricsWidget extends BaseWidget
                 ])
                 ->color($revenueTrend >= 0 ? 'success' : 'danger'),
 
-            Stat::make('Commissions', number_format($currentMonthCommissions, 0, ',', ' ').' €')
-                ->description($commissionsTrend >= 0 ? '+'.number_format($commissionsTrend, 0, ',', ' ').' €' : number_format($commissionsTrend, 0, ',', ' ').' €')
+            Stat::make('Commissions', number_format($currentMonthCommissions, 0, ',', ' ').' FCFA')
+                ->description($commissionsTrend >= 0 ? '+'.number_format($commissionsTrend, 0, ',', ' ').' FCFA' : number_format($commissionsTrend, 0, ',', ' ').' FCFA')
                 ->descriptionIcon($commissionsTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->chart([
                     $lastMonthCommissions / 1000,
@@ -52,7 +52,7 @@ class FinancialMetricsWidget extends BaseWidget
                 ])
                 ->color($commissionsTrend >= 0 ? 'success' : 'danger'),
 
-            Stat::make('Pipeline Prévisionnel', number_format($projectedRevenue, 0, ',', ' ').' €')
+            Stat::make('Pipeline Prévisionnel', number_format($projectedRevenue, 0, ',', ' ').' FCFA')
                 ->description($qualifiedProspects.' prospects qualifiés')
                 ->descriptionIcon('heroicon-m-calculator')
                 ->chart([

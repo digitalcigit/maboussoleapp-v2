@@ -27,13 +27,13 @@ class Activity extends Model
     public const TYPE_CONVERSION = 'conversion';
 
     // Statuts d'activités
-    public const STATUS_PENDING = 'en_attente';
+    public const STATUS_PENDING = 'pending';
 
-    public const STATUS_IN_PROGRESS = 'en_cours';
+    public const STATUS_IN_PROGRESS = 'in_progress';
 
-    public const STATUS_COMPLETED = 'termine';
+    public const STATUS_COMPLETED = 'completed';
 
-    public const STATUS_CANCELLED = 'annule';
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'user_id',
@@ -111,26 +111,26 @@ class Activity extends Model
     }
 
     /**
-     * Relation polymorphique avec le sujet de l'activité
+     * Get the user that the activity is assigned to
      */
-    public function subject(): MorphTo
+    public function assignedTo(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
-     * Relation avec l'utilisateur qui a créé l'activité
+     * Get the user that created the activity
      */
-    public function createdBy(): BelongsTo
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
-     * Relation avec l'utilisateur assigné à l'activité
+     * Get the subject of the activity (polymorphic)
      */
-    public function assignedTo(): BelongsTo
+    public function subject(): MorphTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->morphTo();
     }
 }

@@ -4,12 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProspectResource\Pages;
 use App\Filament\Resources\ProspectResource\RelationManagers;
+use App\Models\Client;
 use App\Models\Prospect;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notification;
 
@@ -223,7 +225,7 @@ class ProspectResource extends Resource
                         ->requiresConfirmation()
                         ->action(function (Prospect $record) {
                             if ($record->status === Prospect::STATUS_CONVERTED) {
-                                Notification::make()
+                                FilamentNotification::make()
                                     ->warning()
                                     ->title('Ce prospect est déjà converti en client')
                                     ->send();
@@ -232,6 +234,7 @@ class ProspectResource extends Resource
 
                             // Créer le client
                             $client = new Client();
+                            $client->client_number = 'CLI-' . random_int(10000, 99999);
                             $client->first_name = $record->first_name;
                             $client->last_name = $record->last_name;
                             $client->email = $record->email;
@@ -239,13 +242,15 @@ class ProspectResource extends Resource
                             $client->birth_date = $record->birth_date;
                             $client->education_level = $record->education_level;
                             $client->assigned_to = $record->assigned_to;
+                            $client->prospect_id = $record->id;
+                            $client->status = 'actif';
                             $client->save();
 
                             // Mettre à jour le statut du prospect
                             $record->status = Prospect::STATUS_CONVERTED;
                             $record->save();
 
-                            Notification::make()
+                            FilamentNotification::make()
                                 ->success()
                                 ->title('Prospect converti en client avec succès')
                                 ->send();
@@ -288,7 +293,7 @@ class ProspectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ActivitiesRelationManager::class,
+            // Retrait de la relation ActivitiesRelationManager
         ];
     }
 

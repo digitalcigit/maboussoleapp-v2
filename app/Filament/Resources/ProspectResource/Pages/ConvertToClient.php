@@ -3,10 +3,13 @@
 namespace App\Filament\Resources\ProspectResource\Pages;
 
 use App\Filament\Resources\ProspectResource;
+use App\Filament\Resources\ClientResource;
 use App\Models\Client;
+use App\Models\Prospect;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Str;
+use Filament\Notifications\Notification;
 
 class ConvertToClient extends Page
 {
@@ -27,33 +30,54 @@ class ConvertToClient extends Page
                 ->action(function () {
                     $prospect = $this->getRecord();
 
-                    // Créer un nouveau client
-                    $client = Client::create([
-                        'client_number' => 'CLI-'.Str::random(5),
-                        'first_name' => $prospect->first_name,
-                        'last_name' => $prospect->last_name,
-                        'email' => $prospect->email,
-                        'phone' => $prospect->phone,
-                        'birth_date' => $prospect->birth_date,
-                        'profession' => $prospect->profession,
-                        'education_level' => $prospect->education_level,
-                        'current_location' => $prospect->current_location,
-                        'current_field' => $prospect->current_field,
-                        'desired_field' => $prospect->desired_field,
-                        'desired_destination' => $prospect->desired_destination,
-                        'emergency_contact' => $prospect->emergency_contact,
-                        'status' => 'active',
-                        'assigned_to' => $prospect->assigned_to,
-                        'commercial_code' => $prospect->commercial_code,
-                        'partner_id' => $prospect->partner_id,
-                    ]);
+                    // Vérifier si le prospect est déjà converti
+                    if ($prospect->status === Prospect::STATUS_CONVERTED) {
+                        Notification::make()
+                            ->warning()
+                            ->title('Ce prospect est déjà converti en client')
+                            ->send();
+                        return;
+                    }
 
-                    // Mettre à jour le statut du prospect
-                    $prospect->update(['status' => 'converti']);
+                    try {
+                        // Créer un nouveau client
+                        $client = new Client();
+                        $client->first_name = $prospect->first_name;
+                        $client->last_name = $prospect->last_name;
+                        $client->email = $prospect->email;
+                        $client->phone = $prospect->phone;
+                        $client->birth_date = $prospect->birth_date;
+                        $client->education_level = $prospect->education_level;
+                        $client->assigned_to = $prospect->assigned_to;
+                        $client->client_number = 'CLI-' . Str::random(5);
+                        $client->save();
 
-                    // Rediriger vers la page du nouveau client
-                    return redirect()->to(ClientResource::getUrl('edit', ['record' => $client]));
-                }),
+                        // Mettre à jour le statut du prospect
+                        $prospect->status = Prospect::STATUS_CONVERTED;
+                        $prospect->save();
+
+                        // Notification de succès
+                        Notification::make()
+                            ->success()
+                            ->title('Prospect converti en client avec succès')
+                            ->send();
+
+                        // Rediriger vers la page d'édition du client
+                        return redirect()->to(ClientResource::getUrl('edit', ['record' => $client->id]));
+                    } catch (\Exception $e) {
+                        // En cas d'erreur, afficher une notification
+                        Notification::make()
+                            ->danger()
+                            ->title('Erreur lors de la conversion')
+                            ->body($e->getMessage())
+                            ->send();
+                        
+                        return null;
+                    }
+                })
+                ->requiresConfirmation()
+                ->color('success')
+                ->icon('heroicon-o-user-plus')
         ];
     }
 }

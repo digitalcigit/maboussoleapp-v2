@@ -13,7 +13,6 @@ class EditClient extends EditRecord
 
     public function mount($record): void
     {
-        abort_unless(Gate::allows('manage clients'), 403);
         parent::mount($record);
     }
 

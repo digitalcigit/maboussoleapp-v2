@@ -41,6 +41,10 @@ class Client extends Model
     protected $fillable = [
         'prospect_id',
         'client_number',
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
         'passport_number',
         'passport_expiry',
         'visa_status',
@@ -49,6 +53,7 @@ class Client extends Model
         'total_amount',
         'paid_amount',
         'status',
+        'assigned_to',
     ];
 
     protected $casts = [
@@ -142,7 +147,15 @@ class Client extends Model
      */
     public function prospect(): BelongsTo
     {
-        return $this->belongsTo(Prospect::class);
+        return $this->belongsTo(Prospect::class)->withTrashed();
+    }
+
+    /**
+     * Relation avec l'utilisateur assigné
+     */
+    public function assignedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     /**
@@ -162,10 +175,10 @@ class Client extends Model
     }
 
     /**
-     * Accesseur pour obtenir le nom complet du client via le prospect
+     * Accesseur pour obtenir le nom complet du client
      */
     public function getFullNameAttribute(): string
     {
-        return "{$this->prospect->first_name} {$this->prospect->last_name}";
+        return "{$this->first_name} {$this->last_name}";
     }
 }

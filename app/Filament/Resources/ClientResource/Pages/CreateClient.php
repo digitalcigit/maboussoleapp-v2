@@ -12,7 +12,6 @@ class CreateClient extends CreateRecord
 
     public function mount(): void
     {
-        abort_unless(Gate::allows('manage clients'), 403);
         parent::mount();
     }
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -95,7 +96,7 @@ class Prospect extends Model
      */
     public function partner(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'partner_id');
+        return $this->belongsTo(Partner::class, 'partner_id');
     }
 
     /**
@@ -112,5 +113,13 @@ class Prospect extends Model
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    /**
+     * Relation avec le client
+     */
+    public function client(): HasOne
+    {
+        return $this->hasOne(Client::class);
     }
 }

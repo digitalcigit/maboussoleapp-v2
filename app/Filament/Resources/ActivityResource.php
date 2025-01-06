@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ActivityResource\Pages;
 use App\Models\Activity;
+use App\Models\Prospect;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,7 +12,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 class ActivityResource extends Resource
 {
@@ -27,6 +32,38 @@ class ActivityResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('subject_type')
+                    ->label('Type de sujet')
+                    ->options([
+                        Prospect::class => 'Prospect',
+                    ])
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Forms\Set $set) => $set('subject_id', null)),
+                Forms\Components\Select::make('subject_id')
+                    ->label('Sujet')
+                    ->options(function (Forms\Get $get) {
+                        $type = $get('subject_type');
+                        if (!$type) {
+                            return [];
+                        }
+                        
+                        if ($type === Prospect::class) {
+                            return Prospect::query()
+                                ->get()
+                                ->mapWithKeys(function ($prospect) {
+                                    $fullName = trim($prospect->first_name . ' ' . $prospect->last_name);
+                                    return [$prospect->id => $fullName ?: "Prospect #{$prospect->id}"];
+                                })
+                                ->toArray();
+                        }
+                        
+                        return [];
+                    })
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->visible(fn (Forms\Get $get) => filled($get('subject_type'))),
                 Forms\Components\Select::make('type')
                     ->label('Type')
                     ->options([
@@ -52,14 +89,16 @@ class ActivityResource extends Resource
                     ->required()
                     ->columnSpanFull(),
                 Forms\Components\DateTimePicker::make('scheduled_at')
-                    ->label('Date prévue'),
+                    ->label('Date prévue')
+                    ->required(),
                 Forms\Components\DateTimePicker::make('completed_at')
                     ->label('Date de réalisation'),
                 Forms\Components\Select::make('user_id')
                     ->label('Assigné à')
-                    ->relationship('user', 'name')
+                    ->relationship('assignedTo', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->required(),
                 Forms\Components\Hidden::make('created_by')
                     ->default(auth()->id()),
             ]);
@@ -69,19 +108,37 @@ class ActivityResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('subject.name')
+                Tables\Columns\TextColumn::make('subject')
                     ->label('Sujet')
-                    ->searchable(),
-                Tables\Columns\BadgeColumn::make('type')
+                    ->formatStateUsing(function ($record) {
+                        if ($record->subject instanceof Prospect) {
+                            $fullName = trim($record->subject->first_name . ' ' . $record->subject->last_name);
+                            return $fullName ?: "Prospect #{$record->subject->id}";
+                        }
+                        return $record->subject ? class_basename($record->subject) . ' #' . $record->subject->id : '';
+                    })
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHasMorph(
+                            'subject',
+                            [Prospect::class],
+                            function (Builder $query) use ($search): Builder {
+                                return $query->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%");
+                            }
+                        );
+                    }),
+                Tables\Columns\TextColumn::make('type')
                     ->label('Type')
-                    ->colors([
-                        'primary' => Activity::TYPE_NOTE,
-                        'warning' => Activity::TYPE_CALL,
-                        'success' => Activity::TYPE_EMAIL,
-                        'info' => Activity::TYPE_MEETING,
-                        'secondary' => Activity::TYPE_DOCUMENT,
-                        'danger' => Activity::TYPE_CONVERSION,
-                    ])
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        Activity::TYPE_NOTE => 'primary',
+                        Activity::TYPE_CALL => 'warning',
+                        Activity::TYPE_EMAIL => 'success',
+                        Activity::TYPE_MEETING => 'info',
+                        Activity::TYPE_DOCUMENT => 'secondary',
+                        Activity::TYPE_CONVERSION => 'danger',
+                        default => 'gray',
+                    })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         Activity::TYPE_NOTE => 'Note',
                         Activity::TYPE_CALL => 'Appel',
@@ -117,14 +174,9 @@ class ActivityResource extends Resource
                     ->label('Date de réalisation')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('assignedTo.name')
                     ->label('Assigné à')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Créé le')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
@@ -165,13 +217,65 @@ class ActivityResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->label('Modifier')
+                        ->icon('heroicon-o-pencil')
+                        ->color('primary')
+                        ->modalHeading('Modifier l\'activité')
+                        ->successNotification(
+                            Notification::make()
+                                ->success()
+                                ->title('Activité modifiée avec succès')
+                        ),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Supprimer')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Supprimer l\'activité')
+                        ->successNotification(
+                            Notification::make()
+                                ->success()
+                                ->title('Activité supprimée avec succès')
+                        )
+                ])
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->tooltip('Actions')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->successNotification(
+                            Notification::make()
+                                ->success()
+                                ->title('Activités supprimées avec succès')
+                        ),
+                    Tables\Actions\BulkAction::make('bulk-update-status')
+                        ->label('Mise à jour du statut')
+                        ->icon('heroicon-o-pencil-square')
+                        ->form([
+                            Forms\Components\Select::make('status')
+                                ->label('Statut')
+                                ->options([
+                                    Activity::STATUS_PENDING => 'En attente',
+                                    Activity::STATUS_IN_PROGRESS => 'En cours',
+                                    Activity::STATUS_COMPLETED => 'Terminé',
+                                    Activity::STATUS_CANCELLED => 'Annulé',
+                                ])
+                                ->required()
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $records->each(fn ($record) => $record->update(['status' => $data['status']]));
+                            Notification::make()
+                                ->success()
+                                ->title('Statut mis à jour avec succès')
+                                ->send();
+                        })
+                ])
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->persistSortInSession();
     }
 
     public static function getRelations(): array
@@ -188,5 +292,40 @@ class ActivityResource extends Resource
             'create' => Pages\CreateActivity::route('/create'),
             'edit' => Pages\EditActivity::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'CRM';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Activité');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Activités');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('activities.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('activities.create');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('activities.edit');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('activities.delete');
     }
 }
