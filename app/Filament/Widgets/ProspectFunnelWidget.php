@@ -25,10 +25,23 @@ class ProspectFunnelWidget extends ChartWidget
             'gagné' => 'Gagnés',
         ];
 
-        $data = Prospect::query()
+        $query = Prospect::query()
             ->select('status', DB::raw('count(*) as count'))
-            ->whereMonth('created_at', now()->month)
-            ->groupBy('status')
+            ->whereMonth('created_at', now()->month);
+
+        $user = auth()->user();
+        
+        // Filtrer les prospects selon le rôle
+        if ($user->role === 'conseiller') {
+            $query->where('conseiller_id', $user->id);
+        } elseif ($user->role === 'manager') {
+            $query->whereHas('conseiller', function ($q) use ($user) {
+                $q->where('manager_id', $user->id);
+            });
+        }
+        // super_admin voit tous les prospects
+
+        $data = $query->groupBy('status')
             ->pluck('count', 'status')
             ->toArray();
 

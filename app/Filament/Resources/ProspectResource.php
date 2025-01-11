@@ -12,8 +12,13 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification as FilamentNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class ProspectResource extends Resource
 {
@@ -35,17 +40,21 @@ class ProspectResource extends Resource
                     ->description('Informations de base du prospect')
                     ->schema([
                         Forms\Components\TextInput::make('reference_number')
-                            ->label('Reference number')
+                            ->label('Numéro dossier')
                             ->default('PROS-' . random_int(10000, 99999))
                             ->disabled()
                             ->dehydrated()
-                            ->required(),
-                        Forms\Components\TextInput::make('first_name')
-                            ->label('Prénom')
-                            ->required(),
-                        Forms\Components\TextInput::make('last_name')
-                            ->label('Nom')
-                            ->required(),
+                            ->required()
+                            ->columnSpanFull(),
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('last_name')
+                                    ->label('Nom')
+                                    ->required(),
+                                Forms\Components\TextInput::make('first_name')
+                                    ->label('Prénom')
+                                    ->required(),
+                            ]),
                         Forms\Components\TextInput::make('email')
                             ->email()
                             ->required(),
@@ -69,23 +78,36 @@ class ProspectResource extends Resource
                                 'bac+8' => 'Bac+8 (Doctorat)',
                             ])
                             ->required(),
-                    ])->columns(2),
-
-                Forms\Components\Section::make('Situation Professionnelle')
-                    ->description('Informations sur la situation actuelle et les objectifs')
-                    ->schema([
-                        Forms\Components\TextInput::make('current_location')
-                            ->label('Localisation actuelle')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('current_field')
-                            ->label('Domaine actuel')
-                            ->maxLength(255),
                         Forms\Components\TextInput::make('desired_field')
-                            ->label('Domaine souhaité')
+                            ->label('Filière souhaitée')
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('desired_destination')
+                        Forms\Components\Select::make('desired_destination')
                             ->label('Destination souhaitée')
-                            ->maxLength(255),
+                            ->options([
+                                'france' => 'France',
+                                'canada' => 'Canada',
+                                'belgique' => 'Belgique',
+                                'suisse' => 'Suisse',
+                                'luxembourg' => 'Luxembourg',
+                                'maroc' => 'Maroc',
+                                'tunisie' => 'Tunisie',
+                                'senegal' => 'Sénégal',
+                                'cote_ivoire' => 'Côte d\'Ivoire',
+                                'cameroun' => 'Cameroun',
+                                'gabon' => 'Gabon',
+                                'congo' => 'Congo',
+                                'mali' => 'Mali',
+                                'burkina_faso' => 'Burkina Faso',
+                                'benin' => 'Bénin',
+                                'togo' => 'Togo',
+                                'guinee' => 'Guinée',
+                                'niger' => 'Niger',
+                                'tchad' => 'Tchad',
+                                'madagascar' => 'Madagascar',
+                            ])
+                            ->searchable()
+                            ->native(false)
+                            ->preload(),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Contact d\'urgence')
@@ -132,12 +154,108 @@ class ProspectResource extends Resource
                             ->maxLength(255),
                         Forms\Components\DateTimePicker::make('analysis_deadline')
                             ->label('Date limite d\'analyse')
+                            ->disabled()
+                            ->helperText('Automatiquement fixée à 5 jours ouvrés après la création')
                             ->native(false),
                         Forms\Components\Textarea::make('notes')
                             ->maxLength(65535)
                             ->columnSpanFull(),
+                        Forms\Components\Section::make('Documents fournis')
+                            ->schema([
+                                Forms\Components\Repeater::make('documents')
+                                    ->label(false)
+                                    ->schema([
+                                        Forms\Components\Grid::make()
+                                            ->schema([
+                                                Forms\Components\Select::make('type')
+                                                    ->label('Type de document')
+                                                    ->required()
+                                                    ->options([
+                                                        'diploma' => 'Diplôme',
+                                                        'id_card' => 'Pièce d\'identité',
+                                                        'cv' => 'CV',
+                                                        'motivation' => 'Lettre de motivation',
+                                                        'passport' => 'Passeport',
+                                                        'birth_certificate' => 'Acte de naissance',
+                                                        'other' => 'Autre'
+                                                    ])
+                                                    ->columnSpan(1),
+                                                Forms\Components\TextInput::make('description')
+                                                    ->label('Description')
+                                                    ->placeholder('Ex: Diplôme de licence en informatique')
+                                                    ->columnSpan(1),
+                                            ])->columns(2),
+                                        Forms\Components\FileUpload::make('file')
+                                            ->label('Fichier')
+                                            ->required()
+                                            ->disk('public')
+                                            ->directory('prospects/documents')
+                                            ->visibility('public')
+                                            ->preserveFilenames()
+                                            ->maxSize(5120)
+                                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                                            ->downloadable()
+                                            ->openable()
+                                            ->previewable()
+                                            ->columnSpanFull()
+                                            ->getUploadedFileNameForStorageUsing(
+                                                fn (TemporaryUploadedFile $file): string => (string) Str::of($file->getClientOriginalName())
+                                                    ->prepend(now()->timestamp . '_'),
+                                            )
+                                    ])
+                                    ->defaultItems(0)
+                                    ->columnSpanFull()
+                                    ->reorderableWithButtons()
+                                    ->collapsible()
+                                    ->collapsed(false)
+                                    ->itemLabel(fn (array $state): ?string => 
+                                        isset($state['type']) ? 
+                                            collect([
+                                                'diploma' => 'Diplôme',
+                                                'id_card' => 'Pièce d\'identité',
+                                                'cv' => 'CV',
+                                                'motivation' => 'Lettre de motivation',
+                                                'passport' => 'Passeport',
+                                                'birth_certificate' => 'Acte de naissance',
+                                                'other' => 'Autre'
+                                            ])->get($state['type']) . 
+                                            (isset($state['description']) ? " - {$state['description']}" : '') : null
+                                    )
+                                    ->afterStateHydrated(function (Forms\Components\Repeater $component, $state) {
+                                        if (empty($state)) {
+                                            return;
+                                        }
+                                        $documents = is_string($state) ? json_decode($state, true) : $state;
+                                        if (!is_array($documents)) {
+                                            return;
+                                        }
+                                        $component->state($documents);
+                                    })
+                                    ->beforeStateDehydrated(function (Forms\Components\Repeater $component, $state) {
+                                        if (empty($state)) {
+                                            return [];
+                                        }
+                                        return collect($state)->map(function ($document) {
+                                            if (isset($document['file'])) {
+                                                if ($document['file'] instanceof TemporaryUploadedFile) {
+                                                    $document['file'] = $document['file']->store('prospects/documents', 'public');
+                                                } elseif (is_string($document['file']) && !str_starts_with($document['file'], 'prospects/documents/')) {
+                                                    $document['file'] = 'prospects/documents/' . basename($document['file']);
+                                                }
+                                            }
+                                            return $document;
+                                        })->all();
+                                    })
+                            ])
+                            ->columnSpanFull(),
                     ])->columns(3),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('status', '!=', Prospect::STATUS_CONVERTED);
     }
 
     public static function table(Table $table): Table
@@ -206,6 +324,10 @@ class ProspectResource extends Resource
                         Prospect::STATUS_CONVERTED => 'Converti',
                     ])
                     ->label('Statut'),
+                Tables\Filters\Filter::make('show_converted')
+                    ->label('Afficher les prospects convertis')
+                    ->query(fn (Builder $query): Builder => $query->withoutGlobalScopes())
+                    ->toggle(),
                 Tables\Filters\SelectFilter::make('source')
                     ->options([
                         'website' => 'Site web',
@@ -334,7 +456,7 @@ class ProspectResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+        return static::getModel()::where('status', '!=', Prospect::STATUS_CONVERTED)->count();
     }
 
     public static function canViewAny(): bool

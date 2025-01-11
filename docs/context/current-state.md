@@ -52,3 +52,16 @@
 - Laravel 10.x
 - Filament 3.x
 - MySQL 8.0
+
+## Mises à Jour Récentes
+
+### Sécurité (2025-01-08)
+- Correction de la vulnérabilité d'escalade de privilèges
+- Implémentation d'une validation multi-couches pour les rôles
+- Documentation améliorée des pratiques de sécurité
+- Voir ADR-008 pour plus de détails
+
+### Documentation
+- Création de PROCESS_QUALITE.md pour documenter les cas d'étude
+- Mise à jour de FILAMENT_GUIDE.md avec les meilleures pratiques
+- Documentation complète du processus de débogage de sécurité

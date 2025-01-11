@@ -12,6 +12,8 @@ docs/
 │   ├── CASCADE_CONTEXT_PRIMER.md    # Contexte initial
 │   ├── CASCADE_SESSION_CLOSER.md    # Clôture de session
 │   └── AI_AUGMENTED_ARCHITECT_PROFILE.md  # Profil de l'architecte augmenté
+├── PROCESS_QUALITE.md        # Guide des processus et cas d'études
+├── FILAMENT_GUIDE.md         # Guide de référence Filament 3.x
 ├── context/                    # Contexte actuel et décisions
 │   ├── current-state.md       # État ACTUEL du projet
 │   ├── decisions-log.md       # Historique des décisions
@@ -94,6 +96,18 @@ Format:
 Mise à jour:
   - Immédiate pour les changements critiques
   - En fin de session pour les améliorations
+```
+
+### Guides de Référence
+```yaml
+Location: /docs/
+Format:
+  - PROCESS_QUALITE.md : Cas d'études et processus qualité
+  - FILAMENT_GUIDE.md : Guide de référence Filament 3.x
+Mise à jour:
+  - Après chaque cas d'étude significatif
+  - Lors de l'ajout de nouvelles pratiques
+  - Pour documenter les leçons apprises
 ```
 
 ## 4. Règles de Décision

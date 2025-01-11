@@ -10,7 +10,9 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -29,6 +31,26 @@ class UserResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create', User::class);
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->hasRole('super-admin');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('viewAny', User::class);
+    }
 
     public static function form(Form $form): Form
     {
@@ -64,6 +86,14 @@ class UserResource extends Resource
                     ->multiple()
                     ->relationship('roles', 'name')
                     ->preload()
+                    ->options(function () {
+                        // Si c'est un manager, on ne montre pas l'option super-admin
+                        if (auth()->user()->hasRole('manager')) {
+                            return Role::where('name', '!=', 'super-admin')->pluck('name', 'id');
+                        }
+                        return Role::pluck('name', 'id');
+                    })
+                    ->visible(fn () => auth()->user()->can('assignRole', auth()->user()))
                     ->required(),
             ]);
     }
