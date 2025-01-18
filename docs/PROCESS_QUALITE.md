@@ -45,6 +45,87 @@ Ce document définit le processus à suivre pour minimiser les erreurs et améli
 - [x] Être transparent sur les risques potentiels
 - [x] Maintenir un dialogue constant sur l'avancement
 
+## 7. Recherche Approfondie du Code Existant
+
+### Principe Fondamental
+- [x] **TOUJOURS effectuer une recherche approfondie avant toute modification ou création**
+- [x] Ne jamais supposer qu'un composant n'existe pas sans avoir épuisé toutes les méthodes de recherche
+
+### Méthodes de Recherche
+1. **Exploration Systématique**
+   - Explorer la structure des dossiers (`list_dir`)
+   - Utiliser la recherche de code (`codebase_search`)
+   - Effectuer des recherches textuelles (`grep_search`)
+   - Vérifier les fichiers connexes (`related_files`)
+
+2. **Vérification Multi-niveaux**
+   - Rechercher dans les modèles
+   - Vérifier les migrations
+   - Explorer les resources Filament
+   - Examiner les tests existants
+
+3. **Documentation**
+   - Consulter les ADRs existants
+   - Vérifier le journal des décisions
+   - Examiner l'état actuel du projet
+
+### Cas d'Utilisation
+- Avant de créer un nouveau modèle
+- Avant d'implémenter une nouvelle fonctionnalité
+- Avant de modifier une logique existante
+- Lors de l'analyse d'un bug
+
+### Points de Vérification
+- [ ] Recherche effectuée dans tous les dossiers pertinents
+- [ ] Utilisation de plusieurs méthodes de recherche
+- [ ] Vérification de la documentation existante
+- [ ] Examen des fichiers connexes
+
+## Gestion des Prospects
+
+### Workflow de Validation des Prospects
+Le processus de validation des prospects suit désormais trois étapes principales :
+
+1. **En attente de documents**
+   - **Point de contrôle** : Vérification de la liste des documents requis
+   - **Critères de passage** : Tous les documents nécessaires ont été fournis
+   - **Responsable** : Agent commercial
+   - **Actions requises** :
+     * Vérifier la complétude des documents
+     * Valider la qualité des documents fournis
+     * S'assurer que les documents sont lisibles et authentiques
+
+2. **Analyse en cours**
+   - **Point de contrôle** : Analyse approfondie du dossier
+   - **Critères de passage** : Analyse complète effectuée
+   - **Responsable** : Analyste
+   - **Actions requises** :
+     * Vérifier l'éligibilité du prospect
+     * Analyser les documents fournis
+     * Évaluer la viabilité du projet
+     * Préparer les recommandations
+
+3. **Analyse terminée**
+   - **Point de contrôle** : Validation finale du dossier
+   - **Critères de passage** : Dossier prêt pour la conversion
+   - **Responsable** : Responsable commercial
+   - **Actions requises** :
+     * Valider les conclusions de l'analyse
+     * Vérifier la conformité du dossier
+     * Autoriser la conversion en client
+
+### Indicateurs de Qualité
+- Temps moyen de traitement par statut
+- Taux de conversion des prospects analysés
+- Taux de complétude des dossiers
+- Satisfaction client post-conversion
+
+### Points d'Attention
+- Respecter les délais d'analyse (5 jours ouvrés)
+- Maintenir une communication régulière avec le prospect
+- Documenter toutes les décisions importantes
+- Assurer la traçabilité des modifications de statut
+
 ## Sources documentaires
 
 ### Documentation officielle Filament 3.x

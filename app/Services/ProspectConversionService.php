@@ -29,8 +29,8 @@ class ProspectConversionService
         }
 
         // Vérifier que le prospect est approuvé
-        if ($prospect->status !== Prospect::STATUS_APPROVED) {
-            throw new \Exception('Seuls les prospects approuvés peuvent être convertis en clients.');
+        if ($prospect->status !== Prospect::STATUS_ANALYZED) {
+            throw new \Exception('Seuls les prospects avec analyse terminée peuvent être convertis en clients.');
         }
 
         try {

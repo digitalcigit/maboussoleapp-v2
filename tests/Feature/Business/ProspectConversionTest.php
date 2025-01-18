@@ -131,19 +131,19 @@ class ProspectConversionTest extends TestCase
     {
         $this->actingAs($this->manager);
 
-        // Créer un prospect non approuvé
-        $newProspect = Prospect::factory()->create([
-            'status' => Prospect::STATUS_NEW,
+        // Créer un prospect avec analyse terminée
+        $prospect = Prospect::factory()->create([
+            'status' => Prospect::STATUS_ANALYZED,
             'assigned_to' => $this->conseiller->id,
         ]);
 
         // Vérifier le libellé du statut
-        $this->assertEquals('Nouveau', $newProspect->getStatusLabel());
+        $this->assertEquals('Analyse terminée', $prospect->getStatusLabel());
 
         // Tenter de convertir le prospect non approuvé
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Seuls les prospects approuvés peuvent être convertis en clients.');
-        $this->conversionService->convertToClient($newProspect);
+        $this->conversionService->convertToClient($prospect);
     }
 
     /** @test */

@@ -45,6 +45,21 @@ class ProspectPolicy
 
     public function assign(User $user): bool
     {
-        return $user->hasPermissionTo('assign_prospects');
+        return $user->hasRole('super-admin') || $user->hasRole('manager');
+    }
+
+    public function reassign(User $user, Prospect $prospect): bool
+    {
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        if ($user->hasRole('manager')) {
+            // Le manager ne peut réassigner que les prospects de son équipe
+            return $prospect->assigned_to === $user->id || 
+                   $prospect->assignedTo->hasRole('conseiller');
+        }
+
+        return false;
     }
 }

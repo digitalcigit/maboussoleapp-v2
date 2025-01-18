@@ -30,11 +30,11 @@ class ConvertToClient extends Page
                 ->action(function () {
                     $prospect = $this->getRecord();
 
-                    // Vérifier si le prospect est déjà converti
-                    if ($prospect->status === Prospect::STATUS_CONVERTED) {
+                    // Vérifier si l'analyse est terminée
+                    if ($prospect->status !== Prospect::STATUS_ANALYZED) {
                         Notification::make()
                             ->warning()
-                            ->title('Ce prospect est déjà converti en client')
+                            ->title('L\'analyse du prospect doit être terminée avant la conversion')
                             ->send();
                         return;
                     }

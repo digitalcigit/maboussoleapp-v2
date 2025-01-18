@@ -34,6 +34,8 @@ class ProspectResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $user = auth()->user();
+        
         return $form
             ->schema([
                 Forms\Components\Section::make('Informations Personnelles')
@@ -127,23 +129,27 @@ class ProspectResource extends Resource
                 Forms\Components\Section::make('Suivi Commercial')
                     ->schema([
                         Forms\Components\Select::make('status')
-                            ->options([
-                                Prospect::STATUS_NEW => 'Nouveau',
-                                Prospect::STATUS_ANALYZING => 'En analyse',
-                                Prospect::STATUS_APPROVED => 'Approuvé',
-                                Prospect::STATUS_REJECTED => 'Refusé',
-                                Prospect::STATUS_CONVERTED => 'Converti',
-                            ])
-                            ->required()
-                            ->default(Prospect::STATUS_NEW)
                             ->label('Statut')
+                            ->options([
+                                Prospect::STATUS_WAITING_DOCS => 'En attente de documents',
+                                Prospect::STATUS_ANALYZING => 'Analyse en cours',
+                                Prospect::STATUS_ANALYZED => 'Analyse terminée',
+                            ])
                             ->native(false)
-                            ->selectablePlaceholder(false),
+                            ->searchable()
+                            ->required()
+                            ->default(Prospect::STATUS_WAITING_DOCS)
+                            ->disabled() // On désactive la modification lors de la création
+                            ->dehydrated(), // On s'assure que la valeur est bien envoyée
                         Forms\Components\Select::make('assigned_to')
                             ->relationship('assignedTo', 'name')
                             ->searchable()
                             ->preload()
-                            ->label('Assigné à'),
+                            ->label('Assigné à')
+                            ->visible(fn () => $user->can('assign', Prospect::class))
+                            ->default(fn () => $user->can('assign', Prospect::class) ? null : $user->id)
+                            ->disabled(fn () => !$user->can('assign', Prospect::class))
+                            ->required(),
                         Forms\Components\Select::make('partner_id')
                             ->relationship('partner', 'name')
                             ->searchable()
@@ -254,8 +260,7 @@ class ProspectResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where('status', '!=', Prospect::STATUS_CONVERTED);
+        return parent::getEloquentQuery();
     }
 
     public static function table(Table $table): Table
@@ -280,25 +285,27 @@ class ProspectResource extends Resource
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Téléphone')
                     ->searchable(),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->label('Status')
-                    ->colors([
-                        'secondary' => Prospect::STATUS_NEW,
-                        'warning' => Prospect::STATUS_ANALYZING,
-                        'primary' => Prospect::STATUS_APPROVED,
-                        'danger' => Prospect::STATUS_REJECTED,
-                        'success' => Prospect::STATUS_CONVERTED,
-                    ])
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Statut')
+                    ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        Prospect::STATUS_NEW => 'Nouveau',
-                        Prospect::STATUS_ANALYZING => 'En analyse',
-                        Prospect::STATUS_APPROVED => 'Approuvé',
-                        Prospect::STATUS_REJECTED => 'Refusé',
-                        Prospect::STATUS_CONVERTED => 'Converti',
+                        Prospect::STATUS_WAITING_DOCS => 'En attente de documents',
+                        Prospect::STATUS_ANALYZING => 'Analyse en cours',
+                        Prospect::STATUS_ANALYZED => 'Analyse terminée',
                         default => $state,
                     })
-                    ->searchable()
-                    ->sortable(),
+                    ->color(fn (string $state): string => match ($state) {
+                        Prospect::STATUS_WAITING_DOCS => 'warning',
+                        Prospect::STATUS_ANALYZING => 'primary',
+                        Prospect::STATUS_ANALYZED => 'success',
+                        default => 'gray',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        Prospect::STATUS_WAITING_DOCS => 'heroicon-o-clock',
+                        Prospect::STATUS_ANALYZING => 'heroicon-o-document-magnifying-glass',
+                        Prospect::STATUS_ANALYZED => 'heroicon-o-check-circle',
+                        default => '',
+                    }),
                 Tables\Columns\TextColumn::make('assignedTo.name')
                     ->label('Assigné à')
                     ->searchable(),
@@ -317,17 +324,11 @@ class ProspectResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        Prospect::STATUS_NEW => 'Nouveau',
-                        Prospect::STATUS_ANALYZING => 'En analyse',
-                        Prospect::STATUS_APPROVED => 'Approuvé',
-                        Prospect::STATUS_REJECTED => 'Refusé',
-                        Prospect::STATUS_CONVERTED => 'Converti',
+                        Prospect::STATUS_WAITING_DOCS => 'En attente de documents',
+                        Prospect::STATUS_ANALYZING => 'Analyse en cours',
+                        Prospect::STATUS_ANALYZED => 'Analyse terminée',
                     ])
                     ->label('Statut'),
-                Tables\Filters\Filter::make('show_converted')
-                    ->label('Afficher les prospects convertis')
-                    ->query(fn (Builder $query): Builder => $query->withoutGlobalScopes())
-                    ->toggle(),
                 Tables\Filters\SelectFilter::make('source')
                     ->options([
                         'website' => 'Site web',
@@ -345,11 +346,14 @@ class ProspectResource extends Resource
                         ->icon('heroicon-o-user-plus')
                         ->color('success')
                         ->requiresConfirmation()
+                        ->modalHeading('Conversion en client')
+                        ->modalDescription('Voulez-vous vraiment convertir ce prospect en client ? Cette action est irréversible.')
+                        ->modalSubmitActionLabel('Oui, convertir')
                         ->action(function (Prospect $record) {
-                            if ($record->status === Prospect::STATUS_CONVERTED) {
+                            if ($record->status !== Prospect::STATUS_ANALYZED) {
                                 FilamentNotification::make()
                                     ->warning()
-                                    ->title('Ce prospect est déjà converti en client')
+                                    ->title('Le prospect doit être analysé avant la conversion')
                                     ->send();
                                 return;
                             }
@@ -368,10 +372,6 @@ class ProspectResource extends Resource
                             $client->status = 'actif';
                             $client->save();
 
-                            // Mettre à jour le statut du prospect
-                            $record->status = Prospect::STATUS_CONVERTED;
-                            $record->save();
-
                             FilamentNotification::make()
                                 ->success()
                                 ->title('Prospect converti en client avec succès')
@@ -381,7 +381,7 @@ class ProspectResource extends Resource
                             return redirect()->route('filament.admin.resources.clients.edit', ['record' => $client->id]);
                         })
                         ->visible(fn (Prospect $record): bool => 
-                            $record->status !== Prospect::STATUS_CONVERTED && 
+                            $record->status === Prospect::STATUS_ANALYZED && 
                             auth()->user()->can('clients.create')
                         ),
                 ])
@@ -395,11 +395,9 @@ class ProspectResource extends Resource
                             Forms\Components\Select::make('status')
                                 ->label('Statut')
                                 ->options([
-                                    Prospect::STATUS_NEW => 'Nouveau',
-                                    Prospect::STATUS_ANALYZING => 'En analyse',
-                                    Prospect::STATUS_APPROVED => 'Approuvé',
-                                    Prospect::STATUS_REJECTED => 'Refusé',
-                                    Prospect::STATUS_CONVERTED => 'Converti',
+                                    Prospect::STATUS_WAITING_DOCS => 'En attente de documents',
+                                    Prospect::STATUS_ANALYZING => 'Analyse en cours',
+                                    Prospect::STATUS_ANALYZED => 'Analyse terminée',
                                 ])
                                 ->required(),
                         ])
@@ -456,7 +454,7 @@ class ProspectResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', '!=', Prospect::STATUS_CONVERTED)->count();
+        return static::getModel()::count();
     }
 
     public static function canViewAny(): bool

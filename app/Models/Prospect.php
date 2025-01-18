@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\CalculatesWorkingDays;
+use App\Traits\TracksAssignmentChanges;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,20 +17,15 @@ class Prospect extends Model
     use HasFactory;
     use SoftDeletes;
     use CalculatesWorkingDays;
+    use TracksAssignmentChanges;
 
     // Nombre de jours ouvrés pour l'analyse
     public const ANALYSIS_WORKING_DAYS = 5;
 
     // Statuts des prospects
-    public const STATUS_NEW = 'nouveau';
-
-    public const STATUS_ANALYZING = 'en_analyse';
-
-    public const STATUS_APPROVED = 'approuve';
-
-    public const STATUS_REJECTED = 'refuse';
-
-    public const STATUS_CONVERTED = 'converti';
+    public const STATUS_WAITING_DOCS = 'attente_documents';
+    public const STATUS_ANALYZING = 'analyse_en_cours';
+    public const STATUS_ANALYZED = 'analyse_terminee';
 
     protected $fillable = [
         'reference_number',
@@ -122,11 +118,9 @@ class Prospect extends Model
     public static function getValidStatuses(): array
     {
         return [
-            self::STATUS_NEW,
+            self::STATUS_WAITING_DOCS,
             self::STATUS_ANALYZING,
-            self::STATUS_APPROVED,
-            self::STATUS_REJECTED,
-            self::STATUS_CONVERTED,
+            self::STATUS_ANALYZED,
         ];
     }
 
@@ -136,11 +130,9 @@ class Prospect extends Model
     public function getStatusLabel(): string
     {
         return match ($this->status) {
-            self::STATUS_NEW => 'Nouveau',
+            self::STATUS_WAITING_DOCS => 'En attente de documents',
             self::STATUS_ANALYZING => 'En analyse',
-            self::STATUS_APPROVED => 'Approuvé',
-            self::STATUS_REJECTED => 'Refusé',
-            self::STATUS_CONVERTED => 'Converti',
+            self::STATUS_ANALYZED => 'Analyse terminée',
             default => $this->status,
         };
     }
