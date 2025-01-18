@@ -99,3 +99,35 @@ Le `DossierResource` fournit une interface complète pour la gestion des dossier
 - Support pour des étapes personnalisées
 - Hooks pour les actions personnalisées
 - Système de notification configurable
+
+## Mise à jour du 18/01/2025
+
+### Améliorations de l'Interface Utilisateur
+
+#### Formulaire de Création
+- Réorganisation du formulaire en une seule colonne pour plus de clarté
+- Grille 2 colonnes pour l'étape et le statut
+- Affichage conditionnel du statut en fonction de l'étape sélectionnée
+- Champ notes agrandi à 3 lignes pour une meilleure lisibilité
+
+#### Sélection des Prospects
+- Amélioration de la recherche (prénom, nom, email)
+- Tri automatique par nom complet
+- Filtrage des prospects déjà associés à un dossier
+- Affichage du nom complet dans le sélecteur
+
+#### Gestion des Statuts
+- Statuts traduits en français
+- Validation des statuts par étape
+- Mise à jour dynamique des options de statut
+
+### Corrections Techniques
+- Correction de la génération du numéro de référence
+- Ajout de la relation `dossier` dans le modèle Prospect
+- Optimisation des requêtes SQL pour le tri et la recherche
+- Correction des problèmes d'affichage du sélecteur de prospect
+
+### Prochaines Étapes Prévues
+- Ajout d'indicateurs visuels (icônes, couleurs)
+- Intégration de la gestion des documents
+- Système de rappels et dates limites

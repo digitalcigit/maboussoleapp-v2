@@ -178,6 +178,14 @@ class Prospect extends Model
     }
 
     /**
+     * Relation avec le dossier
+     */
+    public function dossier(): HasOne
+    {
+        return $this->hasOne(Dossier::class);
+    }
+
+    /**
      * Obtenir les documents par type
      */
     public function getDocumentsByType(string $type): array
@@ -197,6 +205,14 @@ class Prospect extends Model
         return collect($documents)
             ->where('type', $type)
             ->isNotEmpty();
+    }
+
+    /**
+     * Get the full name of the prospect
+     */
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
     }
 
     protected static function boot()

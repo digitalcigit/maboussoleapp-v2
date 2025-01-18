@@ -61,7 +61,7 @@ class Dossier extends Model
     ];
 
     /**
-     * Get the prospect associated with the dossier.
+     * Get the prospect that owns the dossier
      */
     public function prospect(): BelongsTo
     {
@@ -115,11 +115,11 @@ class Dossier extends Model
     }
 
     /**
-     * Get the valid statuses for the current step.
+     * Get valid statuses for the current step
      */
-    public function getValidStatusesForCurrentStep(): array
+    public static function getValidStatusesForStep(int $step): array
     {
-        return match ($this->current_step) {
+        return match ($step) {
             self::STEP_ANALYSIS => [
                 self::STATUS_WAITING_DOCS,
                 self::STATUS_ANALYZING,
@@ -148,5 +148,51 @@ class Dossier extends Model
             ],
             default => [],
         };
+    }
+
+    /**
+     * Get valid statuses for the current step
+     */
+    public function getValidStatusesForCurrentStep(): array
+    {
+        return self::getValidStatusesForStep($this->current_step);
+    }
+
+    /**
+     * Get the status label in French
+     */
+    public static function getStatusLabel(string $status): string
+    {
+        return match ($status) {
+            self::STATUS_WAITING_DOCS => 'En attente de documents',
+            self::STATUS_ANALYZING => 'Analyse en cours',
+            self::STATUS_ANALYZED => 'Analyse terminée',
+            self::STATUS_DOCS_RECEIVED => 'Documents physiques reçus',
+            self::STATUS_ADMISSION_PAID => 'Frais d\'admission payés',
+            self::STATUS_SUBMITTED => 'Dossier soumis',
+            self::STATUS_SUBMISSION_ACCEPTED => 'Soumission acceptée',
+            self::STATUS_SUBMISSION_REJECTED => 'Soumission rejetée',
+            self::STATUS_AGENCY_PAID => 'Frais d\'agence payés',
+            self::STATUS_PARTIAL_TUITION => 'Paiement partiel scolarité',
+            self::STATUS_FULL_TUITION => 'Paiement total scolarité',
+            self::STATUS_ABANDONED => 'Dossier abandonné',
+            self::STATUS_VISA_DOCS_READY => 'Dossier visa prêt',
+            self::STATUS_VISA_FEES_PAID => 'Frais visa payés',
+            self::STATUS_VISA_SUBMITTED => 'Visa soumis',
+            self::STATUS_VISA_ACCEPTED => 'Visa obtenu',
+            self::STATUS_VISA_REJECTED => 'Visa refusé',
+            self::STATUS_FINAL_FEES_PAID => 'Frais finaux payés',
+            default => ucfirst(str_replace('_', ' ', $status)),
+        };
+    }
+
+    /**
+     * Get valid statuses for a step with their French labels
+     */
+    public static function getValidStatusesForStepWithLabels(int $step): array
+    {
+        return collect(self::getValidStatusesForStep($step))
+            ->mapWithKeys(fn ($status) => [$status => self::getStatusLabel($status)])
+            ->toArray();
     }
 }

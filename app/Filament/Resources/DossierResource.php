@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class DossierResource extends Resource
 {
@@ -36,68 +37,55 @@ class DossierResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('reference_number')
                             ->label('Numéro de référence')
-                            ->default(fn () => 'DOS-' . str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT))
+                            ->default(fn () => 'DOS-' . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT))
                             ->disabled()
                             ->required(),
                             
                         Forms\Components\Select::make('prospect_id')
-                            ->relationship('prospect', 'reference_number')
+                            ->relationship(
+                                'prospect',
+                                titleAttribute: 'full_name',
+                                modifyQueryUsing: fn (Builder $query) => $query
+                                    ->whereDoesntHave('dossier')
+                                    ->selectRaw('*, CONCAT(first_name, " ", last_name) as full_name')
+                                    ->orderByRaw('CONCAT(first_name, " ", last_name)')
+                            )
                             ->label('Prospect')
-                            ->searchable()
+                            ->searchable(['first_name', 'last_name', 'email'])
                             ->preload()
                             ->required(),
 
-                        Forms\Components\Select::make('current_step')
-                            ->label('Étape actuelle')
-                            ->options([
-                                Dossier::STEP_ANALYSIS => 'Analyse de dossier',
-                                Dossier::STEP_ADMISSION => 'Ouverture & Admission',
-                                Dossier::STEP_PAYMENT => 'Paiement',
-                                Dossier::STEP_VISA => 'Accompagnement Visa',
-                            ])
-                            ->default(Dossier::STEP_ANALYSIS)
-                            ->disabled(fn ($record) => $record !== null)
-                            ->required(),
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\Select::make('current_step')
+                                    ->label('Étape actuelle')
+                                    ->options([
+                                        Dossier::STEP_ANALYSIS => 'Analyse de dossier',
+                                        Dossier::STEP_ADMISSION => 'Ouverture & Admission',
+                                        Dossier::STEP_PAYMENT => 'Paiement',
+                                        Dossier::STEP_VISA => 'Accompagnement Visa',
+                                    ])
+                                    ->default(Dossier::STEP_ANALYSIS)
+                                    ->disabled(fn ($record) => $record !== null)
+                                    ->required()
+                                    ->live(),
 
-                        Forms\Components\Select::make('current_status')
-                            ->label('Statut actuel')
-                            ->options(fn (Forms\Get $get) => match ($get('current_step')) {
-                                Dossier::STEP_ANALYSIS => [
-                                    Dossier::STATUS_WAITING_DOCS => 'En attente de documents',
-                                    Dossier::STATUS_ANALYZING => 'Analyse en cours',
-                                    Dossier::STATUS_ANALYZED => 'Analyse terminée',
-                                ],
-                                Dossier::STEP_ADMISSION => [
-                                    Dossier::STATUS_DOCS_RECEIVED => 'Documents physiques reçus',
-                                    Dossier::STATUS_ADMISSION_PAID => 'Frais d\'admission payés',
-                                    Dossier::STATUS_SUBMITTED => 'Dossier soumis',
-                                    Dossier::STATUS_SUBMISSION_ACCEPTED => 'Soumission acceptée',
-                                    Dossier::STATUS_SUBMISSION_REJECTED => 'Soumission rejetée',
-                                ],
-                                Dossier::STEP_PAYMENT => [
-                                    Dossier::STATUS_AGENCY_PAID => 'Frais d\'agence payés',
-                                    Dossier::STATUS_PARTIAL_TUITION => 'Paiement partiel scolarité',
-                                    Dossier::STATUS_FULL_TUITION => 'Paiement total scolarité',
-                                    Dossier::STATUS_ABANDONED => 'Dossier abandonné',
-                                ],
-                                Dossier::STEP_VISA => [
-                                    Dossier::STATUS_VISA_DOCS_READY => 'Dossier visa prêt',
-                                    Dossier::STATUS_VISA_FEES_PAID => 'Frais visa payés',
-                                    Dossier::STATUS_VISA_SUBMITTED => 'Visa soumis',
-                                    Dossier::STATUS_VISA_ACCEPTED => 'Visa obtenu',
-                                    Dossier::STATUS_VISA_REJECTED => 'Visa refusé',
-                                    Dossier::STATUS_FINAL_FEES_PAID => 'Frais finaux payés',
-                                ],
-                                default => [],
-                            })
-                            ->required()
-                            ->live(),
+                                Forms\Components\Select::make('current_status')
+                                    ->label('Statut actuel')
+                                    ->options(fn (Forms\Get $get): array => 
+                                        Dossier::getValidStatusesForStepWithLabels($get('current_step') ?? Dossier::STEP_ANALYSIS)
+                                    )
+                                    ->required()
+                                    ->live()
+                                    ->visible(fn (Forms\Get $get) => filled($get('current_step'))),
+                            ]),
 
                         Forms\Components\Textarea::make('notes')
                             ->label('Notes')
+                            ->rows(3)
                             ->columnSpanFull(),
                     ])
-                    ->columns(2),
+                    ->columns(1),
             ]);
     }
 
@@ -136,7 +124,27 @@ class DossierResource extends Resource
                 Tables\Columns\TextColumn::make('current_status')
                     ->label('Statut')
                     ->badge()
-                    ->formatStateUsing(fn (Model $record) => $record->currentStepHistory->first()?->getStatusLabel() ?? $record->current_status)
+                    ->formatStateUsing(fn (Model $record) => match ($record->current_status) {
+                        Dossier::STATUS_WAITING_DOCS => 'En attente de documents',
+                        Dossier::STATUS_ANALYZING => 'Analyse en cours',
+                        Dossier::STATUS_ANALYZED => 'Analyse terminée',
+                        Dossier::STATUS_DOCS_RECEIVED => 'Documents physiques reçus',
+                        Dossier::STATUS_ADMISSION_PAID => 'Frais d\'admission payés',
+                        Dossier::STATUS_SUBMITTED => 'Dossier soumis',
+                        Dossier::STATUS_SUBMISSION_ACCEPTED => 'Soumission acceptée',
+                        Dossier::STATUS_SUBMISSION_REJECTED => 'Soumission rejetée',
+                        Dossier::STATUS_AGENCY_PAID => 'Frais d\'agence payés',
+                        Dossier::STATUS_PARTIAL_TUITION => 'Paiement partiel scolarité',
+                        Dossier::STATUS_FULL_TUITION => 'Paiement total scolarité',
+                        Dossier::STATUS_ABANDONED => 'Dossier abandonné',
+                        Dossier::STATUS_VISA_DOCS_READY => 'Dossier visa prêt',
+                        Dossier::STATUS_VISA_FEES_PAID => 'Frais visa payés',
+                        Dossier::STATUS_VISA_SUBMITTED => 'Visa soumis',
+                        Dossier::STATUS_VISA_ACCEPTED => 'Visa obtenu',
+                        Dossier::STATUS_VISA_REJECTED => 'Visa refusé',
+                        Dossier::STATUS_FINAL_FEES_PAID => 'Frais finaux payés',
+                        default => $record->current_status,
+                    })
                     ->color(fn (Model $record) => match ($record->current_status) {
                         Dossier::STATUS_WAITING_DOCS, 
                         Dossier::STATUS_DOCS_RECEIVED => 'warning',
@@ -180,9 +188,11 @@ class DossierResource extends Resource
                     
                 Tables\Filters\SelectFilter::make('current_status')
                     ->label('Statut')
-                    ->options(fn () => collect([
-                        ...Dossier::getModel()::getValidStatusesForCurrentStep(),
-                    ])->mapWithKeys(fn ($status) => [$status => ucfirst(str_replace('_', ' ', $status))])),
+                    ->options(fn () => collect(Dossier::getValidStatusesForStep(Dossier::STEP_ANALYSIS))
+                        ->merge(Dossier::getValidStatusesForStep(Dossier::STEP_ADMISSION))
+                        ->merge(Dossier::getValidStatusesForStep(Dossier::STEP_PAYMENT))
+                        ->merge(Dossier::getValidStatusesForStep(Dossier::STEP_VISA))
+                        ->mapWithKeys(fn ($status) => [$status => ucfirst(str_replace('_', ' ', $status))])),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -190,7 +200,35 @@ class DossierResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Supprimer')
+                        ->modalHeading('Supprimer les dossiers sélectionnés')
+                        ->modalDescription('Êtes-vous sûr de vouloir supprimer ces dossiers ? Cette action est irréversible.')
+                        ->modalSubmitActionLabel('Oui, supprimer')
+                        ->modalCancelActionLabel('Annuler'),
+                        
+                    Tables\Actions\BulkAction::make('updateStatus')
+                        ->label('Mettre à jour le statut')
+                        ->icon('heroicon-o-arrow-path')
+                        ->action(function (Collection $records, array $data): void {
+                            $records->each(function ($record) use ($data) {
+                                $record->update([
+                                    'current_status' => $data['status'],
+                                    'last_action_at' => now(),
+                                ]);
+                            });
+                        })
+                        ->form([
+                            Forms\Components\Select::make('status')
+                                ->label('Nouveau statut')
+                                ->options(fn () => [
+                                    Dossier::STATUS_WAITING_DOCS => 'En attente de documents',
+                                    Dossier::STATUS_ANALYZING => 'Analyse en cours',
+                                    Dossier::STATUS_ANALYZED => 'Analyse terminée',
+                                    // ... autres statuts selon l'étape
+                                ])
+                                ->required(),
+                        ]),
                 ]),
             ])
             ->defaultSort('last_action_at', 'desc');
