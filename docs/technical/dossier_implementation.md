@@ -100,6 +100,56 @@ Le `DossierResource` fournit une interface complète pour la gestion des dossier
 - Hooks pour les actions personnalisées
 - Système de notification configurable
 
+## Journal des Modifications
+
+### 18/01/2025 - Implémentation du Workflow Initial
+
+#### Fonctionnalités Ajoutées
+1. **Gestion des Étapes**
+   - Définition des 4 étapes principales (Analyse, Admission, Paiement, Visa)
+   - Chaque étape a ses propres statuts
+   - Transition automatique vers l'étape suivante avec statut initial
+
+2. **Interface Utilisateur**
+   - Affichage des étapes avec badges colorés :
+     - Analyse : gris
+     - Admission : orange
+     - Paiement : vert
+     - Visa : bleu
+   - Affichage des statuts avec indicateurs de progression
+   - Bouton "Continuer" conditionnel pour la progression du workflow
+
+3. **Workflow d'Analyse**
+   - Statuts implémentés :
+     - En attente de documents
+     - Analyse en cours
+     - Analyse terminée
+   - Progression automatique vers l'étape Admission une fois l'analyse terminée
+
+#### Prochaines Étapes
+
+1. **Étape Admission**
+   - [ ] Ajouter un champ pour le montant des frais d'admission
+   - [ ] Implémenter l'upload des documents physiques
+   - [ ] Gérer le changement de destination en cas de refus
+   - [ ] Ajouter des notifications pour les changements de statut
+
+2. **Étape Paiement**
+   - [ ] Créer une table pour le suivi des paiements
+   - [ ] Implémenter le système de rappels pour les paiements en retard
+   - [ ] Ajouter un tableau de bord financier
+
+3. **Étape Visa**
+   - [ ] Créer une structure pour les documents du visa
+   - [ ] Implémenter le suivi des rendez-vous
+   - [ ] Gérer les notifications de dates importantes
+
+#### Points d'Amélioration
+- Ajouter des validations pour chaque transition d'étape
+- Implémenter un système de commentaires par étape
+- Ajouter des indicateurs de performance (durée moyenne par étape)
+- Mettre en place des rappels automatiques
+
 ## Mise à jour du 18/01/2025
 
 ### Améliorations de l'Interface Utilisateur

@@ -2,16 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DossierResource\Pages;
 use App\Models\Dossier;
+use App\Filament\Resources\DossierResource\Pages;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Filament\Notifications\Notification;
 
 class DossierResource extends Resource
 {
@@ -93,85 +98,39 @@ class DossierResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('reference_number')
+                TextColumn::make('reference_number')
                     ->label('Référence')
                     ->searchable()
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('prospect.full_name')
+                TextColumn::make('prospect.full_name')
                     ->label('Prospect')
-                    ->searchable()
+                    ->searchable(['first_name', 'last_name'])
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('current_step')
+                TextColumn::make('current_step')
                     ->label('Étape')
                     ->badge()
-                    ->formatStateUsing(fn (Model $record) => match ($record->current_step) {
-                        Dossier::STEP_ANALYSIS => 'Analyse',
-                        Dossier::STEP_ADMISSION => 'Admission',
-                        Dossier::STEP_PAYMENT => 'Paiement',
-                        Dossier::STEP_VISA => 'Visa',
-                        default => 'Inconnu',
-                    })
-                    ->color(fn (Model $record) => match ($record->current_step) {
-                        Dossier::STEP_ANALYSIS => 'info',
+                    ->color(fn (int $state): string => match ($state) {
+                        Dossier::STEP_ANALYSIS => 'gray',
                         Dossier::STEP_ADMISSION => 'warning',
                         Dossier::STEP_PAYMENT => 'success',
-                        Dossier::STEP_VISA => 'danger',
+                        Dossier::STEP_VISA => 'primary',
                         default => 'gray',
-                    }),
-
-                Tables\Columns\TextColumn::make('current_status')
+                    })
+                    ->formatStateUsing(fn (int $state): string => Dossier::getStepLabel($state))
+                    ->sortable(),
+                TextColumn::make('current_status')
                     ->label('Statut')
                     ->badge()
-                    ->formatStateUsing(fn (Model $record) => match ($record->current_status) {
-                        Dossier::STATUS_WAITING_DOCS => 'En attente de documents',
-                        Dossier::STATUS_ANALYZING => 'Analyse en cours',
-                        Dossier::STATUS_ANALYZED => 'Analyse terminée',
-                        Dossier::STATUS_DOCS_RECEIVED => 'Documents physiques reçus',
-                        Dossier::STATUS_ADMISSION_PAID => 'Frais d\'admission payés',
-                        Dossier::STATUS_SUBMITTED => 'Dossier soumis',
-                        Dossier::STATUS_SUBMISSION_ACCEPTED => 'Soumission acceptée',
-                        Dossier::STATUS_SUBMISSION_REJECTED => 'Soumission rejetée',
-                        Dossier::STATUS_AGENCY_PAID => 'Frais d\'agence payés',
-                        Dossier::STATUS_PARTIAL_TUITION => 'Paiement partiel scolarité',
-                        Dossier::STATUS_FULL_TUITION => 'Paiement total scolarité',
-                        Dossier::STATUS_ABANDONED => 'Dossier abandonné',
-                        Dossier::STATUS_VISA_DOCS_READY => 'Dossier visa prêt',
-                        Dossier::STATUS_VISA_FEES_PAID => 'Frais visa payés',
-                        Dossier::STATUS_VISA_SUBMITTED => 'Visa soumis',
-                        Dossier::STATUS_VISA_ACCEPTED => 'Visa obtenu',
-                        Dossier::STATUS_VISA_REJECTED => 'Visa refusé',
-                        Dossier::STATUS_FINAL_FEES_PAID => 'Frais finaux payés',
-                        default => $record->current_status,
-                    })
-                    ->color(fn (Model $record) => match ($record->current_status) {
-                        Dossier::STATUS_WAITING_DOCS, 
-                        Dossier::STATUS_DOCS_RECEIVED => 'warning',
-                        
-                        Dossier::STATUS_ANALYZING,
-                        Dossier::STATUS_ADMISSION_PAID,
-                        Dossier::STATUS_SUBMITTED,
-                        Dossier::STATUS_AGENCY_PAID,
-                        Dossier::STATUS_PARTIAL_TUITION,
-                        Dossier::STATUS_VISA_DOCS_READY,
-                        Dossier::STATUS_VISA_FEES_PAID,
-                        Dossier::STATUS_VISA_SUBMITTED => 'info',
-                        
-                        Dossier::STATUS_ANALYZED,
-                        Dossier::STATUS_SUBMISSION_ACCEPTED,
-                        Dossier::STATUS_FULL_TUITION,
-                        Dossier::STATUS_VISA_ACCEPTED,
-                        Dossier::STATUS_FINAL_FEES_PAID => 'success',
-                        
-                        Dossier::STATUS_SUBMISSION_REJECTED,
-                        Dossier::STATUS_ABANDONED,
-                        Dossier::STATUS_VISA_REJECTED => 'danger',
-                        
+                    ->color(fn (string $state): string => match ($state) {
+                        Dossier::STATUS_ANALYZED => 'success',
+                        Dossier::STATUS_SUBMISSION_ACCEPTED => 'success',
+                        Dossier::STATUS_FULL_TUITION => 'success',
+                        Dossier::STATUS_VISA_ACCEPTED => 'success',
                         default => 'gray',
-                    }),
-
-                Tables\Columns\TextColumn::make('last_action_at')
+                    })
+                    ->formatStateUsing(fn (string $state): string => Dossier::getStatusLabel($state))
+                    ->sortable(),
+                TextColumn::make('last_action_at')
                     ->label('Dernière action')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
@@ -197,6 +156,29 @@ class DossierResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('continuer')
+                    ->label('Continuer')
+                    ->icon('heroicon-o-arrow-right')
+                    ->color('success')
+                    ->visible(fn (Dossier $record): bool => $record->canProgressToNextStep())
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (Dossier $record): string => "Passer à l'étape suivante ?")
+                    ->modalDescription(fn (Dossier $record): string => match($record->current_step) {
+                        Dossier::STEP_ANALYSIS => "Le dossier passera à l'étape 'Ouverture & Admission'. Cette action est irréversible.",
+                        Dossier::STEP_ADMISSION => "Le dossier passera à l'étape 'Paiement'. Cette action est irréversible.",
+                        Dossier::STEP_PAYMENT => "Le dossier passera à l'étape 'Accompagnement Visa'. Cette action est irréversible.",
+                        default => "Êtes-vous sûr de vouloir continuer ?",
+                    })
+                    ->modalSubmitActionLabel("Oui, continuer")
+                    ->modalCancelActionLabel("Annuler")
+                    ->action(function (Dossier $record): void {
+                        if ($record->progressToNextStep()) {
+                            Notification::make()
+                                ->title('Étape mise à jour')
+                                ->success()
+                                ->send();
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -246,7 +228,6 @@ class DossierResource extends Resource
         return [
             'index' => Pages\ListDossiers::route('/'),
             'create' => Pages\CreateDossier::route('/create'),
-            'view' => Pages\ViewDossier::route('/{record}'),
             'edit' => Pages\EditDossier::route('/{record}/edit'),
         ];
     }

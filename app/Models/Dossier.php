@@ -195,4 +195,81 @@ class Dossier extends Model
             ->mapWithKeys(fn ($status) => [$status => self::getStatusLabel($status)])
             ->toArray();
     }
+
+    /**
+     * Obtenir le libellé d'une étape
+     */
+    public static function getStepLabel(int $step): string
+    {
+        return match ($step) {
+            self::STEP_ANALYSIS => 'Analyse',
+            self::STEP_ADMISSION => 'Admission',
+            self::STEP_PAYMENT => 'Paiement',
+            self::STEP_VISA => 'Visa',
+            default => 'Inconnu',
+        };
+    }
+
+    /**
+     * Obtenir la liste des étapes avec leurs libellés
+     */
+    public static function getStepOptions(): array
+    {
+        return [
+            self::STEP_ANALYSIS => 'Analyse',
+            self::STEP_ADMISSION => 'Admission',
+            self::STEP_PAYMENT => 'Paiement',
+            self::STEP_VISA => 'Visa',
+        ];
+    }
+
+    /**
+     * Passer à l'étape suivante du workflow
+     */
+    public function progressToNextStep(): bool
+    {
+        $nextStep = match ($this->current_step) {
+            self::STEP_ANALYSIS => self::STEP_ADMISSION,
+            self::STEP_ADMISSION => self::STEP_PAYMENT,
+            self::STEP_PAYMENT => self::STEP_VISA,
+            default => null,
+        };
+
+        if ($nextStep === null) {
+            return false;
+        }
+
+        // Définir le statut initial de la nouvelle étape
+        $initialStatus = match ($nextStep) {
+            self::STEP_ADMISSION => self::STATUS_DOCS_RECEIVED,
+            self::STEP_PAYMENT => self::STATUS_AGENCY_PAID,
+            self::STEP_VISA => self::STATUS_VISA_DOCS_READY,
+            default => null,
+        };
+
+        if ($initialStatus === null) {
+            return false;
+        }
+
+        $this->update([
+            'current_step' => $nextStep,
+            'current_status' => $initialStatus,
+            'last_action_at' => now(),
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Vérifier si le dossier peut passer à l'étape suivante
+     */
+    public function canProgressToNextStep(): bool
+    {
+        return match ($this->current_step) {
+            self::STEP_ANALYSIS => $this->current_status === self::STATUS_ANALYZED,
+            self::STEP_ADMISSION => $this->current_status === self::STATUS_SUBMISSION_ACCEPTED,
+            self::STEP_PAYMENT => $this->current_status === self::STATUS_FULL_TUITION,
+            default => false,
+        };
+    }
 }
