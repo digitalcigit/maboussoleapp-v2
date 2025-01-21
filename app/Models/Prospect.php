@@ -22,10 +22,12 @@ class Prospect extends Model
     // Nombre de jours ouvrés pour l'analyse
     public const ANALYSIS_WORKING_DAYS = 5;
 
-    // Statuts des prospects
-    public const STATUS_WAITING_DOCS = 'attente_documents';
-    public const STATUS_ANALYZING = 'analyse_en_cours';
-    public const STATUS_ANALYZED = 'analyse_terminee';
+    // Statuts possibles d'un prospect
+    public const STATUS_NOUVEAU = 'nouveau';
+    public const STATUS_QUALIFIE = 'qualifié';
+    public const STATUS_TRAITEMENT = 'traitement';
+    public const STATUS_BLOQUE = 'bloqué';
+    public const STATUS_CONVERTI = 'converti';
 
     protected $fillable = [
         'reference_number',
@@ -39,23 +41,26 @@ class Prospect extends Model
         'desired_field',
         'desired_destination',
         'emergency_contact',
-        'status',
         'assigned_to',
         'commercial_code',
         'partner_id',
-        'last_action_at',
         'analysis_deadline',
         'documents',
         'notes',
+        'current_status',
+        'converted_to_dossier',
+        'converted_at',
+        'dossier_reference'
     ];
 
     protected $casts = [
         'birth_date' => 'date',
-        'last_action_at' => 'datetime',
         'analysis_deadline' => 'datetime',
         'emergency_contact' => 'json',
         'documents' => 'array',
         'old_documents' => 'array',
+        'converted_to_dossier' => 'boolean',
+        'converted_at' => 'datetime',
     ];
 
     /**
@@ -110,31 +115,6 @@ class Prospect extends Model
         }
         
         $this->attributes['documents'] = is_array($value) ? json_encode($value) : $value;
-    }
-
-    /**
-     * Liste des statuts valides pour la base de données
-     */
-    public static function getValidStatuses(): array
-    {
-        return [
-            self::STATUS_WAITING_DOCS,
-            self::STATUS_ANALYZING,
-            self::STATUS_ANALYZED,
-        ];
-    }
-
-    /**
-     * Obtenir le libellé traduit du statut
-     */
-    public function getStatusLabel(): string
-    {
-        return match ($this->status) {
-            self::STATUS_WAITING_DOCS => 'En attente de documents',
-            self::STATUS_ANALYZING => 'En analyse',
-            self::STATUS_ANALYZED => 'Analyse terminée',
-            default => $this->status,
-        };
     }
 
     /**
@@ -213,6 +193,18 @@ class Prospect extends Model
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    /**
+     * Marque le prospect comme converti en dossier
+     */
+    public function markAsConverted(string $dossierReference): void
+    {
+        $this->update([
+            'converted_to_dossier' => true,
+            'converted_at' => now(),
+            'dossier_reference' => $dossierReference,
+        ]);
     }
 
     protected static function boot()

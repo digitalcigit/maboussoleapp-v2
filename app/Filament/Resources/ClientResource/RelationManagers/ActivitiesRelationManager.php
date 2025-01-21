@@ -2,110 +2,119 @@
 
 namespace App\Filament\Resources\ClientResource\RelationManagers;
 
+use App\Models\Activity;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ActivitiesRelationManager extends RelationManager
 {
     protected static string $relationship = 'activities';
 
-    protected static ?string $recordTitleAttribute = 'title';
-
-    protected static ?string $title = 'Activités';
+    protected static ?string $recordTitleAttribute = 'description';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
+                Forms\Components\Select::make('user_id')
+                    ->relationship('user', 'name')
                     ->required()
-                    ->maxLength(255)
-                    ->label('Titre'),
+                    ->label('Assigné à'),
+
                 Forms\Components\Select::make('type')
                     ->options([
-                        'appel' => 'Appel',
-                        'email' => 'Email',
-                        'reunion' => 'Réunion',
-                        'note' => 'Note',
-                        'autre' => 'Autre',
+                        Activity::TYPE_NOTE => 'Note',
+                        Activity::TYPE_CALL => 'Appel',
+                        Activity::TYPE_EMAIL => 'Email',
+                        Activity::TYPE_MEETING => 'Réunion',
+                        Activity::TYPE_DOCUMENT => 'Document',
                     ])
                     ->required()
                     ->label('Type'),
+
+                Forms\Components\Textarea::make('description')
+                    ->required()
+                    ->columnSpanFull(),
+
                 Forms\Components\DateTimePicker::make('scheduled_at')
                     ->required()
-                    ->label('Date prévue'),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'planifié' => 'Planifié',
-                        'en_cours' => 'En cours',
-                        'terminé' => 'Terminé',
-                        'annulé' => 'Annulé',
-                    ])
-                    ->required()
-                    ->default('planifié')
-                    ->label('Statut'),
-                Forms\Components\Textarea::make('description')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
+                    ->label('Planifié pour'),
+
+                Forms\Components\DateTimePicker::make('completed_at')
+                    ->label('Terminé le'),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('title')
+            ->recordTitleAttribute('description')
             ->columns([
-                Tables\Columns\TextColumn::make('title')
-                    ->label('Titre')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Assigné à')
+                    ->sortable()
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'appel' => 'success',
-                        'email' => 'info',
-                        'reunion' => 'warning',
-                        'note' => 'gray',
-                        default => 'primary',
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        Activity::TYPE_NOTE => 'Note',
+                        Activity::TYPE_CALL => 'Appel',
+                        Activity::TYPE_EMAIL => 'Email',
+                        Activity::TYPE_MEETING => 'Réunion',
+                        Activity::TYPE_DOCUMENT => 'Document',
+                    })
+                    ->colors([
+                        'primary' => Activity::TYPE_NOTE,
+                        'success' => Activity::TYPE_CALL,
+                        'info' => Activity::TYPE_EMAIL,
+                        'warning' => Activity::TYPE_MEETING,
+                        'danger' => Activity::TYPE_DOCUMENT,
+                    ])
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('description')
+                    ->limit(50)
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+
+                        if (strlen($state) <= $column->getLimit()) {
+                            return null;
+                        }
+
+                        return $state;
                     }),
+
                 Tables\Columns\TextColumn::make('scheduled_at')
-                    ->label('Date prévue')
+                    ->label('Planifié pour')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\SelectColumn::make('status')
-                    ->options([
-                        'planifié' => 'Planifié',
-                        'en_cours' => 'En cours',
-                        'terminé' => 'Terminé',
-                        'annulé' => 'Annulé',
-                    ])
-                    ->label('Statut'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Créé le')
+
+                Tables\Columns\TextColumn::make('completed_at')
+                    ->label('Terminé le')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
-            ->defaultSort('scheduled_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
                     ->options([
-                        'appel' => 'Appel',
-                        'email' => 'Email',
-                        'reunion' => 'Réunion',
-                        'note' => 'Note',
-                        'autre' => 'Autre',
+                        Activity::TYPE_NOTE => 'Note',
+                        Activity::TYPE_CALL => 'Appel',
+                        Activity::TYPE_EMAIL => 'Email',
+                        Activity::TYPE_MEETING => 'Réunion',
+                        Activity::TYPE_DOCUMENT => 'Document',
                     ]),
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'planifié' => 'Planifié',
-                        'en_cours' => 'En cours',
-                        'terminé' => 'Terminé',
-                        'annulé' => 'Annulé',
-                    ]),
+
+                Tables\Filters\SelectFilter::make('user_id')
+                    ->relationship('user', 'name')
+                    ->label('Assigné à'),
+
+                Tables\Filters\TrashedFilter::make()
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
@@ -113,10 +122,14 @@ class ActivitiesRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateActions([

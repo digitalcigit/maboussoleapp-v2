@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('prospects', function (Blueprint $table) {
-            $table->json('documents')->nullable();
-        });
+        // Le champ documents est déjà ajouté dans la migration initiale
     }
 
     /**
@@ -21,8 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('prospects', function (Blueprint $table) {
-            $table->dropColumn('documents');
-        });
+        // Rien à faire
     }
 };

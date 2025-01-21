@@ -25,6 +25,7 @@ class Dossier extends Model
     public const STATUS_ANALYZED = 'analyse_terminee';
 
     // Statuts pour l'étape 2 (Admission)
+    public const STATUS_WAITING_PHYSICAL_DOCS = 'attente_documents_physiques';
     public const STATUS_DOCS_RECEIVED = 'reception_documents_physiques';
     public const STATUS_ADMISSION_PAID = 'paiement_frais_admission';
     public const STATUS_SUBMITTED = 'dossier_soumis';
@@ -32,12 +33,17 @@ class Dossier extends Model
     public const STATUS_SUBMISSION_REJECTED = 'soumission_rejetee';
 
     // Statuts pour l'étape 3 (Payment)
+    public const STATUS_WAITING_AGENCY_PAYMENT = 'attente_paiement_frais_agence';
     public const STATUS_AGENCY_PAID = 'paiement_frais_agence';
-    public const STATUS_PARTIAL_TUITION = 'paiement_scolarite_partiel';
-    public const STATUS_FULL_TUITION = 'paiement_scolarite_total';
+    public const STATUS_TUITION_PAYMENT = 'paiement_scolarite';
     public const STATUS_ABANDONED = 'abandonne';
 
+    // Remplacer les anciennes constantes
+    public const STATUS_PARTIAL_TUITION = self::STATUS_TUITION_PAYMENT; // Pour compatibilité
+    public const STATUS_FULL_TUITION = self::STATUS_TUITION_PAYMENT; // Pour compatibilité
+
     // Statuts pour l'étape 4 (Visa)
+    public const STATUS_VISA_CONSTITUTION = 'constitution_dossier_visa';
     public const STATUS_VISA_DOCS_READY = 'dossier_visa_pret';
     public const STATUS_VISA_FEES_PAID = 'frais_visa_payes';
     public const STATUS_VISA_SUBMITTED = 'visa_soumis';
@@ -48,16 +54,54 @@ class Dossier extends Model
     protected $fillable = [
         'reference_number',
         'prospect_id',
+        'status',
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'birth_date',
+        'profession',
+        'education_level',
+        'desired_field',
+        'desired_destination',
+        'emergency_contact',
+        'documents',
+        'commercial_code',
+        'notes',
+        'prospect_info',
         'current_step',
         'current_status',
-        'notes',
+        'school_name',
+        'school_program',
+        'school_country',
+        'school_notes',
+        'admission_fees',
+        'assigned_to',
+        'agency_payment_amount',
+        'tuition_total_amount',
+        'tuition_paid_amount',
         'last_action_at',
-        'completed_at',
     ];
 
     protected $casts = [
+        'emergency_contact' => 'json',
+        'documents' => 'json',
+        'birth_date' => 'date',
+        'prospect_info' => 'json',
+        'agency_payment_amount' => 'decimal:2',
+        'tuition_total_amount' => 'decimal:2',
+        'tuition_paid_amount' => 'decimal:2',
+        'current_step' => 'integer',
         'last_action_at' => 'datetime',
-        'completed_at' => 'datetime',
+    ];
+
+    protected $attributes = [
+        'current_step' => 1,
+        'current_status' => 'en_attente'
+    ];
+
+    protected $appends = [
+        'tuition_progress'
     ];
 
     /**
@@ -108,7 +152,7 @@ class Dossier extends Model
         return match ($this->current_step) {
             self::STEP_ANALYSIS => $this->current_status === self::STATUS_ANALYZED,
             self::STEP_ADMISSION => $this->current_status === self::STATUS_SUBMISSION_ACCEPTED,
-            self::STEP_PAYMENT => $this->current_status === self::STATUS_FULL_TUITION,
+            self::STEP_PAYMENT => $this->current_status === self::STATUS_TUITION_PAYMENT && $this->isTuitionFullyPaid(),
             self::STEP_VISA => $this->current_status === self::STATUS_FINAL_FEES_PAID,
             default => false,
         };
@@ -126,6 +170,7 @@ class Dossier extends Model
                 self::STATUS_ANALYZED,
             ],
             self::STEP_ADMISSION => [
+                self::STATUS_WAITING_PHYSICAL_DOCS,
                 self::STATUS_DOCS_RECEIVED,
                 self::STATUS_ADMISSION_PAID,
                 self::STATUS_SUBMITTED,
@@ -133,12 +178,13 @@ class Dossier extends Model
                 self::STATUS_SUBMISSION_REJECTED,
             ],
             self::STEP_PAYMENT => [
+                self::STATUS_WAITING_AGENCY_PAYMENT,
                 self::STATUS_AGENCY_PAID,
-                self::STATUS_PARTIAL_TUITION,
-                self::STATUS_FULL_TUITION,
+                self::STATUS_TUITION_PAYMENT,
                 self::STATUS_ABANDONED,
             ],
             self::STEP_VISA => [
+                self::STATUS_VISA_CONSTITUTION,
                 self::STATUS_VISA_DOCS_READY,
                 self::STATUS_VISA_FEES_PAID,
                 self::STATUS_VISA_SUBMITTED,
@@ -167,15 +213,17 @@ class Dossier extends Model
             self::STATUS_WAITING_DOCS => 'En attente de documents',
             self::STATUS_ANALYZING => 'Analyse en cours',
             self::STATUS_ANALYZED => 'Analyse terminée',
+            self::STATUS_WAITING_PHYSICAL_DOCS => 'En attente de documents physiques',
             self::STATUS_DOCS_RECEIVED => 'Documents physiques reçus',
             self::STATUS_ADMISSION_PAID => 'Frais d\'admission payés',
             self::STATUS_SUBMITTED => 'Dossier soumis',
             self::STATUS_SUBMISSION_ACCEPTED => 'Soumission acceptée',
             self::STATUS_SUBMISSION_REJECTED => 'Soumission rejetée',
+            self::STATUS_WAITING_AGENCY_PAYMENT => 'En attente de paiement des frais d\'agence',
             self::STATUS_AGENCY_PAID => 'Frais d\'agence payés',
-            self::STATUS_PARTIAL_TUITION => 'Paiement partiel scolarité',
-            self::STATUS_FULL_TUITION => 'Paiement total scolarité',
+            self::STATUS_TUITION_PAYMENT => 'Paiement de la scolarité',
             self::STATUS_ABANDONED => 'Dossier abandonné',
+            self::STATUS_VISA_CONSTITUTION => 'Constitution du dossier visa',
             self::STATUS_VISA_DOCS_READY => 'Dossier visa prêt',
             self::STATUS_VISA_FEES_PAID => 'Frais visa payés',
             self::STATUS_VISA_SUBMITTED => 'Visa soumis',
@@ -241,9 +289,9 @@ class Dossier extends Model
 
         // Définir le statut initial de la nouvelle étape
         $initialStatus = match ($nextStep) {
-            self::STEP_ADMISSION => self::STATUS_DOCS_RECEIVED,
-            self::STEP_PAYMENT => self::STATUS_AGENCY_PAID,
-            self::STEP_VISA => self::STATUS_VISA_DOCS_READY,
+            self::STEP_ADMISSION => self::STATUS_WAITING_PHYSICAL_DOCS,
+            self::STEP_PAYMENT => self::STATUS_WAITING_AGENCY_PAYMENT,
+            self::STEP_VISA => self::STATUS_VISA_CONSTITUTION,
             default => null,
         };
 
@@ -268,8 +316,68 @@ class Dossier extends Model
         return match ($this->current_step) {
             self::STEP_ANALYSIS => $this->current_status === self::STATUS_ANALYZED,
             self::STEP_ADMISSION => $this->current_status === self::STATUS_SUBMISSION_ACCEPTED,
-            self::STEP_PAYMENT => $this->current_status === self::STATUS_FULL_TUITION,
+            self::STEP_PAYMENT => $this->current_status === self::STATUS_TUITION_PAYMENT && $this->isTuitionFullyPaid(),
             default => false,
         };
+    }
+
+    /**
+     * Copie les données d'un prospect vers ce dossier
+     */
+    public function copyFromProspect(Prospect $prospect): void
+    {
+        $this->update([
+            'first_name' => $prospect->first_name,
+            'last_name' => $prospect->last_name,
+            'email' => $prospect->email,
+            'phone' => $prospect->phone,
+            'birth_date' => $prospect->birth_date,
+            'profession' => $prospect->profession,
+            'education_level' => $prospect->education_level,
+            'desired_field' => $prospect->desired_field,
+            'desired_destination' => $prospect->desired_destination,
+            'emergency_contact' => $prospect->emergency_contact,
+            'documents' => $prospect->documents,
+            'commercial_code' => $prospect->commercial_code,
+            'notes' => $prospect->notes
+        ]);
+    }
+
+    /**
+     * Obtient le nom complet
+     */
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
+    /**
+     * Get the user that the dossier is assigned to
+     */
+    public function assignedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * Calculate tuition payment progress as percentage
+     */
+    public function getTuitionProgressAttribute(): float
+    {
+        if (!$this->tuition_total_amount || $this->tuition_total_amount <= 0) {
+            return 0;
+        }
+        return min(100, ($this->tuition_paid_amount / $this->tuition_total_amount) * 100);
+    }
+
+    /**
+     * Check if tuition is fully paid
+     */
+    public function isTuitionFullyPaid(): bool
+    {
+        if (!$this->tuition_total_amount || $this->tuition_total_amount <= 0) {
+            return false;
+        }
+        return $this->tuition_paid_amount >= $this->tuition_total_amount;
     }
 }

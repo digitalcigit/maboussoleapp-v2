@@ -29,8 +29,6 @@ class ProspectFactory extends Factory
             'birth_date' => $this->faker->date(),
             'profession' => $this->faker->jobTitle(),
             'education_level' => $this->faker->randomElement(['Bac', 'Bac+2', 'Licence', 'Master', 'Doctorat']),
-            'current_location' => $this->faker->city(),
-            'current_field' => $this->faker->randomElement(['IT', 'Finance', 'Marketing', 'RH', 'Santé']),
             'desired_field' => $this->faker->randomElement(['IT', 'Finance', 'Marketing', 'RH', 'Santé']),
             'desired_destination' => $this->faker->randomElement(['Canada', 'France', 'Belgique', 'Suisse']),
             'emergency_contact' => [
@@ -38,15 +36,15 @@ class ProspectFactory extends Factory
                 'phone' => $this->faker->phoneNumber(),
                 'relationship' => $this->faker->randomElement(['Conjoint(e)', 'Parent', 'Frère/Sœur', 'Ami(e)']),
             ],
-            'status' => Prospect::STATUS_NEW,
+            'documents' => [],
             'assigned_to' => User::factory(),
             'commercial_code' => 'COM'.random_int(100, 999),
             'partner_id' => null,
-            'last_action_at' => null,
             'analysis_deadline' => $this->faker->dateTimeBetween('now', '+30 days'),
-            'created_at' => $this->faker->dateTimeBetween('-1 year'),
-            'updated_at' => $this->faker->dateTimeBetween('-1 month'),
             'notes' => $this->faker->optional()->paragraph(),
+            'converted_to_dossier' => false,
+            'converted_at' => null,
+            'dossier_reference' => null,
         ];
     }
 
@@ -57,7 +55,6 @@ class ProspectFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'status' => Prospect::STATUS_ANALYZING,
                 'last_action_at' => now(),
             ];
         });
@@ -70,7 +67,6 @@ class ProspectFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'status' => Prospect::STATUS_APPROVED,
                 'last_action_at' => now(),
             ];
         });
@@ -83,7 +79,6 @@ class ProspectFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'status' => Prospect::STATUS_REJECTED,
                 'last_action_at' => now(),
             ];
         });
@@ -96,7 +91,6 @@ class ProspectFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'status' => Prospect::STATUS_CONVERTED,
                 'last_action_at' => now(),
             ];
         });

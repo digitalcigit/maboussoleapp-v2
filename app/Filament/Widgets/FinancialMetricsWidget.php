@@ -26,7 +26,7 @@ class FinancialMetricsWidget extends BaseWidget
         $commissionsTrend = $currentMonthCommissions - $lastMonthCommissions;
 
         // Pipeline prévisionnel
-        $qualifiedProspects = Prospect::where('status', 'qualifié')
+        $qualifiedProspects = Prospect::where('current_status', 'qualifié')
             ->whereMonth('created_at', now()->month)
             ->count();
         $averageContractValue = Client::whereMonth('created_at', now()->month)

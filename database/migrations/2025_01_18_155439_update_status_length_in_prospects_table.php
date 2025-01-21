@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('prospects', function (Blueprint $table) {
-            $table->string('status', 30)->change();
-        });
+        // Le champ status n'existe plus
     }
 
     /**
@@ -21,8 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('prospects', function (Blueprint $table) {
-            $table->string('status', 20)->change();
-        });
+        // Rien à faire
     }
 };

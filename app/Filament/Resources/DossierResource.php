@@ -21,17 +21,19 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use App\Services\ReferenceGeneratorService;
 
 class DossierResource extends Resource
 {
     protected static ?string $model = Dossier::class;
     protected static ?string $navigationIcon = 'heroicon-o-folder';
-    protected static ?string $navigationGroup = 'Gestion des Dossiers';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'reference_number';
     protected static ?string $navigationLabel = 'Dossiers';
     protected static ?string $modelLabel = 'Dossier';
     protected static ?string $pluralModelLabel = 'Dossiers';
+    protected static ?string $navigationGroup = 'Gestion des dossiers';
+    protected static ?int $navigationGroupSort = 1;
 
     public static function getNavigationBadge(): ?string
     {
@@ -48,10 +50,14 @@ class DossierResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('reference_number')
                             ->label('Numéro de référence')
-                            ->default(fn () => 'DOS-' . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT))
+                            ->default(function () {
+                                $generator = app(ReferenceGeneratorService::class);
+                                return $generator->generateReference('dossier');
+                            })
                             ->required()
                             ->maxLength(255)
-                            ->unique(ignorable: fn ($record) => $record),
+                            ->unique(ignorable: fn ($record) => $record)
+                            ->disabled(),
 
                         Forms\Components\Select::make('prospect_id')
                             ->label('Prospect')
@@ -139,9 +145,9 @@ class DossierResource extends Resource
                             ])
                             ->default(Dossier::STEP_ANALYSIS)
                             ->live()
-                            ->afterStateUpdated(fn ($state, Forms\Set $set) => 
-                                $set('current_status', Dossier::getValidStatusesForStep($state)[0] ?? null)
-                            )
+                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                $set('current_status', Dossier::getValidStatusesForStep($state)[0] ?? null);
+                            })
                             ->required(),
 
                         Forms\Components\Select::make('current_status')
@@ -158,6 +164,56 @@ class DossierResource extends Resource
                             })
                             ->required()
                             ->live(),
+
+                        Forms\Components\TextInput::make('agency_payment_amount')
+                            ->label('Montant des frais d\'agence')
+                            ->numeric()
+                            ->prefix('FCFA')
+                            ->maxValue(999999.99)
+                            ->minValue(0)
+                            ->visible(fn (Forms\Get $get): bool => 
+                                $get('current_status') === Dossier::STATUS_AGENCY_PAID
+                            )
+                            ->required(fn (Forms\Get $get): bool => 
+                                $get('current_status') === Dossier::STATUS_AGENCY_PAID
+                            ),
+
+                        Forms\Components\TextInput::make('tuition_total_amount')
+                            ->label('Montant total de la scolarité')
+                            ->numeric()
+                            ->prefix('FCFA')
+                            ->maxValue(99999999.99)
+                            ->minValue(0)
+                            ->visible(fn (Forms\Get $get): bool => 
+                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
+                            )
+                            ->required(fn (Forms\Get $get): bool => 
+                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT && 
+                                !$get('tuition_total_amount')
+                            ),
+
+                        Forms\Components\TextInput::make('tuition_paid_amount')
+                            ->label('Montant payé')
+                            ->numeric()
+                            ->prefix('FCFA')
+                            ->maxValue(fn (Forms\Get $get) => 
+                                $get('tuition_total_amount') ?? 99999999.99
+                            )
+                            ->minValue(0)
+                            ->visible(fn (Forms\Get $get): bool => 
+                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
+                            )
+                            ->required(fn (Forms\Get $get): bool => 
+                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
+                            ),
+
+                        Forms\Components\TextInput::make('tuition_progress')
+                            ->label('Progression du paiement')
+                            ->formatStateUsing(fn ($state) => number_format($state, 0) . ' %')
+                            ->disabled()
+                            ->visible(fn (Forms\Get $get): bool => 
+                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
+                            ),
                     ]),
 
                 Forms\Components\Section::make('Informations du Prospect')
@@ -299,19 +355,16 @@ class DossierResource extends Resource
                             ->columnSpanFull()
                             ->reorderableWithButtons()
                             ->collapsible()
-                            ->collapsed(false)
                             ->itemLabel(fn (array $state): ?string => 
-                                isset($state['type']) ? 
-                                    collect([
-                                        'diploma' => 'Diplôme',
-                                        'id_card' => 'Pièce d\'identité',
-                                        'cv' => 'CV',
-                                        'motivation' => 'Lettre de motivation',
-                                        'passport' => 'Passeport',
-                                        'birth_certificate' => 'Acte de naissance',
-                                        'other' => 'Autre'
-                                    ])->get($state['type']) . 
-                                    (isset($state['description']) ? " - {$state['description']}" : '') : null
+                                $state['type'] ? ucfirst($state['type']) . (isset($state['description']) ? " - {$state['description']}" : '') : null
+                            )
+                            ->deleteAction(
+                                fn (Forms\Components\Actions\Action $action) => $action
+                                    ->requiresConfirmation()
+                                    ->modalHeading('Supprimer le document')
+                                    ->modalDescription('Êtes-vous sûr de vouloir supprimer ce document ? Cette action est irréversible.')
+                                    ->modalSubmitActionLabel('Oui, supprimer')
+                                    ->modalCancelActionLabel('Annuler')
                             )
                             ->afterStateHydrated(function (Forms\Components\Repeater $component, $state) {
                                 if (empty($state)) {

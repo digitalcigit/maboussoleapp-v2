@@ -30,6 +30,8 @@ class ProspectResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?int $navigationGroupSort = 2;
+
     protected static ?string $recordTitleAttribute = 'full_name';
 
     public static function form(Form $form): Form
@@ -128,19 +130,17 @@ class ProspectResource extends Resource
 
                 Forms\Components\Section::make('Suivi Commercial')
                     ->schema([
-                        Forms\Components\Select::make('status')
+                        Forms\Components\Select::make('current_status')
                             ->label('Statut')
                             ->options([
-                                Prospect::STATUS_WAITING_DOCS => 'En attente de documents',
-                                Prospect::STATUS_ANALYZING => 'Analyse en cours',
-                                Prospect::STATUS_ANALYZED => 'Analyse terminée',
+                                Prospect::STATUS_NOUVEAU => 'Nouveau',
+                                Prospect::STATUS_QUALIFIE => 'Qualifié',
+                                Prospect::STATUS_TRAITEMENT => 'En traitement',
+                                Prospect::STATUS_BLOQUE => 'Bloqué',
+                                Prospect::STATUS_CONVERTI => 'Converti',
                             ])
-                            ->native(false)
-                            ->searchable()
-                            ->required()
-                            ->default(Prospect::STATUS_WAITING_DOCS)
-                            ->disabled() // On désactive la modification lors de la création
-                            ->dehydrated(), // On s'assure que la valeur est bien envoyée
+                            ->default(Prospect::STATUS_NOUVEAU)
+                            ->required(),
                         Forms\Components\Select::make('assigned_to')
                             ->relationship('assignedTo', 'name')
                             ->searchable()
@@ -271,139 +271,101 @@ class ProspectResource extends Resource
                     ->label('Référence')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('first_name')
-                    ->label('Prénom')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('last_name')
-                    ->label('Nom')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('full_name')
+                    ->label('Nom complet')
+                    ->searchable(['first_name', 'last_name'])
+                    ->sortable(['last_name', 'first_name']),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Téléphone')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
+                Tables\Columns\TextColumn::make('desired_destination')
+                    ->label('Destination')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('current_status')
                     ->label('Statut')
                     ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        Prospect::STATUS_NOUVEAU => 'info',
+                        Prospect::STATUS_QUALIFIE => 'success',
+                        Prospect::STATUS_TRAITEMENT => 'warning',
+                        Prospect::STATUS_BLOQUE => 'danger',
+                        Prospect::STATUS_CONVERTI => 'primary',
+                        default => 'secondary',
+                    })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        Prospect::STATUS_WAITING_DOCS => 'En attente de documents',
-                        Prospect::STATUS_ANALYZING => 'Analyse en cours',
-                        Prospect::STATUS_ANALYZED => 'Analyse terminée',
+                        Prospect::STATUS_NOUVEAU => 'Nouveau',
+                        Prospect::STATUS_QUALIFIE => 'Qualifié',
+                        Prospect::STATUS_TRAITEMENT => 'En traitement',
+                        Prospect::STATUS_BLOQUE => 'Bloqué',
+                        Prospect::STATUS_CONVERTI => 'Converti',
                         default => $state,
                     })
-                    ->color(fn (string $state): string => match ($state) {
-                        Prospect::STATUS_WAITING_DOCS => 'warning',
-                        Prospect::STATUS_ANALYZING => 'primary',
-                        Prospect::STATUS_ANALYZED => 'success',
-                        default => 'gray',
-                    })
-                    ->icon(fn (string $state): string => match ($state) {
-                        Prospect::STATUS_WAITING_DOCS => 'heroicon-o-clock',
-                        Prospect::STATUS_ANALYZING => 'heroicon-o-document-magnifying-glass',
-                        Prospect::STATUS_ANALYZED => 'heroicon-o-check-circle',
-                        default => '',
-                    }),
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\IconColumn::make('converted_to_dossier')
+                    ->label('Converti en dossier')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->tooltip(fn (Prospect $record): string => $record->converted_to_dossier 
+                        ? "Converti le " . $record->converted_at->format('d/m/Y') . "\nDossier : " . $record->dossier_reference
+                        : "Non converti"),
                 Tables\Columns\TextColumn::make('assignedTo.name')
                     ->label('Assigné à')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('partner.name')
-                    ->label('Partenaire')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('analysis_deadline')
-                    ->label('Date limite')
-                    ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Créé le')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
+                Tables\Filters\SelectFilter::make('current_status')
+                    ->label('Statut')
                     ->options([
-                        Prospect::STATUS_WAITING_DOCS => 'En attente de documents',
-                        Prospect::STATUS_ANALYZING => 'Analyse en cours',
-                        Prospect::STATUS_ANALYZED => 'Analyse terminée',
+                        Prospect::STATUS_NOUVEAU => 'Nouveau',
+                        Prospect::STATUS_QUALIFIE => 'Qualifié',
+                        Prospect::STATUS_TRAITEMENT => 'En traitement',
+                        Prospect::STATUS_BLOQUE => 'Bloqué',
+                        Prospect::STATUS_CONVERTI => 'Converti',
                     ])
-                    ->label('Statut'),
-                Tables\Filters\SelectFilter::make('source')
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('assigned_to')
+                    ->label('Assigné à')
+                    ->relationship('assignedTo', 'name')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('desired_destination')
+                    ->label('Destination')
                     ->options([
-                        'website' => 'Site web',
-                        'referral' => 'Parrainage',
-                        'social' => 'Réseaux sociaux',
-                        'other' => 'Autre',
+                        'france' => 'France',
+                        'canada' => 'Canada',
+                        'belgique' => 'Belgique',
+                        'suisse' => 'Suisse',
+                        'luxembourg' => 'Luxembourg',
+                        'maroc' => 'Maroc',
+                        'tunisie' => 'Tunisie',
+                        'senegal' => 'Sénégal',
+                        'cote_ivoire' => 'Côte d\'Ivoire',
+                        'cameroun' => 'Cameroun',
+                        'gabon' => 'Gabon',
+                        'congo' => 'Congo',
+                        'mali' => 'Mali',
                     ])
-                    ->label('Source'),
+                    ->multiple(),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\Action::make('convert_to_client')
-                        ->label('Convertir en client')
-                        ->icon('heroicon-o-user-plus')
-                        ->color('success')
-                        ->requiresConfirmation()
-                        ->modalHeading('Conversion en client')
-                        ->modalDescription('Voulez-vous vraiment convertir ce prospect en client ? Cette action est irréversible.')
-                        ->modalSubmitActionLabel('Oui, convertir')
-                        ->action(function (Prospect $record) {
-                            if ($record->status !== Prospect::STATUS_ANALYZED) {
-                                FilamentNotification::make()
-                                    ->warning()
-                                    ->title('Le prospect doit être analysé avant la conversion')
-                                    ->send();
-                                return;
-                            }
-
-                            // Créer le client
-                            $client = new Client();
-                            $client->client_number = 'CLI-' . random_int(10000, 99999);
-                            $client->first_name = $record->first_name;
-                            $client->last_name = $record->last_name;
-                            $client->email = $record->email;
-                            $client->phone = $record->phone;
-                            $client->birth_date = $record->birth_date;
-                            $client->education_level = $record->education_level;
-                            $client->assigned_to = $record->assigned_to;
-                            $client->prospect_id = $record->id;
-                            $client->status = 'actif';
-                            $client->save();
-
-                            FilamentNotification::make()
-                                ->success()
-                                ->title('Prospect converti en client avec succès')
-                                ->send();
-
-                            // Rediriger vers la page du client
-                            return redirect()->route('filament.admin.resources.clients.edit', ['record' => $client->id]);
-                        })
-                        ->visible(fn (Prospect $record): bool => 
-                            $record->status === Prospect::STATUS_ANALYZED && 
-                            auth()->user()->can('clients.create')
-                        ),
-                ])
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\BulkAction::make('bulk-update')
-                        ->label('Mise à jour en masse')
-                        ->form([
-                            Forms\Components\Select::make('status')
-                                ->label('Statut')
-                                ->options([
-                                    Prospect::STATUS_WAITING_DOCS => 'En attente de documents',
-                                    Prospect::STATUS_ANALYZING => 'Analyse en cours',
-                                    Prospect::STATUS_ANALYZED => 'Analyse terminée',
-                                ])
-                                ->required(),
-                        ])
-                        ->action(function ($records, array $data) {
-                            $records->each(fn ($record) => $record->update(['status' => $data['status']]));
-                        }),
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
@@ -413,7 +375,7 @@ class ProspectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // Retrait de la relation ActivitiesRelationManager
+            //
         ];
     }
 
@@ -423,7 +385,6 @@ class ProspectResource extends Resource
             'index' => Pages\ListProspects::route('/'),
             'create' => Pages\CreateProspect::route('/create'),
             'edit' => Pages\EditProspect::route('/{record}/edit'),
-            'convert' => Pages\ConvertToClient::route('/{record}/convert'),
         ];
     }
 
@@ -444,36 +405,36 @@ class ProspectResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('Prospect');
+        return 'Prospect';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('Prospects');
+        return 'Prospects';
     }
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+        return static::getModel()::where('current_status', '!=', Prospect::STATUS_CONVERTI)->count();
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('prospects.view');
+        return auth()->user()->can('viewAny', Prospect::class);
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('prospects.create');
+        return auth()->user()->can('create', Prospect::class);
     }
 
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()->can('prospects.edit');
+        return auth()->user()->can('update', $record);
     }
 
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()->can('prospects.delete');
+        return auth()->user()->can('delete', $record);
     }
 }

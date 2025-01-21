@@ -2,217 +2,224 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Client;
 use App\Models\Prospect;
 use Filament\Pages\Dashboard;
+use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Filament\Widgets\StatsOverviewWidget\StatsOverview;
-use Illuminate\Support\Facades\Auth;
-use Filament\Support\Colors\Color;
+use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Facades\DB;
+use Filament\Widgets\TableWidget;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget;
 
 class ConseillerDashboard extends Dashboard
 {
-    protected static ?string $navigationLabel = 'Tableau de Bord';
-    protected static ?string $title = 'Tableau de Bord Conseiller';
-    protected static ?string $slug = 'conseiller-dashboard';
-    protected static ?int $navigationSort = -2;
-    protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
+    protected static ?string $navigationLabel = 'Tableau de bord';
 
-    public function getWidgets(): array
+    protected static ?string $title = 'Tableau de bord';
+
+    protected static ?string $navigationIcon = 'heroicon-o-home';
+
+    protected static ?int $navigationSort = -2;
+
+    protected function getHeaderWidgets(): array
     {
+        $user = auth()->user();
+
+        // Statistiques des prospects
+        $totalProspects = Prospect::where('conseiller_id', $user->id)->count();
+        $newProspects = Prospect::where('conseiller_id', $user->id)
+            ->whereMonth('created_at', now()->month)
+            ->count();
+        $prospectsTrend = $newProspects;
+
+        // Statistiques des conversions
+        $totalConversions = Client::whereMonth('created_at', now()->month)
+            ->whereHas('prospect', function ($query) use ($user) {
+                $query->where('conseiller_id', $user->id);
+            })
+            ->count();
+
+        $conversionRate = $totalProspects > 0
+            ? round(($totalConversions / $totalProspects) * 100, 1)
+            : 0;
+
+        // Chiffre d'affaires
+        $currentMonthRevenue = Client::whereMonth('created_at', now()->month)
+            ->whereHas('prospect', function ($query) use ($user) {
+                $query->where('conseiller_id', $user->id);
+            })
+            ->sum('total_amount');
+
+        $lastMonthRevenue = Client::whereMonth('created_at', now()->subMonth()->month)
+            ->whereHas('prospect', function ($query) use ($user) {
+                $query->where('conseiller_id', $user->id);
+            })
+            ->sum('total_amount');
+
+        $revenueTrend = $currentMonthRevenue - $lastMonthRevenue;
+
         return [
-            ConseillerStatsWidget::class,
-            ConseillerConversionChart::class,
-            ConseillerProspectStatusChart::class,
-            ConseillerPriorityProspectsWidget::class,
-            ConseillerTasksWidget::class,
+            StatsOverviewWidget::make([
+                Stat::make('Mes Prospects', $totalProspects)
+                    ->description($prospectsTrend >= 0 ? "+$prospectsTrend ce mois" : "$prospectsTrend ce mois")
+                    ->descriptionIcon($prospectsTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                    ->color($prospectsTrend >= 0 ? 'success' : 'danger')
+                    ->chart([7, 4, 6, 8, 5, 3, $totalProspects]),
+
+                Stat::make('Taux de Conversion', $conversionRate.'%')
+                    ->description($totalConversions.' conversions ce mois')
+                    ->descriptionIcon('heroicon-m-arrow-path')
+                    ->color($conversionRate >= 20 ? 'success' : 'warning')
+                    ->chart([4, 5, 3, 6, 3, 4, $conversionRate]),
+
+                Stat::make('Chiffre d\'Affaires', number_format($currentMonthRevenue, 0, ',', ' ').' FCFA')
+                    ->description($revenueTrend >= 0 ? '+'.number_format($revenueTrend, 0, ',', ' ').' FCFA' : number_format($revenueTrend, 0, ',', ' ').' FCFA')
+                    ->descriptionIcon($revenueTrend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                    ->color($revenueTrend >= 0 ? 'success' : 'danger')
+                    ->chart([8, 9, 7, 8, 6, 9, $currentMonthRevenue / 1000]),
+            ]),
+        ];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        $user = auth()->user();
+
+        // Statistiques par étape
+        $stages = [
+            Prospect::STATUS_NOUVEAU => 'Nouveaux',
+            Prospect::STATUS_QUALIFIE => 'Qualifiés',
+            Prospect::STATUS_TRAITEMENT => 'En traitement',
+            Prospect::STATUS_BLOQUE => 'Bloqués',
+            Prospect::STATUS_CONVERTI => 'Convertis',
+        ];
+
+        $data = collect($stages)->map(function ($label, $status) use ($user) {
+            return Prospect::where('conseiller_id', $user->id)
+                ->where('current_status', $status)
+                ->count();
+        })->values()->toArray();
+
+        return [
+            // Widget de l'entonnoir de conversion
+            ChartWidget::make()
+                ->heading('Entonnoir de Conversion')
+                ->description('Répartition des prospects par étape')
+                ->chart([
+                    'type' => 'bar',
+                    'data' => [
+                        'labels' => array_values($stages),
+                        'datasets' => [
+                            [
+                                'label' => 'Prospects',
+                                'data' => $data,
+                                'backgroundColor' => [
+                                    '#3B82F6', // Bleu - Nouveaux
+                                    '#10B981', // Vert - Qualifiés
+                                    '#F59E0B', // Orange - En traitement
+                                    '#EC4899', // Rose - Bloqués
+                                    '#06B6D4', // Cyan - Convertis
+                                ],
+                            ],
+                        ],
+                    ],
+                    'options' => [
+                        'plugins' => [
+                            'legend' => [
+                                'display' => false,
+                            ],
+                        ],
+                        'scales' => [
+                            'y' => [
+                                'beginAtZero' => true,
+                                'title' => [
+                                    'display' => true,
+                                    'text' => 'Nombre de prospects',
+                                ],
+                            ],
+                            'x' => [
+                                'title' => [
+                                    'display' => true,
+                                    'text' => 'Étapes',
+                                ],
+                            ],
+                        ],
+                    ],
+                ])
+                ->columns(12),
+
+            // Widget des prospects prioritaires
+            TableWidget::make()
+                ->heading('Prospects Prioritaires')
+                ->table(function (Table $table) use ($user) {
+                    return $table
+                        ->query(
+                            Prospect::query()
+                                ->where('conseiller_id', $user->id)
+                                ->where('priority', 'high')
+                                ->latest('last_action_at')
+                        )
+                        ->columns([
+                            TextColumn::make('name')
+                                ->label('Nom')
+                                ->searchable()
+                                ->sortable(),
+                            TextColumn::make('current_status')
+                                ->label('Statut')
+                                ->badge()
+                                ->sortable(),
+                            TextColumn::make('last_action_at')
+                                ->label('Dernière Action')
+                                ->dateTime()
+                                ->sortable(),
+                            TextColumn::make('priority')
+                                ->label('Priorité')
+                                ->badge()
+                                ->color(fn (string $state): string => match ($state) {
+                                    'high' => 'danger',
+                                    'medium' => 'warning',
+                                    default => 'info',
+                                })
+                        ])
+                        ->defaultSort('last_action_at', 'desc');
+                })
+                ->columns(12),
+
+            // Widget des tâches du jour
+            TableWidget::make()
+                ->heading('Tâches du Jour')
+                ->table(function (Table $table) use ($user) {
+                    return $table
+                        ->query(
+                            Prospect::query()
+                                ->where('conseiller_id', $user->id)
+                                ->where('next_action_date', '<=', now()->endOfDay())
+                                ->whereNotNull('next_action')
+                        )
+                        ->columns([
+                            TextColumn::make('name')
+                                ->label('Prospect')
+                                ->searchable()
+                                ->sortable(),
+                            TextColumn::make('next_action')
+                                ->label('Action')
+                                ->wrap(),
+                            TextColumn::make('next_action_date')
+                                ->label('Échéance')
+                                ->dateTime()
+                                ->sortable(),
+                        ])
+                        ->defaultSort('next_action_date', 'asc');
+                })
+                ->columns(12),
         ];
     }
 
     public static function shouldRegister(): bool
     {
         return auth()->user()->hasRole('conseiller');
-    }
-}
-
-class ConseillerStatsWidget extends StatsOverview
-{
-    protected function getStats(): array
-    {
-        $user = Auth::user();
-        
-        return [
-            Stat::make('Mes Prospects Actifs', Prospect::where('conseiller_id', $user->id)->where('status', 'actif')->count())
-                ->description('Prospects en cours de traitement')
-                ->descriptionIcon('heroicon-m-user-group')
-                ->color('info')
-                ->chart([3, 7, 5, 4, 8, 6]),
-
-            Stat::make('Taux de Conversion', function() use ($user) {
-                $total = Prospect::where('conseiller_id', $user->id)->count();
-                $converted = Prospect::where('conseiller_id', $user->id)->where('status', 'converti')->count();
-                return $total > 0 ? round(($converted / $total) * 100) . '%' : '0%';
-            })
-                ->description('Par rapport au mois dernier')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('success'),
-
-            Stat::make('À Contacter', Prospect::where('conseiller_id', $user->id)
-                ->where('next_contact', '<=', now()->addDays(2))
-                ->count())
-                ->description('Prospects à contacter en priorité')
-                ->descriptionIcon('heroicon-m-phone')
-                ->color('warning'),
-        ];
-    }
-}
-
-class ConseillerConversionChart extends ChartWidget
-{
-    protected static ?string $heading = 'Mes Conversions';
-    protected static ?int $sort = 2;
-
-    protected function getData(): array
-    {
-        $user = Auth::user();
-        $data = collect(range(5, 0))->map(function ($month) use ($user) {
-            $date = now()->subMonths($month);
-            return Prospect::where('conseiller_id', $user->id)
-                ->where('status', 'converti')
-                ->whereYear('converted_at', $date->year)
-                ->whereMonth('converted_at', $date->month)
-                ->count();
-        })->toArray();
-
-        return [
-            'datasets' => [
-                [
-                    'label' => 'Conversions',
-                    'data' => $data,
-                    'fill' => 'start',
-                ],
-            ],
-            'labels' => collect(range(5, 0))->map(fn ($month) => 
-                now()->subMonths($month)->format('M Y')
-            )->toArray(),
-        ];
-    }
-
-    protected function getType(): string
-    {
-        return 'line';
-    }
-}
-
-class ConseillerProspectStatusChart extends ChartWidget
-{
-    protected static ?string $heading = 'État des Prospects';
-    protected static ?int $sort = 3;
-
-    protected function getData(): array
-    {
-        $user = Auth::user();
-        $statuses = ['Nouveau', 'En cours', 'Prêt', 'Bloqué'];
-        
-        $data = collect($statuses)->map(function ($status) use ($user) {
-            return Prospect::where('conseiller_id', $user->id)
-                ->where('status', strtolower($status))
-                ->count();
-        })->toArray();
-
-        return [
-            'datasets' => [
-                [
-                    'label' => 'Prospects',
-                    'data' => $data,
-                    'backgroundColor' => [
-                        Color::Blue,
-                        Color::Yellow,
-                        Color::Green,
-                        Color::Red,
-                    ],
-                ],
-            ],
-            'labels' => $statuses,
-        ];
-    }
-
-    protected function getType(): string
-    {
-        return 'doughnut';
-    }
-}
-
-class ConseillerPriorityProspectsWidget extends TableWidget
-{
-    protected static ?string $heading = 'Prospects Prioritaires';
-    protected static ?int $sort = 4;
-
-    public function table(Table $table): Table
-    {
-        return $table
-            ->query(
-                Prospect::query()
-                    ->where('conseiller_id', Auth::id())
-                    ->where('priority', 'high')
-                    ->latest('last_action_at')
-            )
-            ->columns([
-                TextColumn::make('name')
-                    ->label('Nom')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('status')
-                    ->label('Statut')
-                    ->badge()
-                    ->sortable(),
-                TextColumn::make('last_action_at')
-                    ->label('Dernière Action')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('priority')
-                    ->label('Priorité')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'high' => 'danger',
-                        'medium' => 'warning',
-                        default => 'info',
-                    })
-            ])
-            ->defaultSort('last_action_at', 'desc');
-    }
-}
-
-class ConseillerTasksWidget extends TableWidget
-{
-    protected static ?string $heading = 'Tâches du Jour';
-    protected static ?int $sort = 5;
-
-    public function table(Table $table): Table
-    {
-        return $table
-            ->query(
-                Prospect::query()
-                    ->where('conseiller_id', Auth::id())
-                    ->where('next_action_date', '<=', now()->endOfDay())
-                    ->whereNotNull('next_action')
-            )
-            ->columns([
-                TextColumn::make('name')
-                    ->label('Prospect')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('next_action')
-                    ->label('Action')
-                    ->wrap(),
-                TextColumn::make('next_action_date')
-                    ->label('Échéance')
-                    ->dateTime()
-                    ->sortable(),
-            ])
-            ->defaultSort('next_action_date', 'asc');
     }
 }

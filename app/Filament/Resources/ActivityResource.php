@@ -75,15 +75,6 @@ class ActivityResource extends Resource
                         Activity::TYPE_CONVERSION => 'Conversion',
                     ])
                     ->required(),
-                Forms\Components\Select::make('status')
-                    ->label('Statut')
-                    ->options([
-                        Activity::STATUS_PENDING => 'En attente',
-                        Activity::STATUS_IN_PROGRESS => 'En cours',
-                        Activity::STATUS_COMPLETED => 'Terminé',
-                        Activity::STATUS_CANCELLED => 'Annulé',
-                    ])
-                    ->required(),
                 Forms\Components\Textarea::make('description')
                     ->label('Description')
                     ->required()
@@ -148,21 +139,6 @@ class ActivityResource extends Resource
                         Activity::TYPE_CONVERSION => 'Conversion',
                         default => $state,
                     }),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->label('Statut')
-                    ->colors([
-                        'warning' => Activity::STATUS_PENDING,
-                        'primary' => Activity::STATUS_IN_PROGRESS,
-                        'success' => Activity::STATUS_COMPLETED,
-                        'danger' => Activity::STATUS_CANCELLED,
-                    ])
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        Activity::STATUS_PENDING => 'En attente',
-                        Activity::STATUS_IN_PROGRESS => 'En cours',
-                        Activity::STATUS_COMPLETED => 'Terminé',
-                        Activity::STATUS_CANCELLED => 'Annulé',
-                        default => $state,
-                    }),
                 Tables\Columns\TextColumn::make('description')
                     ->label('Description')
                     ->limit(50),
@@ -188,14 +164,6 @@ class ActivityResource extends Resource
                         Activity::TYPE_MEETING => 'Réunion',
                         Activity::TYPE_DOCUMENT => 'Document',
                         Activity::TYPE_CONVERSION => 'Conversion',
-                    ]),
-                Tables\Filters\SelectFilter::make('status')
-                    ->label('Statut')
-                    ->options([
-                        Activity::STATUS_PENDING => 'En attente',
-                        Activity::STATUS_IN_PROGRESS => 'En cours',
-                        Activity::STATUS_COMPLETED => 'Terminé',
-                        Activity::STATUS_CANCELLED => 'Annulé',
                     ]),
                 Tables\Filters\Filter::make('scheduled_at')
                     ->form([
@@ -251,27 +219,6 @@ class ActivityResource extends Resource
                                 ->success()
                                 ->title('Activités supprimées avec succès')
                         ),
-                    Tables\Actions\BulkAction::make('bulk-update-status')
-                        ->label('Mise à jour du statut')
-                        ->icon('heroicon-o-pencil-square')
-                        ->form([
-                            Forms\Components\Select::make('status')
-                                ->label('Statut')
-                                ->options([
-                                    Activity::STATUS_PENDING => 'En attente',
-                                    Activity::STATUS_IN_PROGRESS => 'En cours',
-                                    Activity::STATUS_COMPLETED => 'Terminé',
-                                    Activity::STATUS_CANCELLED => 'Annulé',
-                                ])
-                                ->required()
-                        ])
-                        ->action(function (Collection $records, array $data) {
-                            $records->each(fn ($record) => $record->update(['status' => $data['status']]));
-                            Notification::make()
-                                ->success()
-                                ->title('Statut mis à jour avec succès')
-                                ->send();
-                        })
                 ])
             ])
             ->defaultSort('created_at', 'desc')

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('reference_number')->unique();
             $table->foreignId('prospect_id')->constrained('prospects')->onDelete('cascade');
             $table->unsignedTinyInteger('current_step')->default(1); // 1,2,3,4
-            $table->string('current_status', 50);
+            $table->string('current_status', 50)->default('en_attente');
             $table->text('notes')->nullable();
             $table->timestamp('last_action_at')->nullable();
             $table->timestamp('completed_at')->nullable();

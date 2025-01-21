@@ -50,6 +50,112 @@ Le module de gestion des dossiers permet de suivre le parcours d'un prospect à 
    - Visa obtenu/refusé
    - Frais finaux payés
 
+## Création de Dossier
+
+### Modes de Création
+
+Le système supporte deux modes de création de dossier :
+
+1. **À partir d'un Prospect Existant**
+   - Sélection d'un prospect dans la liste
+   - Pré-remplissage automatique des informations
+   - Conservation de l'historique prospect-dossier
+
+2. **Création Directe avec Nouveau Prospect**
+   - Saisie directe des informations du prospect
+   - Création automatique du prospect
+   - Liaison automatique prospect-dossier
+
+### Structure des Données
+
+#### Table `dossiers`
+```sql
+CREATE TABLE dossiers (
+    id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    reference_number varchar(255) NOT NULL,
+    prospect_id bigint(20) unsigned NULL,
+    current_step tinyint unsigned NOT NULL DEFAULT 1,
+    current_status varchar(50) NOT NULL DEFAULT 'en_attente',
+    prospect_info json DEFAULT NULL,
+    notes text DEFAULT NULL,
+    last_action_at timestamp NULL,
+    completed_at timestamp NULL,
+    created_at timestamp NULL,
+    updated_at timestamp NULL,
+    deleted_at timestamp NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY dossiers_reference_number_unique (reference_number),
+    KEY dossiers_prospect_id_foreign (prospect_id),
+    KEY idx_current_step_status (current_step, current_status),
+    KEY idx_last_action (last_action_at),
+    CONSTRAINT dossiers_prospect_id_foreign FOREIGN KEY (prospect_id) REFERENCES prospects (id) ON DELETE CASCADE
+);
+```
+
+### Workflow de Création
+
+1. **Initialisation du Formulaire**
+   - Génération automatique du numéro de référence
+   - Affichage des champs selon le mode de création
+
+2. **Sélection du Mode**
+   - Choix optionnel d'un prospect existant
+   - Si non sélectionné, activation des champs de saisie prospect
+
+3. **Validation et Enregistrement**
+   - Vérification des données requises
+   - Création du prospect si nécessaire
+   - Création du dossier avec les relations appropriées
+
+### Étapes et Statuts
+
+#### Étapes (current_step)
+1. Analyse de dossier (1)
+2. Admission (2)
+3. Paiement (3)
+4. Visa (4)
+
+#### Statuts par Étape
+1. **Analyse**
+   - En attente de documents
+   - Analyse en cours
+   - Analyse terminée
+
+2. **Admission**
+   - Documents physiques reçus
+   - Frais d'admission payés
+   - Dossier soumis
+   - Soumission acceptée/rejetée
+
+3. **Paiement**
+   - Frais d'agence payés
+   - Scolarité partiellement payée
+   - Scolarité totalement payée
+   - Abandonné
+
+4. **Visa**
+   - Dossier visa prêt
+   - Frais de visa payés
+   - Visa soumis/obtenu/refusé
+   - Frais finaux payés
+
+### Bonnes Pratiques
+
+1. **Création de Prospect**
+   - Vérifier les doublons potentiels
+   - Remplir tous les champs obligatoires
+   - Utiliser des formats standardisés
+
+2. **Gestion des Documents**
+   - Associer les documents au prospect
+   - Utiliser les types de documents appropriés
+   - Vérifier la qualité des fichiers
+
+3. **Suivi des Étapes**
+   - Respecter la progression logique
+   - Mettre à jour les statuts régulièrement
+   - Documenter les changements importants
+
 ## Interface Utilisateur (Filament)
 
 ### DossierResource

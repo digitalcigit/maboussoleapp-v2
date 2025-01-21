@@ -17,16 +17,15 @@ class ProspectFunnelWidget extends ChartWidget
     protected function getData(): array
     {
         $stages = [
-            'nouveau' => 'Nouveaux',
-            'contacté' => 'Contactés',
-            'qualifié' => 'Qualifiés',
-            'proposition' => 'Proposition',
-            'négociation' => 'Négociation',
-            'gagné' => 'Gagnés',
+            Prospect::STATUS_NOUVEAU => 'Nouveaux',
+            Prospect::STATUS_QUALIFIE => 'Qualifiés',
+            Prospect::STATUS_TRAITEMENT => 'En traitement',
+            Prospect::STATUS_BLOQUE => 'Bloqués',
+            Prospect::STATUS_CONVERTI => 'Convertis',
         ];
 
         $query = Prospect::query()
-            ->select('status', DB::raw('count(*) as count'))
+            ->select('current_status', DB::raw('count(*) as count'))
             ->whereMonth('created_at', now()->month);
 
         $user = auth()->user();
@@ -41,17 +40,16 @@ class ProspectFunnelWidget extends ChartWidget
         }
         // super_admin voit tous les prospects
 
-        $data = $query->groupBy('status')
-            ->pluck('count', 'status')
+        $data = $query->groupBy('current_status')
+            ->pluck('count', 'current_status')
             ->toArray();
 
         $colors = [
-            '#3B82F6', // Bleu
-            '#10B981', // Vert
-            '#F59E0B', // Orange
-            '#8B5CF6', // Violet
-            '#EC4899', // Rose
-            '#06B6D4', // Cyan
+            '#3B82F6', // Bleu - Nouveaux
+            '#10B981', // Vert - Qualifiés
+            '#F59E0B', // Orange - En traitement
+            '#EC4899', // Rose - Bloqués
+            '#06B6D4', // Cyan - Convertis
         ];
 
         return [
