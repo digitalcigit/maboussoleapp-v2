@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             RoleAndPermissionSeeder::class,
             AdminUserSeeder::class,
             ClientPermissionsSeeder::class,
+            PortailCandidatPermissionsSeeder::class, // Ajout du seeder pour le portail candidat
         ]);
     }
 }
