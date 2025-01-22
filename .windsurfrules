@@ -1,0 +1,18 @@
+Documenter immédiatement après chaque session de développement
+
+Pour chaque mise à jour de la documentation, il faut : 
+
+Mettre à jour - /docs/decisions/ : Contient les ADR (Architecture Decision Records)
+
+Mettre à jour - /docs/debugging/ : Guide de débogage par domaine
+
+Mettre à jour - /docs/technical/ : Documentation technique détaillée
+
+Mettre à jour - /docs/sessions/ : Résumés des sessions de développement
+
+Mettre à jour - /docs/learning/ : Documentation pédagogique
+
+Pour faire un ajout dans une fonctionnalité existante, il faut :
+    - T'assurer d'analyser la logique existante avant de faire l'ajout 
+
+A chaque requête que je te fais, j'aimerais que tu me dises toujours ce que tu as compris et me dire comment tu comptes l'implémenter avant de le faire.

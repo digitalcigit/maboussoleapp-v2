@@ -167,54 +167,85 @@ class DossierResource extends Resource
 
                         Forms\Components\TextInput::make('agency_payment_amount')
                             ->label('Montant des frais d\'agence')
-                            ->numeric()
                             ->prefix('FCFA')
-                            ->maxValue(999999.99)
-                            ->minValue(0)
+                            ->mask(fn (Forms\Components\TextInput\Mask $mask) => $mask
+                                ->numeric()
+                                ->thousandsSeparator('.')
+                                ->decimalPlaces(0)
+                                ->minValue(0)
+                                ->maxValue(999999999)
+                            )
                             ->visible(fn (Forms\Get $get): bool => 
                                 $get('current_status') === Dossier::STATUS_AGENCY_PAID
                             )
                             ->required(fn (Forms\Get $get): bool => 
                                 $get('current_status') === Dossier::STATUS_AGENCY_PAID
                             ),
+                    ]),
 
+                Forms\Components\Section::make('Paiement')
+                    ->schema([
                         Forms\Components\TextInput::make('tuition_total_amount')
                             ->label('Montant total de la scolarité')
                             ->numeric()
                             ->prefix('FCFA')
-                            ->maxValue(99999999.99)
-                            ->minValue(0)
+                            ->step(1)
+                            ->inputMode('numeric')
+                            ->helperText('Montant indicatif de la scolarité totale')
                             ->visible(fn (Forms\Get $get): bool => 
                                 $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
                             )
                             ->required(fn (Forms\Get $get): bool => 
-                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT && 
-                                !$get('tuition_total_amount')
-                            ),
+                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
+                            )
+                            ->afterStateHydrated(function ($state, Forms\Set $set) {
+                                $set('tuition_total_amount', (int)$state);
+                            }),
+
+                        Forms\Components\TextInput::make('down_payment_amount')
+                            ->label('Montant de l\'accompte')
+                            ->numeric()
+                            ->prefix('FCFA')
+                            ->step(1)
+                            ->inputMode('numeric')
+                            ->required()
+                            ->rules(['required', 'integer', 'min:0'])
+                            ->helperText('Montant de l\'accompte à payer pour valider l\'inscription')
+                            ->visible(fn (Forms\Get $get): bool => 
+                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
+                            )
+                            ->afterStateHydrated(function ($state, Forms\Set $set) {
+                                $set('down_payment_amount', (int)$state);
+                            }),
 
                         Forms\Components\TextInput::make('tuition_paid_amount')
                             ->label('Montant payé')
                             ->numeric()
                             ->prefix('FCFA')
-                            ->maxValue(fn (Forms\Get $get) => 
-                                $get('tuition_total_amount') ?? 99999999.99
-                            )
-                            ->minValue(0)
+                            ->step(1)
+                            ->inputMode('numeric')
                             ->visible(fn (Forms\Get $get): bool => 
                                 $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
                             )
-                            ->required(fn (Forms\Get $get): bool => 
-                                $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
-                            ),
+                            ->afterStateHydrated(function ($state, Forms\Set $set) {
+                                $set('tuition_paid_amount', (int)$state);
+                            }),
 
-                        Forms\Components\TextInput::make('tuition_progress')
+                        Forms\Components\Placeholder::make('payment_progress')
                             ->label('Progression du paiement')
-                            ->formatStateUsing(fn ($state) => number_format($state, 0) . ' %')
-                            ->disabled()
+                            ->content(function ($record) {
+                                if (!$record || !$record->down_payment_amount || !$record->tuition_paid_amount) {
+                                    return '0%';
+                                }
+                                $progress = min(100, round(($record->tuition_paid_amount / $record->down_payment_amount) * 100));
+                                return "{$progress}%";
+                            })
                             ->visible(fn (Forms\Get $get): bool => 
                                 $get('current_status') === Dossier::STATUS_TUITION_PAYMENT
-                            ),
-                    ]),
+                            )
+                    ])
+                    ->columns(1)
+                    ->visible(fn (Forms\Get $get) => $get('current_status') === Dossier::STATUS_TUITION_PAYMENT),
 
                 Forms\Components\Section::make('Informations du Prospect')
                     ->schema([

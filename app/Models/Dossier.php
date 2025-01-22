@@ -27,6 +27,7 @@ class Dossier extends Model
     // Statuts pour l'étape 2 (Admission)
     public const STATUS_WAITING_PHYSICAL_DOCS = 'attente_documents_physiques';
     public const STATUS_DOCS_RECEIVED = 'reception_documents_physiques';
+    public const STATUS_WAITING_ADMISSION_PAYMENT = 'attente_paiement_frais_admission';
     public const STATUS_ADMISSION_PAID = 'paiement_frais_admission';
     public const STATUS_SUBMITTED = 'dossier_soumis';
     public const STATUS_SUBMISSION_ACCEPTED = 'soumission_acceptee';
@@ -80,6 +81,7 @@ class Dossier extends Model
         'agency_payment_amount',
         'tuition_total_amount',
         'tuition_paid_amount',
+        'down_payment_amount',  // Ajout du nouveau champ
         'last_action_at',
     ];
 
@@ -92,7 +94,6 @@ class Dossier extends Model
         'tuition_total_amount' => 'decimal:2',
         'tuition_paid_amount' => 'decimal:2',
         'current_step' => 'integer',
-        'last_action_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -101,8 +102,16 @@ class Dossier extends Model
     ];
 
     protected $appends = [
-        'tuition_progress'
+        'tuition_progress',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+        });
+    }
 
     /**
      * Get the prospect that owns the dossier
@@ -126,6 +135,14 @@ class Dossier extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(DossierDocument::class);
+    }
+
+    /**
+     * Get the rejection reports for this dossier.
+     */
+    public function rejectionReports(): HasMany
+    {
+        return $this->hasMany(DossierRejectionReport::class);
     }
 
     /**
@@ -172,6 +189,7 @@ class Dossier extends Model
             self::STEP_ADMISSION => [
                 self::STATUS_WAITING_PHYSICAL_DOCS,
                 self::STATUS_DOCS_RECEIVED,
+                self::STATUS_WAITING_ADMISSION_PAYMENT,
                 self::STATUS_ADMISSION_PAID,
                 self::STATUS_SUBMITTED,
                 self::STATUS_SUBMISSION_ACCEPTED,
@@ -215,7 +233,8 @@ class Dossier extends Model
             self::STATUS_ANALYZED => 'Analyse terminée',
             self::STATUS_WAITING_PHYSICAL_DOCS => 'En attente de documents physiques',
             self::STATUS_DOCS_RECEIVED => 'Documents physiques reçus',
-            self::STATUS_ADMISSION_PAID => 'Frais d\'admission payés',
+            self::STATUS_WAITING_ADMISSION_PAYMENT => 'Attente de Paiements des Frais d\'admission',
+            self::STATUS_ADMISSION_PAID => 'Frais d\'admission Payé - Soumission en cours',
             self::STATUS_SUBMITTED => 'Dossier soumis',
             self::STATUS_SUBMISSION_ACCEPTED => 'Soumission acceptée',
             self::STATUS_SUBMISSION_REJECTED => 'Soumission rejetée',
@@ -364,20 +383,80 @@ class Dossier extends Model
      */
     public function getTuitionProgressAttribute(): float
     {
-        if (!$this->tuition_total_amount || $this->tuition_total_amount <= 0) {
+        if (!$this->down_payment_amount || $this->down_payment_amount <= 0) {
             return 0;
         }
-        return min(100, ($this->tuition_paid_amount / $this->tuition_total_amount) * 100);
+        return min(100, ($this->tuition_paid_amount / $this->down_payment_amount) * 100);
     }
 
     /**
-     * Check if tuition is fully paid
+     * Check if down payment is fully paid
      */
     public function isTuitionFullyPaid(): bool
     {
-        if (!$this->tuition_total_amount || $this->tuition_total_amount <= 0) {
+        if (!$this->down_payment_amount || $this->down_payment_amount <= 0) {
             return false;
         }
-        return $this->tuition_paid_amount >= $this->tuition_total_amount;
+        return $this->tuition_paid_amount >= $this->down_payment_amount;
+    }
+
+    /**
+     * Clean input before saving tuition total amount
+     */
+    public function setTuitionTotalAmountAttribute($value)
+    {
+        if (!$value) return null;
+        // Convertir en float d'abord pour gérer les décimales
+        $float = (float) str_replace([',', ' '], '', $value);
+        // Puis convertir en entier
+        $this->attributes['tuition_total_amount'] = (int) $float;
+    }
+
+    /**
+     * Format output for tuition total amount
+     */
+    public function getTuitionTotalAmountAttribute($value)
+    {
+        return $value;
+    }
+
+    /**
+     * Clean input before saving down payment amount
+     */
+    public function setDownPaymentAmountAttribute($value)
+    {
+        if (!$value) return null;
+        // Convertir en float d'abord pour gérer les décimales
+        $float = (float) str_replace([',', ' '], '', $value);
+        // Puis convertir en entier
+        $this->attributes['down_payment_amount'] = (int) $float;
+    }
+
+    /**
+     * Format output for down payment amount
+     */
+    public function getDownPaymentAmountAttribute($value)
+    {
+        return $value;
+    }
+
+    /**
+     * Clean input before saving tuition paid amount
+     */
+    public function setTuitionPaidAmountAttribute($value)
+    {
+        if (!$value) return null;
+        // Convertir en float d'abord pour gérer les décimales
+        $float = (float) str_replace([',', ' '], '', $value);
+        // Puis convertir en entier
+        $this->attributes['tuition_paid_amount'] = (int) $float;
+    }
+
+    /**
+     * Format output for tuition paid amount
+     */
+    public function getTuitionPaidAmountAttribute($value)
+    {
+        return $value;
     }
 }
