@@ -18,88 +18,153 @@ jobs:
       actions: read
       checks: write
       id-token: write
-    
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
-    
+    env:
+      GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    
-    - name: Set version
-      id: version
-      run: |
-        VERSION=$(date '+%Y%m%d.%H%M')
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          echo "version=v$VERSION" >> $GITHUB_OUTPUT
-          echo "environment=production" >> $GITHUB_OUTPUT
-        else
-          echo "version=v$VERSION-beta" >> $GITHUB_OUTPUT
-          echo "environment=staging" >> $GITHUB_OUTPUT
-        fi
 
-    - name: Create GitHub Deployment
-      id: deployment
-      uses: chrnorm/deployment-action@v2
-      with:
-        token: ${{ github.token }}
-        environment: ${{ steps.version.outputs.environment }}
-        description: 'Deploying ${{ steps.version.outputs.version }}'
+    - name: Set deployment variables
+      id: vars
+      run: |
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "deploy_path=${{ secrets.DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          echo "app_url=https://crm-app.maboussole.net" >> $GITHUB_OUTPUT
+          echo "app_env=production" >> $GITHUB_OUTPUT
+          echo "app_debug=false" >> $GITHUB_OUTPUT
+        else
+          echo "deploy_path=${{ secrets.STAGING_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          echo "app_url=https://staging-crm-app.maboussole.net" >> $GITHUB_OUTPUT
+          echo "app_env=staging" >> $GITHUB_OUTPUT
+          echo "app_debug=true" >> $GITHUB_OUTPUT
+        fi
 
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        
-    - name: Add Known Hosts
+
+    - name: Configure Known Hosts
       run: |
         mkdir -p ~/.ssh
-        touch ~/.ssh/known_hosts
-        ssh-keyscan -H -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+        ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
         chmod 644 ~/.ssh/known_hosts
-        
+
     - name: Deploy Application
-      id: deploy
       env:
-        DEPLOY_ENV: ${{ steps.version.outputs.environment }}
-        VERSION: ${{ steps.version.outputs.version }}
+        DEPLOY_PATH: ${{ steps.vars.outputs.deploy_path }}
         REMOTE_USER: ${{ secrets.SERVER_USER }}
         REMOTE_HOST: ${{ secrets.SERVER_HOST }}
         REMOTE_PORT: ${{ secrets.SERVER_PORT }}
-        REMOTE_BASE_DIR: ${{ secrets.DEPLOY_PATH }}
       run: |
-        echo "Déploiement $VERSION vers $DEPLOY_ENV en cours..."
+        echo "Déploiement vers ${{ steps.vars.outputs.app_env }} en cours..."
         
-        # Transférer le script de déploiement
-        scp -P $REMOTE_PORT scripts/deploy-production.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
-        
-        # Exécuter le script de déploiement
-        ssh -p $REMOTE_PORT ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "chmod +x /tmp/deploy-production.sh && /tmp/deploy-production.sh"
-        
-        if [ $? -eq 0 ]; then
-          echo "deploy_status=success" >> $GITHUB_OUTPUT
-        else
-          echo "deploy_status=failure" >> $GITHUB_OUTPUT
-          exit 1
-        fi
+        ssh -p $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST "
+          set -e  # Arrêter le script en cas d'erreur
+          
+          # Définir le chemin de déploiement
+          DEPLOY_PATH='${DEPLOY_PATH}'
+          
+          # Vérifier que le chemin est défini
+          if [ -z \"\$DEPLOY_PATH\" ]; then
+            echo 'Error: DEPLOY_PATH is not set'
+            exit 1
+          fi
+          
+          echo \"Using deploy path: \$DEPLOY_PATH\"
+          
+          # Vérification des commandes requises
+          command -v git >/dev/null 2>&1 || { echo 'git is required but not installed.' >&2; exit 1; }
+          command -v composer >/dev/null 2>&1 || { echo 'composer is required but not installed.' >&2; exit 1; }
+          command -v npm >/dev/null 2>&1 || { echo 'npm is required but not installed.' >&2; exit 1; }
+            
+          # Navigation vers le répertoire de déploiement
+          cd \"\$DEPLOY_PATH\" || exit 1
+          
+          # Sauvegarde du .env s'il existe
+          if [ -f .env ]; then
+            cp .env /tmp/env.temp
+          fi
+          
+          # Nettoyage complet du répertoire
+          echo 'Nettoyage du répertoire...'
+          rm -rf .* * 2>/dev/null || true
+          
+          # Clone frais du dépôt
+          echo 'Clone du dépôt...'
+          git clone https://${{ secrets.DEPLOY_TOKEN }}@github.com/digitalcigit/maboussoleapp-v2.git .
+          git checkout ${{ github.ref_name }}
+          
+          # Restauration du .env sauvegardé
+          if [ -f /tmp/env.temp ]; then
+            mv /tmp/env.temp .env
+          fi
+          
+          # Configuration des permissions
+          echo 'Configuration des permissions...'
+          find . -type f -exec chmod 664 {} \;
+          find . -type d -exec chmod 775 {} \;
+          
+          # Configuration des dossiers storage et cache
+          echo 'Configuration des dossiers storage et cache...'
+          mkdir -p storage/framework/{sessions,views,cache}
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+          
+          # S'assurer que les dossiers sont accessibles en écriture
+          chmod -R 775 storage bootstrap/cache
+          
+          # Création du fichier de log
+          echo 'Création des fichiers de log...'
+          touch storage/logs/laravel.log
+          chmod 664 storage/logs/laravel.log
+          
+          # Restauration du fichier .env
+          echo 'Restauration du fichier .env...'
+          cp /var/www/laravel/.env \"\$DEPLOY_PATH/.env\"
+          chmod 664 .env
+          
+          # Installation des dépendances
+          echo 'Installation des dépendances...'
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+          npm ci
+          npm run build
+          
+          # Configuration de Laravel
+          echo 'Configuration de Laravel...'
+          php artisan --version
+          php artisan env
+          php artisan config:clear --verbose
+          php artisan cache:clear --verbose
+          php artisan view:clear --verbose
+          php artisan route:clear --verbose
+          php artisan storage:link --force --verbose
+          
+          # Test de connexion à la base de données
+          echo 'Test de connexion à la base de données...'
+          php artisan tinker --execute="try { echo DB::connection()->getDatabaseName(); } catch(\Exception \$e) { echo \$e->getMessage(); }"
+          
+          # Migrations et seeders avec plus de verbosité
+          echo 'Exécution des migrations...'
+          php artisan migrate:status --verbose
+          php artisan migrate --force --verbose
+          
+          # Création des rôles et permissions avec debug
+          echo 'Création des rôles et permissions...'
+          php artisan db:seed --class=RoleAndPermissionSeeder --force -vvv
+          
+          # Exécution du seeder pour l'utilisateur admin avec debug
+          echo 'Création de l'\''utilisateur admin via seeder...'
+          php artisan db:seed --class=AdminUserSeeder --force -vvv
+          
+          echo 'Déploiement terminé avec succès!'
+        "
 
-    - name: Update Deployment Status
-      if: always()
-      uses: chrnorm/deployment-status@v2
-      with:
-        token: ${{ github.token }}
-        environment-url: https://crm-app.maboussole.net
-        state: ${{ steps.deploy.outputs.deploy_status == 'success' && 'success' || 'failure' }}
-        deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-
-    - name: Notify on Failure
+    - name: Notify Slack on Failure
       if: failure()
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const issue = await github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: `Deployment failed: ${process.env.VERSION}`,
-            body: `Deployment to ${process.env.DEPLOY_ENV} failed.\nPlease check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for more details.`
-          });
+      run: |
+        curl -X POST -H 'Content-type: application/json' --data '{
+          "text": " Le déploiement sur ${{ steps.vars.outputs.app_env }} a échoué !\nBranche: ${{ github.ref_name }}\nCommit: ${{ github.sha }}"
+        }' ${{ secrets.SLACK_WEBHOOK_URL }}

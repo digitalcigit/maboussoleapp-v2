@@ -35,10 +35,6 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
-
-            // Ajout des routes Filament personnalisées
-            Route::middleware('web')
-                ->group(base_path('routes/filament.php'));
         });
     }
 }

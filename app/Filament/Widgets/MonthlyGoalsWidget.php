@@ -18,7 +18,7 @@ class MonthlyGoalsWidget extends BaseWidget
     protected function getStats(): array
     {
         // Objectifs mensuels (à terme, ces valeurs viendront de la configuration)
-        $revenueGoal = 100000; // 100k€
+        $revenueGoal = 3000000; // 3M FCFA
         $prospectsGoal = 50;   // 50 prospects
         $conversionGoal = 20;   // 20%
 
@@ -43,7 +43,7 @@ class MonthlyGoalsWidget extends BaseWidget
         $conversionProgress = min(100, round(($conversionRate / $conversionGoal) * 100));
 
         return [
-            Stat::make('Objectif CA', number_format($revenueGoal, 0, ',', ' ').' €')
+            Stat::make('Objectif CA', number_format($revenueGoal, 0, ',', ' ').' FCFA')
                 ->description("$revenueProgress% atteint")
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->chart([0, $revenueProgress, 100])

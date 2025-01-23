@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleAndPermissionSeeder extends Seeder
 {
@@ -13,68 +13,130 @@ class RoleAndPermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Créer les permissions système
-        Permission::create(['name' => 'view_admin_panel', 'description' => 'Accéder au panneau d\'administration']);
-        Permission::create(['name' => 'manage_settings', 'description' => 'Gérer les paramètres du système']);
-        Permission::create(['name' => 'view_audit_logs', 'description' => 'Voir les logs d\'audit']);
+        // Permissions système
+        Permission::findOrCreate('system.settings.view');
+        Permission::findOrCreate('system.settings.edit');
+        Permission::findOrCreate('system.logs.view');
+        Permission::findOrCreate('admin.panel.access');
 
-        // Créer les permissions utilisateurs
-        Permission::create(['name' => 'create_users', 'description' => 'Créer des utilisateurs']);
-        Permission::create(['name' => 'edit_users', 'description' => 'Modifier des utilisateurs']);
-        Permission::create(['name' => 'delete_users', 'description' => 'Supprimer des utilisateurs']);
-        Permission::create(['name' => 'assign_roles', 'description' => 'Assigner des rôles']);
+        // Permissions utilisateurs
+        Permission::findOrCreate('users.view');
+        Permission::findOrCreate('users.create');
+        Permission::findOrCreate('users.edit');
+        Permission::findOrCreate('users.delete');
+        Permission::findOrCreate('roles.view');
+        Permission::findOrCreate('roles.manage');
 
-        // Créer les permissions prospects
-        Permission::create(['name' => 'create_prospects', 'description' => 'Créer des prospects']);
-        Permission::create(['name' => 'edit_prospects', 'description' => 'Modifier des prospects']);
-        Permission::create(['name' => 'delete_prospects', 'description' => 'Supprimer des prospects']);
-        Permission::create(['name' => 'assign_prospects', 'description' => 'Assigner des prospects']);
+        // Permissions prospects
+        Permission::findOrCreate('prospects.view');
+        Permission::findOrCreate('prospects.view.own');
+        Permission::findOrCreate('prospects.create');
+        Permission::findOrCreate('prospects.edit');
+        Permission::findOrCreate('prospects.edit.own');
+        Permission::findOrCreate('prospects.delete.own');
 
-        // Créer les permissions clients
-        Permission::create(['name' => 'create_clients', 'description' => 'Créer des clients']);
-        Permission::create(['name' => 'edit_clients', 'description' => 'Modifier des clients']);
-        Permission::create(['name' => 'delete_clients', 'description' => 'Supprimer des clients']);
-        Permission::create(['name' => 'manage_documents', 'description' => 'Gérer les documents']);
+        // Permissions clients
+        Permission::findOrCreate('clients.view');
+        Permission::findOrCreate('clients.create');
+        Permission::findOrCreate('clients.edit');
+        Permission::findOrCreate('clients.edit.own');
 
-        // Créer les rôles
-        $superAdmin = Role::create(['name' => 'super-admin']);
-        $admin = Role::create(['name' => 'admin']);
-        $manager = Role::create(['name' => 'manager']);
-        $conseiller = Role::create(['name' => 'conseiller']);
-        $assistant = Role::create(['name' => 'assistant']);
+        // Permissions documents
+        Permission::findOrCreate('documents.view');
+        Permission::findOrCreate('documents.view.own');
+        Permission::findOrCreate('documents.upload');
+        Permission::findOrCreate('documents.validate');
 
-        // Super Admin a toutes les permissions
+        // Permissions rapports
+        Permission::findOrCreate('reports.view');
+        Permission::findOrCreate('reports.view.own');
+        Permission::findOrCreate('reports.view.own.basic');
+        Permission::findOrCreate('reports.export');
+
+        // Permissions communications
+        Permission::findOrCreate('communications.email');
+        Permission::findOrCreate('communications.sms');
+
+        // Permissions activités
+        Permission::findOrCreate('activities.view');
+        Permission::findOrCreate('activities.create');
+        Permission::findOrCreate('activities.edit');
+        Permission::findOrCreate('activities.delete');
+
+        // Permissions validation
+        Permission::findOrCreate('steps.validate');
+        Permission::findOrCreate('settings.view');
+        Permission::findOrCreate('settings.edit.department');
+        Permission::findOrCreate('bonus.view.own');
+
+        // Création des rôles si non existants
+        $superAdmin = Role::findOrCreate('super-admin');
+        $manager = Role::findOrCreate('manager');
+        $conseiller = Role::findOrCreate('conseiller');
+        $partenaire = Role::findOrCreate('partenaire');
+        $commercial = Role::findOrCreate('commercial');
+
+        // Super Admin - tous les droits
         $superAdmin->givePermissionTo(Permission::all());
 
-        // Admin a toutes les permissions sauf la gestion des paramètres système
-        $admin->givePermissionTo(Permission::whereNotIn('name', ['manage_settings'])->get());
-
-        // Manager peut gérer les prospects, clients et voir les logs
+        // Manager
         $manager->givePermissionTo([
-            'view_admin_panel',
-            'view_audit_logs',
-            'create_prospects',
-            'edit_prospects',
-            'assign_prospects',
-            'create_clients',
-            'edit_clients',
-            'manage_documents',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
+            'prospects.view',
+            'prospects.create',
+            'prospects.edit',
+            'clients.view',
+            'clients.create',
+            'clients.edit',
+            'activities.view',
+            'activities.create',
+            'activities.edit',
+            'reports.view',
+            'reports.export',
+            'documents.validate',
+            'steps.validate',
+            'settings.view',
+            'settings.edit.department'
         ]);
 
-        // Conseiller peut gérer ses prospects et clients assignés
+        // Conseiller
         $conseiller->givePermissionTo([
-            'view_admin_panel',
-            'create_prospects',
-            'edit_prospects',
-            'create_clients',
-            'edit_clients',
-            'manage_documents',
+            'prospects.view',
+            'prospects.create',
+            'prospects.edit',
+            'prospects.delete.own',
+            'activities.view',
+            'activities.create',
+            'clients.view',
+            'clients.create',
+            'clients.edit.own',
+            'documents.view',
+            'documents.upload',
+            'documents.validate',
+            'communications.email',
+            'communications.sms',
+            'reports.view.own'
         ]);
 
-        // Assistant peut voir le panel et gérer les documents
-        $assistant->givePermissionTo([
-            'view_admin_panel',
-            'manage_documents',
+        // Partenaire
+        $partenaire->givePermissionTo([
+            'prospects.create',
+            'prospects.view.own',
+            'prospects.edit.own',
+            'documents.upload',
+            'documents.view.own',
+            'reports.view.own'
+        ]);
+
+        // Commercial
+        $commercial->givePermissionTo([
+            'prospects.create',
+            'prospects.view.own',
+            'bonus.view.own',
+            'reports.view.own.basic'
         ]);
     }
 }

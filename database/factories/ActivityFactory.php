@@ -33,51 +33,8 @@ class ActivityFactory extends Factory
             'description' => $this->faker->paragraph(),
             'scheduled_at' => $this->faker->optional()->dateTimeBetween('now', '+1 month'),
             'completed_at' => null,
-            'status' => Activity::STATUS_PENDING,
             'created_by' => User::factory(),
         ];
-    }
-
-    /**
-     * État : activité en cours
-     */
-    public function inProgress(): self
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'status' => Activity::STATUS_IN_PROGRESS,
-                'scheduled_at' => now(),
-            ];
-        });
-    }
-
-    /**
-     * État : activité terminée
-     */
-    public function completed(): self
-    {
-        return $this->state(function (array $attributes) {
-            $scheduledAt = $attributes['scheduled_at'] ?? now()->subHour();
-
-            return [
-                'status' => Activity::STATUS_COMPLETED,
-                'scheduled_at' => $scheduledAt,
-                'completed_at' => $scheduledAt->addHour(),
-            ];
-        });
-    }
-
-    /**
-     * État : activité annulée
-     */
-    public function cancelled(): self
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'status' => Activity::STATUS_CANCELLED,
-                'completed_at' => now(),
-            ];
-        });
     }
 
     /**
@@ -101,6 +58,7 @@ class ActivityFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'type' => Activity::TYPE_CALL,
+                'scheduled_at' => $this->faker->dateTimeBetween('now', '+1 week'),
             ];
         });
     }
@@ -113,19 +71,20 @@ class ActivityFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'type' => Activity::TYPE_EMAIL,
+                'scheduled_at' => $this->faker->dateTimeBetween('now', '+1 week'),
             ];
         });
     }
 
     /**
-     * État : réunion
+     * État : rendez-vous
      */
     public function meeting(): self
     {
         return $this->state(function (array $attributes) {
             return [
                 'type' => Activity::TYPE_MEETING,
-                'scheduled_at' => $this->faker->dateTimeBetween('now', '+1 week'),
+                'scheduled_at' => $this->faker->dateTimeBetween('now', '+2 weeks'),
             ];
         });
     }
@@ -138,20 +97,7 @@ class ActivityFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'type' => Activity::TYPE_DOCUMENT,
-            ];
-        });
-    }
-
-    /**
-     * État : conversion
-     */
-    public function conversion(): self
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'type' => Activity::TYPE_CONVERSION,
-                'status' => Activity::STATUS_COMPLETED,
-                'completed_at' => now(),
+                'scheduled_at' => null,
             ];
         });
     }

@@ -93,3 +93,53 @@
 - Sécurité renforcée
 - Flexibilité accrue
 - Maintenance simplifiée
+
+## 2025-01-05 - Correction de la Gestion des Activités
+### Contexte
+- Problèmes avec la création d'activités pour les prospects
+- Relations polymorphiques mal configurées
+- Duplication dans les relations
+
+### Décisions
+1. **Relations**
+   - Utilisation de la relation `assignedTo` au lieu de `user`
+   - Suppression de la mutation manuelle des données
+   - Utilisation des relations polymorphiques natives de Laravel
+
+2. **Implémentation**
+   - Suppression du doublon dans `getRelations()`
+   - Configuration correcte du RelationManager
+   - Documentation complète de la fonctionnalité
+
+### Impact
+- Création d'activités fonctionnelle
+- Code plus propre et maintenable
+- Documentation technique détaillée
+
+## 2025-01-11 - Sécurisation des Assignations de Prospects
+### Contexte
+- Problème de sécurité identifié dans la gestion des assignations de prospects
+- Besoin de respecter la hiérarchie organisationnelle
+- Nécessité de traçabilité des changements d'assignation
+
+### Décisions
+1. **Restriction des Permissions**
+   - Seuls les managers et super-admins peuvent assigner des prospects
+   - Auto-assignation pour les conseillers lors de la création
+   - Validation à plusieurs niveaux (Policy, Form, Model)
+
+2. **Système de Traçabilité**
+   - Implémentation d'un trait `TracksAssignmentChanges`
+   - Enregistrement des modifications dans la table `activities`
+   - Notifications en base de données pour les nouveaux assignés
+
+### Impact
+- Meilleure sécurité et contrôle des assignations
+- Respect de la hiérarchie organisationnelle
+- Traçabilité complète des changements
+- Documentation complète dans ADR-005
+
+### Références
+- [ADR-005](../architecture/adr/005-prospect-assignment-permissions.md)
+- [ProspectPolicy](../../app/Policies/ProspectPolicy.php)
+- [TracksAssignmentChanges](../../app/Traits/TracksAssignmentChanges.php)

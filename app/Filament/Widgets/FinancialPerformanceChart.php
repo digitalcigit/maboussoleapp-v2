@@ -55,13 +55,13 @@ class FinancialPerformanceChart extends ChartWidget
                 'y' => [
                     'beginAtZero' => true,
                     'ticks' => [
-                        'callback' => '(value) => value + " €"',
+                        'callback' => '(value) => value + " FCFA"',
                     ],
                 ],
             ],
             'elements' => [
                 'line' => [
-                    'tension' => 0.3, // Courbes plus douces
+                    'tension' => 0.3,
                 ],
             ],
         ];

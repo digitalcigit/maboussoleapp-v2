@@ -1,6 +1,6 @@
 # État Actuel du Projet - MaBoussole CRM v2
 
-## État au 24 décembre 2024
+## État au 11 Janvier 2025
 
 ### 1. Développement
 #### En cours
@@ -13,6 +13,10 @@
 - Mise à jour des modèles Client, Prospect, Activity
 - Consolidation des seeders
 - Ajout des descriptions aux permissions
+- Sécurisation du système d'assignation des prospects
+   - Implémentation des restrictions d'assignation
+   - Mise en place du système de traçabilité
+   - Documentation complète (ADR-005)
 
 #### Bloqué
 - Tests Filament (erreurs 403/405)
@@ -41,6 +45,10 @@
 1. Implémenter les notifications
 2. Améliorer le logging d'activités
 3. Finaliser le workflow de conversion
+4. Analyse approfondie du workflow prospects/clients
+   - Points nécessitant clarification identifiés
+   - Suggestions d'améliorations à valider
+   - Document de synthèse en préparation
 
 ### 4. Métriques
 - Coverage: 85%
@@ -52,3 +60,16 @@
 - Laravel 10.x
 - Filament 3.x
 - MySQL 8.0
+
+## Mises à Jour Récentes
+
+### Sécurité (2025-01-08)
+- Correction de la vulnérabilité d'escalade de privilèges
+- Implémentation d'une validation multi-couches pour les rôles
+- Documentation améliorée des pratiques de sécurité
+- Voir ADR-008 pour plus de détails
+
+### Documentation
+- Création de PROCESS_QUALITE.md pour documenter les cas d'étude
+- Mise à jour de FILAMENT_GUIDE.md avec les meilleures pratiques
+- Documentation complète du processus de débogage de sécurité

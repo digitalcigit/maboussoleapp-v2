@@ -30,12 +30,12 @@ class LatestTransactionsWidget extends BaseWidget
 
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Montant')
-                    ->money('eur')
+                    ->money('XAF')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('paid_amount')
                     ->label('Payé')
-                    ->money('eur')
+                    ->money('XAF')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('payment_status')

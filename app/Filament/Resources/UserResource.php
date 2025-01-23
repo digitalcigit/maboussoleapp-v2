@@ -10,20 +10,47 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static ?string $modelLabel = 'Utilisateur';
+
     protected static ?string $pluralModelLabel = 'Utilisateurs';
+
     protected static ?string $navigationLabel = 'Utilisateurs';
+
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $navigationGroup = 'Administration';
+
     protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create', User::class);
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->hasRole('super-admin');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('viewAny', User::class);
+    }
 
     public static function form(Form $form): Form
     {
@@ -59,6 +86,14 @@ class UserResource extends Resource
                     ->multiple()
                     ->relationship('roles', 'name')
                     ->preload()
+                    ->options(function () {
+                        // Si c'est un manager, on ne montre pas l'option super-admin
+                        if (auth()->user()->hasRole('manager')) {
+                            return Role::where('name', '!=', 'super-admin')->pluck('name', 'id');
+                        }
+                        return Role::pluck('name', 'id');
+                    })
+                    ->visible(fn () => auth()->user()->can('assignRole', auth()->user()))
                     ->required(),
             ]);
     }
@@ -70,20 +105,20 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->sortable()
                     ->label('ID'),
-                
+
                 Tables\Columns\TextColumn::make('name')
                     ->sortable()
                     ->searchable()
                     ->label('Nom'),
-                
+
                 Tables\Columns\TextColumn::make('email')
                     ->sortable()
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Rôles')
                     ->badge(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()

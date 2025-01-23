@@ -15,25 +15,10 @@ class Activity extends Model
 
     // Types d'activités
     public const TYPE_NOTE = 'note';
-
     public const TYPE_CALL = 'appel';
-
     public const TYPE_EMAIL = 'email';
-
     public const TYPE_MEETING = 'reunion';
-
     public const TYPE_DOCUMENT = 'document';
-
-    public const TYPE_CONVERSION = 'conversion';
-
-    // Statuts d'activités
-    public const STATUS_PENDING = 'en_attente';
-
-    public const STATUS_IN_PROGRESS = 'en_cours';
-
-    public const STATUS_COMPLETED = 'termine';
-
-    public const STATUS_CANCELLED = 'annule';
 
     protected $fillable = [
         'user_id',
@@ -43,7 +28,6 @@ class Activity extends Model
         'description',
         'scheduled_at',
         'completed_at',
-        'status',
         'created_by',
     ];
 
@@ -63,20 +47,6 @@ class Activity extends Model
             self::TYPE_EMAIL,
             self::TYPE_MEETING,
             self::TYPE_DOCUMENT,
-            self::TYPE_CONVERSION,
-        ];
-    }
-
-    /**
-     * Liste des statuts d'activités valides
-     */
-    public static function getValidStatuses(): array
-    {
-        return [
-            self::STATUS_PENDING,
-            self::STATUS_IN_PROGRESS,
-            self::STATUS_COMPLETED,
-            self::STATUS_CANCELLED,
         ];
     }
 
@@ -91,46 +61,31 @@ class Activity extends Model
             self::TYPE_EMAIL => 'Email',
             self::TYPE_MEETING => 'Réunion',
             self::TYPE_DOCUMENT => 'Document',
-            self::TYPE_CONVERSION => 'Conversion',
             default => $this->type,
         };
     }
 
     /**
-     * Obtenir le libellé traduit du statut
+     * Relation avec l'utilisateur assigné
      */
-    public function getStatusLabel(): string
+    public function user(): BelongsTo
     {
-        return match ($this->status) {
-            self::STATUS_PENDING => 'En attente',
-            self::STATUS_IN_PROGRESS => 'En cours',
-            self::STATUS_COMPLETED => 'Terminé',
-            self::STATUS_CANCELLED => 'Annulé',
-            default => $this->status,
-        };
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * Relation polymorphique avec le sujet de l'activité
+     * Relation avec le créateur
      */
-    public function subject(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
-    /**
-     * Relation avec l'utilisateur qui a créé l'activité
-     */
-    public function createdBy(): BelongsTo
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
-     * Relation avec l'utilisateur assigné à l'activité
+     * Relation polymorphe avec le sujet de l'activité
      */
-    public function assignedTo(): BelongsTo
+    public function subject(): MorphTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->morphTo();
     }
 }

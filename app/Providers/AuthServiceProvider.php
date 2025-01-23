@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
+use App\Filament\PortailCandidat\Auth\PortailCandidatAuth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Auth::extend('portail_candidat', function ($app, $name, array $config) {
+            return new PortailCandidatAuth();
+        });
     }
 }

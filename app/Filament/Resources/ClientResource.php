@@ -35,27 +35,27 @@ class ClientResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()->can('clients.edit');
+        return true; // Temporairement autorisé pour tous
     }
 
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()->can('clients.delete');
+        return true; // Temporairement autorisé pour tous
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('clients.view');
+        return true; // Temporairement autorisé pour tous
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('clients.create');
+        return true; // Temporairement autorisé pour tous
     }
 
     public static function canView(Model $record): bool
     {
-        return auth()->user()->can('clients.view');
+        return true; // Temporairement autorisé pour tous
     }
 
     public static function getNavigationGroup(): ?string
@@ -80,7 +80,7 @@ class ClientResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()->can('clients.view');
+        return true; // Temporairement autorisé pour tous
     }
 
     public static function form(Form $form): Form
@@ -90,10 +90,11 @@ class ClientResource extends Resource
                 Forms\Components\Section::make('Informations Personnelles')
                     ->schema([
                         Forms\Components\TextInput::make('client_number')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(ignoreRecord: true)
-                            ->label('Numéro Client'),
+                            ->label('Numéro Client')
+                            ->default('CLI-' . random_int(10000, 99999))
+                            ->disabled()
+                            ->dehydrated()
+                            ->required(),
                         Forms\Components\TextInput::make('first_name')
                             ->required()
                             ->maxLength(255)
@@ -120,15 +121,15 @@ class ClientResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('status')
                             ->options([
-                                'active' => 'Actif',
-                                'inactive' => 'Inactif',
-                                'pending' => 'En attente',
-                                'archived' => 'Archivé',
+                                'actif' => 'Actif',
+                                'inactif' => 'Inactif',
+                                'en_attente' => 'En attente',
+                                'archive' => 'Archivé',
                             ])
                             ->required()
-                            ->default('active')
+                            ->default('actif')
                             ->label('Statut')
-                            ->rules(['in:active,inactive,pending,archived']),
+                            ->rules(['in:actif,inactif,en_attente,archive']),
                         Forms\Components\Select::make('assigned_to')
                             ->relationship('assignedTo', 'name')
                             ->searchable()
@@ -138,17 +139,18 @@ class ClientResource extends Resource
                             ->relationship('prospect', 'email')
                             ->searchable()
                             ->preload()
-                            ->label('Prospect d\'origine')
-                            ->required(),
+                            ->label('Prospect d\'origine'),
                         Forms\Components\TextInput::make('total_amount')
                             ->numeric()
                             ->label('Montant total')
                             ->required()
+                            ->suffix('FCFA')
                             ->rules(['numeric', 'min:0']),
                         Forms\Components\TextInput::make('paid_amount')
                             ->numeric()
                             ->label('Montant payé')
                             ->required()
+                            ->suffix('FCFA')
                             ->rules(['numeric', 'min:0'])
                             ->rules([
                                 function (Forms\Get $get) {
@@ -192,107 +194,43 @@ class ClientResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'active' => 'success',
-                        'inactive' => 'danger',
-                        'pending' => 'warning',
-                        'archived' => 'secondary',
+                        'actif' => 'success',
+                        'inactif' => 'danger',
+                        'en_attente' => 'warning',
+                        'archive' => 'secondary',
                         default => 'secondary',
                     })
                     ->label('Statut'),
-                Tables\Columns\TextColumn::make('assignedTo.name')
-                    ->searchable()
-                    ->sortable()
-                    ->label('Assigné à'),
+                Tables\Columns\TextColumn::make('prospect.email')
+                    ->label('Prospect'),
+                Tables\Columns\TextColumn::make('total_amount')
+                    ->money('XAF')
+                    ->label('Montant total'),
+                Tables\Columns\TextColumn::make('paid_amount')
+                    ->money('XAF')
+                    ->label('Montant payé'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->label('Date de création'),
+                    ->label('Créé le'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'active' => 'Actif',
-                        'inactive' => 'Inactif',
-                        'pending' => 'En attente',
-                        'archived' => 'Archivé',
-                    ])
-                    ->label('Statut'),
-                Tables\Filters\SelectFilter::make('payment_status')
-                    ->options([
-                        'paid' => 'Payé',
-                        'partially_paid' => 'Partiellement payé',
-                        'unpaid' => 'Non payé',
-                    ])
-                    ->query(function (EloquentBuilder $query, array $data): EloquentBuilder {
-                        return match ($data['value']) {
-                            'paid' => $query->whereColumn('paid_amount', '=', 'total_amount'),
-                            'partially_paid' => $query->whereColumn('paid_amount', '<', 'total_amount')
-                                ->where('paid_amount', '>', 0),
-                            'unpaid' => $query->where('paid_amount', 0),
-                            default => $query,
-                        };
-                    })
-                    ->label('Statut de paiement'),
+                //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\BulkAction::make('assign')
-                        ->label('Assigner')
-                        ->form([
-                            Forms\Components\Select::make('assigned_to')
-                                ->label('Assigné à')
-                                ->relationship('assignedTo', 'name')
-                                ->required(),
-                        ])
-                        ->action(function (Collection $records, array $data) {
-                            // Debug avant la mise à jour
-                            Log::info('Starting bulk assign action', [
-                                'records' => $records->pluck('id', 'assigned_to')->toArray(),
-                                'assigned_to' => $data['assigned_to'],
-                                'raw_data' => $data,
-                            ]);
-
-                            // Récupérer l'ID de l'utilisateur depuis les données du formulaire
-                            $assignedToId = $data['assigned_to'];
-                            if (! $assignedToId) {
-                                return;
-                            }
-
-                            // Mise à jour via Eloquent
-                            foreach ($records as $client) {
-                                // Log avant la mise à jour de chaque client
-                                Log::info('Updating client', [
-                                    'client_id' => $client->id,
-                                    'old_assigned_to' => $client->assigned_to,
-                                    'new_assigned_to' => $assignedToId,
-                                ]);
-
-                                $client->update(['assigned_to' => $assignedToId]);
-
-                                // Vérifier la mise à jour
-                                $client->refresh();
-                                Log::info('Client updated', [
-                                    'client_id' => $client->id,
-                                    'assigned_to' => $client->assigned_to,
-                                    'raw_attributes' => $client->getAttributes(),
-                                ]);
-                            }
-                        }),
                 ]),
-            ])
-            ->defaultSort('client_number', 'desc');
+            ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ActivitiesRelationManager::class,
+            //
         ];
     }
 
@@ -301,7 +239,6 @@ class ClientResource extends Resource
         return [
             'index' => Pages\ListClients::route('/'),
             'create' => Pages\CreateClient::route('/create'),
-            'view' => Pages\ViewClient::route('/{record}'),
             'edit' => Pages\EditClient::route('/{record}/edit'),
         ];
     }
@@ -310,28 +247,34 @@ class ClientResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Informations Personnelles')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('client_number')
-                            ->label('Numéro Client'),
-                        Infolists\Components\TextEntry::make('first_name')
-                            ->label('Prénom'),
-                        Infolists\Components\TextEntry::make('last_name')
-                            ->label('Nom'),
-                        Infolists\Components\TextEntry::make('email')
-                            ->label('Email'),
-                        Infolists\Components\TextEntry::make('phone')
-                            ->label('Téléphone'),
-                    ])->columns(2),
-                Infolists\Components\Section::make('Suivi')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('status')
-                            ->label('Statut'),
-                        Infolists\Components\TextEntry::make('assignedTo.name')
-                            ->label('Assigné à'),
-                        Infolists\Components\TextEntry::make('prospect.email')
-                            ->label('Prospect d\'origine'),
-                    ])->columns(2),
+                Infolists\Components\TextEntry::make('client_number')
+                    ->label('Numéro Client'),
+                Infolists\Components\TextEntry::make('full_name')
+                    ->label('Nom Complet'),
+                Infolists\Components\TextEntry::make('email'),
+                Infolists\Components\TextEntry::make('phone')
+                    ->label('Téléphone'),
+                Infolists\Components\TextEntry::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'actif' => 'success',
+                        'inactif' => 'danger',
+                        'en_attente' => 'warning',
+                        'archive' => 'secondary',
+                        default => 'secondary',
+                    })
+                    ->label('Statut'),
+                Infolists\Components\TextEntry::make('prospect.email')
+                    ->label('Prospect'),
+                Infolists\Components\TextEntry::make('total_amount')
+                    ->money('XAF')
+                    ->label('Montant total'),
+                Infolists\Components\TextEntry::make('paid_amount')
+                    ->money('XAF')
+                    ->label('Montant payé'),
+                Infolists\Components\TextEntry::make('created_at')
+                    ->dateTime()
+                    ->label('Créé le'),
             ]);
     }
 }

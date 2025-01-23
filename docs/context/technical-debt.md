@@ -79,3 +79,35 @@
 - Consolidation des seeders
 - Amélioration des données de test
 - Documentation mise à jour
+
+## Mise à Jour de la Dette Technique - 11 Janvier 2025
+
+### Résolu
+- Sécurisation des assignations de prospects
+- Documentation des décisions architecturales (ADR-005)
+
+### En Cours
+1. Workflow de gestion des prospects
+   - Clarification nécessaire sur plusieurs points du processus
+   - Validation requise avec le MOE
+   - Documentation à compléter
+
+2. Système de notifications
+   - Configuration email à finaliser
+   - Tests à implémenter
+
+### À Adresser
+1. Validation du workflow avec le MOE
+   - Points à clarifier identifiés
+   - Suggestions d'amélioration à valider
+
+2. Implémentation des améliorations workflow
+   - Statuts plus granulaires
+   - Système de relance automatisé
+   - Règles de transfert
+   - Archivage intelligent
+
+### Priorités
+1. Validation workflow avec MOE (Urgent)
+2. Implémentation des modifications validées
+3. Tests et documentation

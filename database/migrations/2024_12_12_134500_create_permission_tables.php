@@ -25,9 +25,9 @@ return new class extends Migration
         }
 
         Schema::create($tableNames['permissions'], function (Blueprint $table) {
-            //$table->engine('InnoDB');
-            $table->bigIncrements('id'); // permission id
-            $table->string('name', 125);       // Reduced length to avoid key length issues
+            // $table->engine('InnoDB');
+            $table->bigIncrements('id'); // Permission id
+            $table->string('name', 125); // Reduced length to avoid key length issues
             $table->string('guard_name', 125); // Reduced length to avoid key length issues
             $table->timestamps();
 
@@ -35,13 +35,13 @@ return new class extends Migration
         });
 
         Schema::create($tableNames['roles'], function (Blueprint $table) use ($teams, $columnNames) {
-            //$table->engine('InnoDB');
-            $table->bigIncrements('id'); // role id
-            if ($teams || config('permission.testing')) { // permission.testing is a fix for sqlite testing
+            // $table->engine('InnoDB');
+            $table->bigIncrements('id'); // Role id
+            if ($teams || config('permission.testing')) { // Permission.testing is a fix for sqlite testing
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
             }
-            $table->string('name', 125);       // Reduced length to avoid key length issues
+            $table->string('name', 125); // Reduced length to avoid key length issues
             $table->string('guard_name', 125); // Reduced length to avoid key length issues
             $table->timestamps();
             if ($teams || config('permission.testing')) {

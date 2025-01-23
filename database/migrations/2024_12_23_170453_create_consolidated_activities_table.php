@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->morphs('subject');
             $table->enum('type', [
                 Activity::TYPE_NOTE,
@@ -22,18 +22,11 @@ return new class extends Migration
                 Activity::TYPE_EMAIL,
                 Activity::TYPE_MEETING,
                 Activity::TYPE_DOCUMENT,
-                Activity::TYPE_CONVERSION,
             ]);
             $table->text('description');
             $table->timestamp('scheduled_at')->nullable();
             $table->timestamp('completed_at')->nullable();
-            $table->enum('status', [
-                Activity::STATUS_PENDING,
-                Activity::STATUS_IN_PROGRESS,
-                Activity::STATUS_COMPLETED,
-                Activity::STATUS_CANCELLED,
-            ])->default(Activity::STATUS_PENDING);
-            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

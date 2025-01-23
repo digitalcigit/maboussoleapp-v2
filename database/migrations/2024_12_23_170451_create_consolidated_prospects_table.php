@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Prospect;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,27 +16,18 @@ return new class extends Migration
             $table->string('reference_number')->unique();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->date('birth_date')->nullable();
+            $table->string('email')->unique();
+            $table->string('phone');
+            $table->date('birth_date');
             $table->string('profession')->nullable();
-            $table->string('education_level')->nullable();
-            $table->string('current_location')->nullable();
-            $table->string('current_field')->nullable();
+            $table->string('education_level');
             $table->string('desired_field')->nullable();
             $table->string('desired_destination')->nullable();
             $table->json('emergency_contact')->nullable();
-            $table->enum('status', [
-                Prospect::STATUS_NEW,
-                Prospect::STATUS_ANALYZING,
-                Prospect::STATUS_APPROVED,
-                Prospect::STATUS_REJECTED,
-                Prospect::STATUS_CONVERTED,
-            ])->default(Prospect::STATUS_NEW);
+            $table->json('documents')->nullable();
             $table->foreignId('assigned_to')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('commercial_code')->nullable();
             $table->foreignId('partner_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->timestamp('last_action_at')->nullable();
+            $table->string('commercial_code')->nullable();
             $table->timestamp('analysis_deadline')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

@@ -107,6 +107,43 @@
        echo "Status: ${{ steps.deploy.outputs.deploy_status }}"
    ```
 
+### 5. Problèmes de Connexion SSH
+
+#### Erreur : Connection Refused
+- Vérifier que le port SSH (`SERVER_PORT`) est correct dans les secrets GitHub
+- Vérifier que le serveur est accessible sur ce port
+```bash
+# Test de connexion
+ssh -p 8483 crmmaboussole@104.37.188.51
+```
+
+#### Erreur : Host Key Verification Failed
+- Vérifier que la commande `ssh-keyscan` s'exécute avec le bon port
+- Vérifier le contenu du fichier `known_hosts`
+```bash
+# Vérification manuelle des clés du serveur
+ssh-keyscan -H -p 8483 104.37.188.51
+```
+
+#### Erreur : Permission Denied
+- Vérifier que la clé privée (`SSH_PRIVATE_KEY`) est correctement configurée
+- Vérifier les permissions sur le serveur
+```bash
+# Vérification des permissions sur le serveur
+ls -la ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+```
+
+#### Erreur : No Such File or Directory
+- Vérifier que le chemin de déploiement (`DEPLOY_PATH`) existe sur le serveur
+- Vérifier les permissions du dossier
+```bash
+# Création du dossier si nécessaire
+mkdir -p /var/www/laravel/crm-app.maboussole.net
+chown -R crmmaboussole:www-data /var/www/laravel/crm-app.maboussole.net
+```
+
 ## Procédure de Diagnostic
 
 ### 1. Vérification Initiale

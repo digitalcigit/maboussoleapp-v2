@@ -1,0 +1,45 @@
+Documenter immédiatement après chaque session de développement
+
+Pour chaque mise à jour de la documentation, il faut : 
+
+Mettre à jour - /docs/decisions/ : Contient les ADR (Architecture Decision Records)
+
+Mettre à jour - /docs/debugging/ : Guide de débogage par domaine
+
+Mettre à jour - /docs/technical/ : Documentation technique détaillée
+
+Mettre à jour - /docs/sessions/ : Résumés des sessions de développement
+
+Mettre à jour - /docs/learning/ : Documentation pédagogique
+
+Pour faire un ajout dans une fonctionnalité existante, il faut :
+    - T'assurer d'analyser la logique existante avant de faire l'ajout 
+
+A chaque requête que je te fais, j'aimerais que tu me dises toujours ce que tu as compris et me dire comment tu comptes l'implémenter avant de le faire.
+
+Pour chaque nouvelle fonctionnalité ou modification majeure, documenter dans /docs/learning/modules/ avec :
+
+Structure obligatoire :
+    - README.md : Vue d'ensemble et points clés
+    - concept.md : Principes fondamentaux
+    - implementation.md : Guide technique
+    - usage.md : Guide d'utilisation
+    - case-studies/ : Exemples concrets
+    - troubleshooting.md : Résolution des problèmes
+
+Contenu requis pour chaque module :
+    - Exemples de code réels du projet
+    - Tests unitaires associés
+    - Cas d'utilisation pratiques
+    - Solutions aux problèmes courants
+    - Exercices pour les juniors
+
+Les études de cas doivent contenir :
+    - Contexte du problème
+    - Solution avec tests
+    - Leçons apprises
+    - Applications possibles
+
+Le système utilise Filament pour la gestion des panels d'administration, et la vérification des permissions se fait à plusieurs niveaux
+
+Toujours vérifier l'intégration native du framework avant de créer une implémentation personnalisée

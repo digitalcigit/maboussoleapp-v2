@@ -34,7 +34,8 @@ class ProspectResourceTest extends TestCase
 
         // Créer un prospect pour les tests
         $this->prospect = Prospect::factory()->create([
-            'status' => Prospect::STATUS_NEW,
+            'status' => Prospect::STATUS_WAITING_DOCS,
+            'assigned_to' => $this->user->id,
         ]);
     }
 
@@ -64,14 +65,14 @@ class ProspectResourceTest extends TestCase
                 'last_name' => 'Doe',
                 'email' => 'john.doe@example.com',
                 'phone' => '+22501020304',
-                'status' => Prospect::STATUS_NEW,
+                'status' => Prospect::STATUS_WAITING_DOCS,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('prospects', [
             'email' => 'john.doe@example.com',
-            'status' => Prospect::STATUS_NEW,
+            'status' => Prospect::STATUS_WAITING_DOCS,
         ]);
     }
 
@@ -333,5 +334,20 @@ class ProspectResourceTest extends TestCase
             ])
             ->call('create')
             ->assertHasFormErrors(['phone']);
+    }
+
+    /** @test */
+    public function it_can_list_prospects_with_status_waiting_docs()
+    {
+        $prospect = Prospect::factory()->create([
+            'status' => Prospect::STATUS_WAITING_DOCS,
+            'assigned_to' => $this->user->id,
+        ]);
+
+        $response = $this->get(ProspectResource::getUrl('index'));
+
+        $response->assertSuccessful();
+        $response->assertSee($prospect->reference_number);
+        $response->assertSee('En attente de documents');
     }
 }
