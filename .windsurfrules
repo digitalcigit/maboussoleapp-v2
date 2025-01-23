@@ -41,3 +41,5 @@ Les études de cas doivent contenir :
     - Applications possibles
 
 Le système utilise Filament pour la gestion des panels d'administration, et la vérification des permissions se fait à plusieurs niveaux
+
+Toujours vérifier l'intégration native du framework avant de créer une implémentation personnalisée
