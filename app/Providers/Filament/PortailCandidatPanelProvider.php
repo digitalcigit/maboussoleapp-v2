@@ -32,15 +32,41 @@ class PortailCandidatPanelProvider extends PanelProvider
             ->emailVerification()
             ->profile()
             ->colors([
-                'primary' => Color::Blue,
-                'secondary' => Color::Gray,
-                'success' => Color::Green,
-                'warning' => Color::Orange,
-                'danger' => Color::Red,
+                'primary' => [
+                    50 => '245, 240, 255',  // Très clair
+                    100 => '235, 225, 255',
+                    200 => '215, 200, 255',
+                    300 => '190, 165, 255',
+                    400 => '160, 130, 255',
+                    500 => '102, 51, 153',   // Violet MaBoussole
+                    600 => '92, 46, 138',
+                    700 => '82, 41, 123',
+                    800 => '71, 36, 107',
+                    900 => '61, 31, 92',
+                    950 => '41, 20, 61',    // Très foncé
+                ],
+                'gray' => [
+                    50 => '250, 250, 250',
+                    100 => '244, 244, 245',
+                    200 => '228, 228, 231',
+                    300 => '209, 209, 214',
+                    400 => '156, 156, 163',
+                    500 => '102, 102, 102',  // Gris du slogan
+                    600 => '82, 82, 91',
+                    700 => '63, 63, 70',
+                    800 => '39, 39, 42',
+                    900 => '24, 24, 27',
+                    950 => '9, 9, 11',
+                ],
+                'success' => Color::Emerald,
+                'warning' => Color::Amber,
+                'danger' => Color::Rose,
+                'info' => Color::Violet,
             ])
             ->font('Poppins')
             ->brandName('Portail Candidat - Ma Boussole')
             ->favicon(asset('images/favicon.png'))
+            ->viteTheme('resources/css/filament/portail-candidat/theme.css')
             ->discoverResources(in: app_path('Filament/PortailCandidat/Resources'), for: 'App\\Filament\\PortailCandidat\\Resources')
             ->discoverPages(in: app_path('Filament/PortailCandidat/Pages'), for: 'App\\Filament\\PortailCandidat\\Pages')
             ->pages([

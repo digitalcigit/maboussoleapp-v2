@@ -7,7 +7,8 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/markdown-preview.js'
+                'resources/js/markdown-preview.js',
+                'resources/css/filament/portail-candidat/theme.css'
             ],
             refresh: true,
         }),
