@@ -14,66 +14,67 @@ class RoleAndPermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Permissions système
-        Permission::create(['name' => 'system.settings.view']);
-        Permission::create(['name' => 'system.settings.edit']);
-        Permission::create(['name' => 'system.logs.view']);
+        Permission::findOrCreate('system.settings.view');
+        Permission::findOrCreate('system.settings.edit');
+        Permission::findOrCreate('system.logs.view');
+        Permission::findOrCreate('admin.panel.access');
 
         // Permissions utilisateurs
-        Permission::create(['name' => 'users.view']);
-        Permission::create(['name' => 'users.create']);
-        Permission::create(['name' => 'users.edit']);
-        Permission::create(['name' => 'users.delete']);
-        Permission::create(['name' => 'roles.view']);
-        Permission::create(['name' => 'roles.manage']);
+        Permission::findOrCreate('users.view');
+        Permission::findOrCreate('users.create');
+        Permission::findOrCreate('users.edit');
+        Permission::findOrCreate('users.delete');
+        Permission::findOrCreate('roles.view');
+        Permission::findOrCreate('roles.manage');
 
         // Permissions prospects
-        Permission::create(['name' => 'prospects.view']);
-        Permission::create(['name' => 'prospects.view.own']);
-        Permission::create(['name' => 'prospects.create']);
-        Permission::create(['name' => 'prospects.edit']);
-        Permission::create(['name' => 'prospects.edit.own']);
-        Permission::create(['name' => 'prospects.delete.own']);
+        Permission::findOrCreate('prospects.view');
+        Permission::findOrCreate('prospects.view.own');
+        Permission::findOrCreate('prospects.create');
+        Permission::findOrCreate('prospects.edit');
+        Permission::findOrCreate('prospects.edit.own');
+        Permission::findOrCreate('prospects.delete.own');
 
         // Permissions clients
-        Permission::create(['name' => 'clients.view']);
-        Permission::create(['name' => 'clients.create']);
-        Permission::create(['name' => 'clients.edit']);
-        Permission::create(['name' => 'clients.edit.own']);
+        Permission::findOrCreate('clients.view');
+        Permission::findOrCreate('clients.create');
+        Permission::findOrCreate('clients.edit');
+        Permission::findOrCreate('clients.edit.own');
 
         // Permissions documents
-        Permission::create(['name' => 'documents.view']);
-        Permission::create(['name' => 'documents.view.own']);
-        Permission::create(['name' => 'documents.upload']);
-        Permission::create(['name' => 'documents.validate']);
+        Permission::findOrCreate('documents.view');
+        Permission::findOrCreate('documents.view.own');
+        Permission::findOrCreate('documents.upload');
+        Permission::findOrCreate('documents.validate');
 
         // Permissions rapports
-        Permission::create(['name' => 'reports.view']);
-        Permission::create(['name' => 'reports.view.own']);
-        Permission::create(['name' => 'reports.view.own.basic']);
-        Permission::create(['name' => 'reports.export']);
+        Permission::findOrCreate('reports.view');
+        Permission::findOrCreate('reports.view.own');
+        Permission::findOrCreate('reports.view.own.basic');
+        Permission::findOrCreate('reports.export');
 
         // Permissions communications
-        Permission::create(['name' => 'communications.email']);
-        Permission::create(['name' => 'communications.sms']);
+        Permission::findOrCreate('communications.email');
+        Permission::findOrCreate('communications.sms');
 
         // Permissions activités
-        Permission::create(['name' => 'activities.view']);
-        Permission::create(['name' => 'activities.create']);
-        Permission::create(['name' => 'activities.edit']);
-        Permission::create(['name' => 'activities.delete']);
+        Permission::findOrCreate('activities.view');
+        Permission::findOrCreate('activities.create');
+        Permission::findOrCreate('activities.edit');
+        Permission::findOrCreate('activities.delete');
 
         // Permissions validation
-        Permission::create(['name' => 'steps.validate']);
-        Permission::create(['name' => 'settings.view']);
-        Permission::create(['name' => 'settings.edit.department']);
-        Permission::create(['name' => 'bonus.view.own']);
+        Permission::findOrCreate('steps.validate');
+        Permission::findOrCreate('settings.view');
+        Permission::findOrCreate('settings.edit.department');
+        Permission::findOrCreate('bonus.view.own');
 
-        // Création des rôles
-        $superAdmin = Role::create(['name' => 'super-admin']);
-        $manager = Role::create(['name' => 'manager']);
-        $conseiller = Role::create(['name' => 'conseiller']);
-        $partenaire = Role::create(['name' => 'partenaire']);
-        $commercial = Role::create(['name' => 'commercial']);
+        // Création des rôles si non existants
+        $superAdmin = Role::findOrCreate('super-admin');
+        $manager = Role::findOrCreate('manager');
+        $conseiller = Role::findOrCreate('conseiller');
+        $partenaire = Role::findOrCreate('partenaire');
+        $commercial = Role::findOrCreate('commercial');
 
         // Super Admin - tous les droits
         $superAdmin->givePermissionTo(Permission::all());

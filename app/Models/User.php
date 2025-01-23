@@ -35,9 +35,16 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        // Vérifier si l'utilisateur a un rôle qui lui permet d'accéder au panel
-        $authorizedRoles = ['super-admin', 'manager', 'conseiller'];
+        // Les utilisateurs du portail candidat ne peuvent accéder qu'au panel portail-candidat
+        if ($this->hasRole('portail_candidat')) {
+            return $panel->getId() === 'portail-candidat';
+        }
 
-        return $this->hasAnyRole($authorizedRoles);
+        // Les administrateurs, managers et conseillers peuvent accéder au panel admin
+        if ($this->hasAnyRole(['super-admin', 'manager', 'conseiller'])) {
+            return $panel->getId() === 'admin';
+        }
+
+        return false;
     }
 }

@@ -260,7 +260,13 @@ class ProspectResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery();
+        $query = parent::getEloquentQuery();
+        
+        if (auth()->user()->hasRole('prospect')) {
+            $query->where('assigned_to', auth()->id());
+        }
+        
+        return $query;
     }
 
     public static function table(Table $table): Table

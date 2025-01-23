@@ -1,46 +1,40 @@
-# ADR 019 : Vision Étendue - Portail Candidat Multi-Dossiers
+# ADR 019 : Vision - Portail Candidat Autonome
 
 Date : 21/01/2025
 Statut : En attente - Priorité aux modifications des fonctionnalités existantes
 Décideurs : Équipe de développement, MOA, MOE
 
 ## Contexte
-L'application Ma Boussole vise à faciliter le suivi des demandes de bourses d'études internationales. Une nouvelle vision plus large du projet a émergé, permettant aux candidats de gérer plusieurs dossiers de candidature via un portail unique.
+L'application Ma Boussole vise à faciliter le suivi des demandes d'accès aux universités internationales. Une nouvelle vision du projet a émergé, permettant aux candidats d'être plus autonomes dans le suivi et la gestion de leur dossier de candidature.
 
-## Vision Étendue
+## Vision
 
-### 1. Portail Candidat Unifié
-- Un seul compte utilisateur par candidat
-- Accès à tous ses dossiers de candidature
-- Interface personnalisée selon le pays visé
-- Gestion centralisée des documents
+### 1. Portail Candidat Autonome
+- Interface personnalisée pour chaque candidat
+- Gestion autonome des documents et informations
+- Suivi en temps réel de l'avancement
+- Communication directe avec les conseillers
 
-### 2. Gestion Multi-Dossiers
-**Exemple** :
-- Dossier principal : Candidature France (Campus France)
-- Dossier secondaire : Candidature Canada (EIC)
-- Réutilisation intelligente des documents communs
-
-### 3. Avantages
+### 2. Avantages
 
 #### Pour les Candidats
-- Une seule authentification pour tout gérer
-- Vue d'ensemble de toutes les candidatures
-- Évite la répétition dans la soumission des documents
-- Suivi en temps réel de chaque dossier
-- Notifications centralisées
+- Autonomie dans la gestion du dossier
+- Upload direct des documents requis
+- Suivi en temps réel du traitement
+- Notifications et alertes personnalisées
+- Communication facilitée avec les conseillers
 
 #### Pour les Conseillers
-- Vision globale du parcours candidat
-- Meilleure coordination des dossiers parallèles
-- Optimisation du temps de traitement
-- Conseil plus pertinent sur les options
+- Réduction des tâches administratives
+- Focus sur l'accompagnement qualitatif
+- Meilleure gestion du temps
+- Communication centralisée
 
 #### Pour le Processus
-- Validation unique des documents de base
-- Gestion efficace des deadlines multiples
-- Réduction des erreurs et des doublons
-- Meilleure qualité de service
+- Réduction des délais de traitement
+- Amélioration de la qualité des dossiers
+- Diminution des erreurs
+- Traçabilité accrue
 
 ## Architecture Proposée
 
@@ -49,26 +43,30 @@ L'application Ma Boussole vise à faciliter le suivi des demandes de bourses d'�
 User (Authentification)
 ├── Rôle : portail_candidat
 └── Lié à -> Prospect (Informations personnelles)
-            └── Dossiers[]
-                ├── Documents de base (partagés)
-                └── Documents spécifiques (par pays)
+            └── Dossier
+                ├── Documents requis
+                ├── État d'avancement
+                └── Historique des interactions
 ```
 
 ### Fonctionnalités Clés
 1. **Tableau de Bord Personnalisé**
-   - Barre de progression par dossier
-   - Calendrier des échéances
-   - Liste des tâches à accomplir
+   - Barre de progression du dossier
+   - Liste des documents requis avec statut
+   - Prochaines étapes à accomplir
+   - Historique des actions
 
 2. **Gestion Documentaire**
-   - Classification : documents de base/spécifiques
-   - Upload direct avec validation
-   - Système de versions des documents
+   - Upload direct des documents
+   - Validation automatique des formats
+   - Système de versions
+   - Prévisualisation
 
 3. **Système de Notifications**
-   - Alertes deadlines
-   - Rappels documents manquants
+   - Alertes pour documents manquants
+   - Rappels d'échéances
    - Notifications d'avancement
+   - Messages des conseillers
 
 ## Plan d'Implémentation
 
@@ -78,35 +76,37 @@ User (Authentification)
 3. Développement du tableau de bord de base
 
 ### Phase 2 : Documents
-1. Système de gestion documentaire
-2. Classification des documents
-3. Fonctionnalité d'upload
+1. Système d'upload de documents
+2. Validation automatique
+3. Gestion des versions
 
 ### Phase 3 : Notifications
 1. Système de notifications
 2. Rappels automatiques
-3. Suivi des deadlines
+3. Communication conseiller-candidat
 
 ## Impact sur l'Existant
-- Modification mineure de la structure de données
-- Ajout de nouvelles relations
-- Conservation des fonctionnalités actuelles
+- Ajout du nouveau rôle utilisateur
+- Extension des fonctionnalités actuelles
+- Pas de modification majeure de la structure
 
 ## Risques et Mitigations
-1. **Complexité accrue**
-   - Solution : Interface utilisateur intuitive
-   - Documentation claire pour les utilisateurs
+1. **Adoption par les utilisateurs**
+   - Solution : Interface intuitive
+   - Formation et documentation claire
+   - Support réactif
 
 2. **Performance**
-   - Solution : Optimisation du chargement des documents
-   - Mise en cache intelligente
+   - Solution : Optimisation des uploads
+   - Gestion efficace du stockage
 
 3. **Sécurité**
-   - Solution : Cloisonnement strict des données
-   - Audit régulier des accès
+   - Solution : Validation stricte des fichiers
+   - Droits d'accès bien définis
+   - Audit des actions
 
 ## Évolutions Futures Possibles
-1. Module de statistiques avancées
-2. Intelligence artificielle pour les recommandations
-3. Intégration avec les systèmes des ambassades
-4. Application mobile dédiée
+1. Chat intégré avec les conseillers
+2. Application mobile
+3. Système de prise de rendez-vous
+4. Intégration de tutoriels vidéo

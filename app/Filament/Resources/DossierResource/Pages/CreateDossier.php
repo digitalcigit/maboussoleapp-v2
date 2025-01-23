@@ -5,6 +5,7 @@ namespace App\Filament\Resources\DossierResource\Pages;
 use App\Filament\Resources\DossierResource;
 use App\Models\Dossier; 
 use App\Models\Prospect;
+use App\Services\ReferenceGeneratorService;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
@@ -24,7 +25,8 @@ class CreateDossier extends CreateRecord
 
         // Si un prospect est sélectionné, on utilise ses informations
         if (!empty($data['prospect_id'])) {
-            $data['reference_number'] = 'DOS-' . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+            $referenceGenerator = app(ReferenceGeneratorService::class);
+            $data['reference_number'] = $referenceGenerator->generateReference('dossier');
             $data['last_action_at'] = now();
             $data['current_step'] = Dossier::STEP_ANALYSIS;
             $data['current_status'] = Dossier::STATUS_WAITING_DOCS;
@@ -32,8 +34,9 @@ class CreateDossier extends CreateRecord
         }
 
         // Sinon, on crée un nouveau prospect avec les informations fournies
+        $referenceGenerator = app(ReferenceGeneratorService::class);
         $prospect = Prospect::create([
-            'reference_number' => 'PROS-' . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT),
+            'reference_number' => 'PROS-' . $referenceGenerator->generateReference('prospect'),
             'first_name' => $data['prospect_info']['first_name'],
             'last_name' => $data['prospect_info']['last_name'],
             'email' => $data['prospect_info']['email'],
@@ -45,14 +48,14 @@ class CreateDossier extends CreateRecord
             'desired_destination' => $data['prospect_info']['desired_destination'],
             'emergency_contact' => $data['prospect_info']['emergency_contact'] ?? null,
             'current_status' => 'nouveau',
-            // Assigner le prospect au même conseiller que le dossier
-            'assigned_to' => $data['assigned_to'],
+            'user_id' => auth()->id(),
+            'assigned_to' => $data['assigned_to'] ?? auth()->id(),
         ]);
 
         // On lie le nouveau prospect au dossier
         $data['prospect_id'] = $prospect->id;
 
-        $data['reference_number'] = 'DOS-' . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+        $data['reference_number'] = $referenceGenerator->generateReference('dossier');
         $data['last_action_at'] = now();
         $data['current_step'] = Dossier::STEP_ANALYSIS;
         $data['current_status'] = Dossier::STATUS_WAITING_DOCS;

@@ -21,6 +21,15 @@ class EventServiceProvider extends ServiceProvider
     ];
 
     /**
+     * The event observer mappings for the application.
+     *
+     * @var array<class-string, array<int, class-string>>
+     */
+    protected $observers = [
+        \App\Models\Prospect::class => [\App\Observers\ProspectObserver::class],
+    ];
+
+    /**
      * Register any events for your application.
      */
     public function boot(): void

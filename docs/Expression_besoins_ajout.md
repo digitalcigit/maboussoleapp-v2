@@ -68,6 +68,7 @@ Paiement Scolarité Partielle
 Paiement Frais de scolarité Totale
 Statut spécial "Abandon" après 2 mois d'inactivité
 Passage à l'étape 4 si paiement complet
+
 4. Étape Accompagnement Visa
 
 Conserve les informations précédentes

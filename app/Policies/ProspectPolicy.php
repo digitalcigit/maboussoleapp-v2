@@ -12,12 +12,21 @@ class ProspectPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view_admin_panel');
+        // Les prospects peuvent voir leur propre profil
+        if ($user->hasRole('prospect')) {
+            return true;
+        }
+        return $user->hasPermissionTo('admin.panel.access');
     }
 
     public function view(User $user, Prospect $prospect): bool
     {
-        return $user->hasPermissionTo('view_admin_panel') &&
+        // Les prospects ne peuvent voir que leur propre profil
+        if ($user->hasRole('prospect')) {
+            return $user->id === $prospect->assigned_to;
+        }
+        
+        return $user->hasPermissionTo('admin.panel.access') &&
             ($user->hasRole('super-admin') ||
              $user->hasRole('manager') ||
              $prospect->assigned_to === $user->id);
@@ -25,12 +34,12 @@ class ProspectPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create_prospects');
+        return $user->hasPermissionTo('prospects.create');
     }
 
     public function update(User $user, Prospect $prospect): bool
     {
-        return $user->hasPermissionTo('edit_prospects') &&
+        return $user->hasPermissionTo('prospects.edit') &&
             ($user->hasRole('super-admin') ||
              $user->hasRole('manager') ||
              $prospect->assigned_to === $user->id);
@@ -38,7 +47,7 @@ class ProspectPolicy
 
     public function delete(User $user, Prospect $prospect): bool
     {
-        return $user->hasPermissionTo('delete_prospects') &&
+        return $user->hasPermissionTo('prospects.delete') &&
             ($user->hasRole('super-admin') ||
              $user->hasRole('manager'));
     }

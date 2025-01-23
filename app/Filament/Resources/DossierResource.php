@@ -264,16 +264,13 @@ class DossierResource extends Resource
 
                         Forms\Components\TextInput::make('prospect_info.phone')
                             ->label('Téléphone')
-                            ->tel()
-                            ->required(),
+                            ->tel(),
 
                         Forms\Components\DatePicker::make('prospect_info.birth_date')
-                            ->label('Date de naissance')
-                            ->required(),
+                            ->label('Date de naissance'),
 
                         Forms\Components\TextInput::make('prospect_info.profession')
-                            ->label('Profession actuelle')
-                            ->required(),
+                            ->label('Profession actuelle'),
 
                         Forms\Components\Select::make('prospect_info.education_level')
                             ->label('Niveau d\'études')
@@ -284,12 +281,10 @@ class DossierResource extends Resource
                                 'Bac+4 (Master 1)' => 'Bac+4 (Master 1)',
                                 'Bac+5 (Master 2)' => 'Bac+5 (Master 2)',
                                 'Bac+8 (Doctorat)' => 'Bac+8 (Doctorat)',
-                            ])
-                            ->required(),
+                            ]),
 
                         Forms\Components\TextInput::make('prospect_info.desired_field')
-                            ->label('Filière souhaitée')
-                            ->required(),
+                            ->label('Filière souhaitée'),
 
                         Forms\Components\Select::make('prospect_info.desired_destination')
                             ->label('Destination souhaitée')
@@ -298,6 +293,11 @@ class DossierResource extends Resource
                                 'canada' => 'Canada',
                                 'belgique' => 'Belgique',
                                 'suisse' => 'Suisse',
+                                'allemagne' => 'Allemagne',
+                                'espagne' => 'Espagne',
+                                'italie' => 'Italie',
+                                'royaume_uni' => 'Royaume-Uni',
+                                'etats_unis' => 'États-Unis',
                                 'luxembourg' => 'Luxembourg',
                                 'maroc' => 'Maroc',
                                 'tunisie' => 'Tunisie',
@@ -317,25 +317,21 @@ class DossierResource extends Resource
                             ])
                             ->searchable()
                             ->native(false)
-                            ->preload()
-                            ->required(),
+                            ->preload(),
                     ])
                     ->columns(2),
 
                 Forms\Components\Section::make('Contact d\'urgence')
                     ->schema([
                         Forms\Components\TextInput::make('prospect_info.emergency_contact.name')
-                            ->label('Nom du contact')
-                            ->required(),
+                            ->label('Nom du contact'),
 
                         Forms\Components\TextInput::make('prospect_info.emergency_contact.relation')
-                            ->label('Relation')
-                            ->required(),
+                            ->label('Relation'),
 
                         Forms\Components\TextInput::make('prospect_info.emergency_contact.phone')
                             ->label('Téléphone')
-                            ->tel()
-                            ->required(),
+                            ->tel(),
                     ])
                     ->columns(3),
 

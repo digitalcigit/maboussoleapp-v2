@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\DossierResource\Pages;
 
 use App\Filament\Resources\DossierResource;
+use App\Models\Dossier;
 use App\Models\Prospect;
+use App\Filament\Resources\DossierResource\Actions\RejectDossierAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
@@ -15,6 +17,10 @@ class EditDossier extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            RejectDossierAction::make()
+                ->visible(fn (Dossier $record): bool => 
+                    $record->current_status === Dossier::STATUS_SUBMITTED
+                ),
             Actions\DeleteAction::make(),
         ];
     }
@@ -56,6 +62,6 @@ class EditDossier extends EditRecord
 
     protected function getRedirectUrl(): string
     {
-        return DossierResource::getUrl('index');
+        return $this->getResource()::getUrl('index');
     }
 }
