@@ -90,7 +90,7 @@ class Dossier extends Model
         'documents' => 'json',
         'birth_date' => 'date',
         'prospect_info' => 'json',
-        'agency_payment_amount' => 'decimal:2',
+        'agency_payment_amount' => 'integer',
         'tuition_total_amount' => 'decimal:2',
         'tuition_paid_amount' => 'decimal:2',
         'current_step' => 'integer',
