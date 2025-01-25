@@ -119,14 +119,31 @@ class DossierResource extends Resource
                                     'Bac+8 (Doctorat)' => 'Bac+8 (Doctorat)',
                                 ])
                                 ->required(),
+                            Forms\Components\TextInput::make('prospect_info.desired_field')
+                                ->label('Filière souhaitée')
+                                ->required(),
+                            Forms\Components\Select::make('prospect_info.desired_destination')
+                                ->label('Destination souhaitée')
+                                ->options([
+                                    'France' => 'France',
+                                    'Canada' => 'Canada',
+                                    'Belgique' => 'Belgique',
+                                    'Suisse' => 'Suisse',
+                                    'Allemagne' => 'Allemagne',
+                                    'Espagne' => 'Espagne',
+                                    'Italie' => 'Italie',
+                                ])
+                                ->searchable()
+                                ->required(),
                         ]),
 
                     Forms\Components\Section::make('Contact d\'urgence')
+                        ->description('Personne à contacter en cas d\'urgence')
                         ->schema([
                             Forms\Components\TextInput::make('prospect_info.emergency_contact.name')
                                 ->label('Nom complet')
                                 ->required(),
-                            Forms\Components\TextInput::make('prospect_info.emergency_contact.relationship')
+                            Forms\Components\TextInput::make('prospect_info.emergency_contact.relation')
                                 ->label('Lien de parenté')
                                 ->required(),
                             Forms\Components\TextInput::make('prospect_info.emergency_contact.phone')
@@ -135,26 +152,52 @@ class DossierResource extends Resource
                                 ->required(),
                         ]),
 
-                    Forms\Components\Section::make('Documents requis')
+                    Forms\Components\Section::make('Documents fournis')
                         ->description('Téléchargez les documents nécessaires pour votre dossier')
                         ->schema([
-                            Forms\Components\Repeater::make('documents')
-                                ->label('')
-                                ->relationship('documents')
+                            Forms\Components\Repeater::make('prospect_info.documents')
+                                ->label(false)
+                                ->collapsible()
+                                ->collapseAllAction(
+                                    fn (Forms\Components\Actions\Action $action) => $action->label('Tout plier')
+                                )
+                                ->expandAllAction(
+                                    fn (Forms\Components\Actions\Action $action) => $action->label('Tout déplier')
+                                )
+                                ->itemLabel(function (array $state): ?string {
+                                    $documentTypes = [
+                                        'diploma' => 'Diplôme',
+                                        'id_card' => 'Pièce d\'identité',
+                                        'cv' => 'CV',
+                                        'motivation' => 'Lettre de motivation',
+                                        'passport' => 'Passeport',
+                                        'birth_certificate' => 'Acte de naissance',
+                                        'other' => 'Autre'
+                                    ];
+                                    return $documentTypes[$state['type']] ?? $state['type'] ?? null;
+                                })
                                 ->schema([
                                     Forms\Components\Grid::make()
                                         ->schema([
-                                            Forms\Components\Select::make('document_type')
+                                            Forms\Components\Select::make('type')
                                                 ->label('Type de document')
-                                                ->options(DossierDocument::TYPES)
                                                 ->required()
+                                                ->options([
+                                                    'diploma' => 'Diplôme',
+                                                    'id_card' => 'Pièce d\'identité',
+                                                    'cv' => 'CV',
+                                                    'motivation' => 'Lettre de motivation',
+                                                    'passport' => 'Passeport',
+                                                    'birth_certificate' => 'Acte de naissance',
+                                                    'other' => 'Autre'
+                                                ])
                                                 ->columnSpan(1),
                                             Forms\Components\TextInput::make('description')
                                                 ->label('Description')
-                                                ->placeholder('Ex: Relevé de notes du BAC')
+                                                ->placeholder('Ex: Diplôme de licence en informatique')
                                                 ->columnSpan(1),
                                         ])->columns(2),
-                                    Forms\Components\FileUpload::make('file_path')
+                                    Forms\Components\FileUpload::make('file')
                                         ->label('Fichier')
                                         ->required()
                                         ->disk('public')
@@ -162,7 +205,7 @@ class DossierResource extends Resource
                                         ->visibility('public')
                                         ->preserveFilenames()
                                         ->maxSize(5120)
-                                        ->acceptedFileTypes(['application/pdf', 'image/*'])
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
                                         ->downloadable()
                                         ->openable()
                                         ->previewable()
@@ -171,10 +214,6 @@ class DossierResource extends Resource
                                             fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
                                                 ->prepend(now()->timestamp . '_'),
                                         ),
-                                    Forms\Components\Hidden::make('step_number')
-                                        ->default(function (Forms\Get $get): int {
-                                            return $get('../../current_step') ?? 1;
-                                        }),
                                 ])
                                 ->defaultItems(0)
                                 ->addActionLabel('Ajouter un document')
