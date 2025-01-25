@@ -28,7 +28,7 @@ Type : Amélioration fonctionnelle
 
 ## Documentation créée
 - Documentation technique : `/docs/technical/action_tracking.md`
-- ADR : `/docs/decisions/20-suivi-actions-dossiers.md`
+- ADR : `/docs/decisions/026-suivi-actions-dossiers.md`
 - Session : `/docs/sessions/2025-01-20-suivi-actions.md`
 
 ## Prochaines étapes possibles

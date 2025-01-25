@@ -1,5 +1,3 @@
-
-
 Ici c'est le formulaire administratif  on va le laisser comme tel :
 "Beaucoup de champs sont marqués comme obligatoires (*)" c'est exactement sur cela que je voulais attirer ton attention. 
 Voici les champs obbligatoires que je propose : "Etape actuelle, statut actuel, prenom, nom, Email"

@@ -32,7 +32,7 @@ Created
 -0
  0
 Open diff
-J'ai créé un résumé complet de la session dans le fichier /docs/sessions/2025-01-22-simplification-formulaire-dossier.md. Ce document :
+J'ai créé un résumé complet de la session dans le fichier /docs/decisions/2025-01-22-simplification-formulaire-dossier.md. Ce document :
 
 Détaille tous les changements effectués
 Liste les bugs résolus

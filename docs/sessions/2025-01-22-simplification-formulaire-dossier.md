@@ -35,7 +35,7 @@ Optimisation du formulaire de création de dossier pour la v1 avec une approche 
 3. Champ `created_by` manquant dans activities
 
 ## Documentation Créée
-1. ADR pour la future refonte (/docs/decisions/2025-01-22-refonte-architecture-dossier-prospect.md)
+1. ADR pour la future refonte (/docs/decisions/024-refonte-architecture-dossier-prospect.md)
 2. Guide de débogage activities (/docs/debugging/activities.md)
 
 ## Tests Effectués
