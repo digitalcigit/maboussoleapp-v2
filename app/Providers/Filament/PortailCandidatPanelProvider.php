@@ -18,6 +18,8 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\PortailCandidatMiddleware;
+use App\Filament\PortailCandidat\Resources\DossierResource;
+use App\Filament\PortailCandidat\Widgets\DossierProgressWidget;
 
 class PortailCandidatPanelProvider extends PanelProvider
 {
@@ -74,7 +76,15 @@ class PortailCandidatPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/PortailCandidat/Widgets'), for: 'App\\Filament\\PortailCandidat\\Widgets')
             ->widgets([
+                DossierProgressWidget::class,
                 Widgets\AccountWidget::class,
+            ])
+            ->navigationItems([
+                \Filament\Navigation\NavigationItem::make('Mon Dossier')
+                    ->icon('heroicon-o-folder')
+                    ->isActiveWhen(fn (): bool => request()->routeIs('filament.portail-candidat.resources.mon-dossier.*'))
+                    ->url(fn (): string => DossierResource::getUrl('index'))
+                    ->sort(1),
             ])
             ->middleware([
                 EncryptCookies::class,

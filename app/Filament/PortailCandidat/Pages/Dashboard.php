@@ -3,6 +3,7 @@
 namespace App\Filament\PortailCandidat\Pages;
 
 use Filament\Pages\Dashboard as BaseDashboard;
+use App\Filament\PortailCandidat\Widgets\DossierProgressWidget;
 
 class Dashboard extends BaseDashboard
 {
@@ -22,7 +23,7 @@ class Dashboard extends BaseDashboard
     protected function getHeaderWidgets(): array
     {
         return [
-            // Nous ajouterons les widgets plus tard
+            DossierProgressWidget::class,
         ];
     }
 }

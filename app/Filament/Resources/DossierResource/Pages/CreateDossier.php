@@ -48,7 +48,6 @@ class CreateDossier extends CreateRecord
             'desired_destination' => $data['prospect_info']['desired_destination'],
             'emergency_contact' => $data['prospect_info']['emergency_contact'] ?? null,
             'current_status' => 'nouveau',
-            'user_id' => auth()->id(),
             'assigned_to' => $data['assigned_to'] ?? auth()->id(),
         ]);
 
