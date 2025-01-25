@@ -44,7 +44,6 @@ class DossierDocument extends Model
         'dossier_id',
         'step_number',
         'document_type',
-        'type',
         'file_path',
         'original_name',
         'mime_type',
@@ -68,7 +67,7 @@ class DossierDocument extends Model
     /**
      * Get the document type label.
      */
-    public function getTypeLabel(): string
+    public function getDocumentTypeLabel(): string
     {
         return self::TYPES[$this->document_type] ?? $this->document_type;
     }
