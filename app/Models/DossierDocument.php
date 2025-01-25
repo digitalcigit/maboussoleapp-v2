@@ -44,6 +44,7 @@ class DossierDocument extends Model
         'dossier_id',
         'step_number',
         'document_type',
+        'type',
         'file_path',
         'original_name',
         'mime_type',
