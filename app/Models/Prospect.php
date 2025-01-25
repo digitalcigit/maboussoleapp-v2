@@ -41,16 +41,19 @@ class Prospect extends Model
         'desired_field',
         'desired_destination',
         'emergency_contact',
-        'assigned_to',
-        'commercial_code',
-        'partner_id',
-        'analysis_deadline',
         'documents',
+        'old_documents',
+        'assigned_to',
+        'partner_id',
+        'commercial_code',
+        'analysis_deadline',
         'notes',
         'current_status',
         'converted_to_dossier',
         'converted_at',
-        'dossier_reference'
+        'dossier_reference',
+        'user_id',
+        'dossier_id'
     ];
 
     protected $casts = [
@@ -160,9 +163,17 @@ class Prospect extends Model
     /**
      * Relation avec le dossier
      */
-    public function dossier(): HasOne
+    public function dossier(): BelongsTo
     {
-        return $this->hasOne(Dossier::class);
+        return $this->belongsTo(Dossier::class);
+    }
+
+    /**
+     * Relation avec l'utilisateur du portail candidat
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

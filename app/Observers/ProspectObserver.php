@@ -16,6 +16,11 @@ class ProspectObserver
      */
     public function created(Prospect $prospect): void
     {
+        // Si le prospect a déjà un utilisateur associé, ne pas en créer un nouveau
+        if ($prospect->user_id) {
+            return;
+        }
+
         // Générer un mot de passe aléatoire
         $password = Str::random(10);
 
