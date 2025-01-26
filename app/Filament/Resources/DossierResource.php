@@ -167,14 +167,12 @@ class DossierResource extends Resource
 
                         Forms\Components\TextInput::make('agency_payment_amount')
                             ->label('Montant des frais d\'agence')
+                            ->numeric()
                             ->prefix('FCFA')
-                            ->mask(fn (Forms\Components\TextInput\Mask $mask) => $mask
-                                ->numeric()
-                                ->thousandsSeparator('.')
-                                ->decimalPlaces(0)
-                                ->minValue(0)
-                                ->maxValue(999999999)
-                            )
+                            ->step(1)
+                            ->inputMode('numeric')
+                            ->minValue(0)
+                            ->maxValue(999999999)
                             ->visible(fn (Forms\Get $get): bool => 
                                 $get('current_status') === Dossier::STATUS_AGENCY_PAID
                             )

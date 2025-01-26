@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles personnalisés pour le split-screen */
+.auth-page {
+    @apply min-h-screen bg-gray-900;
+}
+
+.auth-card {
+    @apply bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl;
+}
+
+/* Animation du slider */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slider-image.active {
+    animation: fadeIn 1s ease-in-out;
+}
