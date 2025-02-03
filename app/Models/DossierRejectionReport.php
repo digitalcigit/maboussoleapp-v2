@@ -24,7 +24,7 @@ class DossierRejectionReport extends Model
 
     public function dossier()
     {
-        return $this->belongsTo(Dossier::class);
+        return $this->belongsTo(Dossier::class)->withTrashed();
     }
 
     public function creator()

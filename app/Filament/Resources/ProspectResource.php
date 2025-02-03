@@ -436,11 +436,13 @@ class ProspectResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()->can('update', $record);
+        return auth()->user()->hasAnyRole(['super_admin', 'manager']) || 
+               (auth()->user()->hasRole('conseiller') && $record->assigned_to === auth()->id());
     }
 
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()->can('delete', $record);
+        return auth()->user()->hasRole('super_admin') || 
+               (auth()->user()->hasRole('manager') && $record->created_by === auth()->id());
     }
 }

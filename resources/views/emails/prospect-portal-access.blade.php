@@ -13,7 +13,7 @@ Voici vos identifiants de connexion :
 Vérifier mon email
 @endcomponent
 
-@component('mail::button', ['url' => config('app.url') . '/portail'])
+@component('mail::button', ['url' => config('app.url') . '/portail/login'])
 Accéder au portail
 @endcomponent
 
