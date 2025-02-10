@@ -54,6 +54,6 @@ class User extends Authenticatable implements FilamentUser
      */
     public function prospect(): HasOne
     {
-        return $this->hasOne(Prospect::class, 'user_id');
+        return $this->hasOne(Prospect::class, 'id');
     }
 }
