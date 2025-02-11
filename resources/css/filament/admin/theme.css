@@ -2,7 +2,7 @@
 
 /* Styles spécifiques à la page de connexion */
 .fi-simple-page {
-    @apply bg-gray-900 min-h-screen fixed inset-0 overflow-hidden;
+    @apply min-h-screen fixed inset-0 overflow-hidden;
 }
 
 /* Conteneur principal de la page de connexion */
@@ -17,27 +17,7 @@
 
 /* Styles des champs de formulaire */
 .fi-input-wrp {
-    @apply bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow-sm focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500 rounded-lg transition-colors duration-200;
-}
-
-.fi-input {
-    @apply h-11 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 px-4;
-}
-
-.fi-label {
-    @apply text-gray-700 dark:text-gray-300 font-medium mb-1.5;
-}
-
-.fi-checkbox {
-    @apply mt-1;
-}
-
-.fi-checkbox-input {
-    @apply border-gray-300 dark:border-gray-700 text-primary-600 focus:ring-primary-500 rounded;
-}
-
-.fi-checkbox-label {
-    @apply text-gray-700 dark:text-gray-300 select-none ml-3;
+    @apply bg-transparent border border-gray-300 dark:border-gray-700 shadow-sm focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500 rounded-lg transition-colors duration-200;
 }
 
 /* Style du bouton */
@@ -47,19 +27,6 @@
 
 .fi-btn-color-primary {
     @apply bg-primary-600 hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 text-white transition-all duration-200 h-11 px-6 rounded-lg w-full;
-}
-
-/* Autres styles spécifiques au mode sombre */
-.dark .fi-simple-main-ctn {
-    @apply bg-gray-900;
-}
-
-.dark .fi-simple-footer {
-    @apply text-gray-400;
-}
-
-.dark a {
-    @apply text-primary-500 hover:text-primary-400;
 }
 
 /* Pattern de diamants */
@@ -72,13 +39,6 @@
 
 .dark .pattern-diamonds {
     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30L30 0z' fill='%23374151'/%3E%3C/svg%3E");
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .fi-simple-page {
-        @apply p-0;
-    }
 }
 
 /* Empêcher le défilement sur la page de connexion */

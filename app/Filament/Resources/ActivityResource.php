@@ -86,13 +86,25 @@ class ActivityResource extends Resource
                     ->label('Date de réalisation'),
                 Forms\Components\Select::make('user_id')
                     ->label('Assigné à')
-                    ->relationship('assignedTo', 'name')
+                    ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 Forms\Components\Hidden::make('created_by')
                     ->default(auth()->id()),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        // Si l'utilisateur est un manager, il ne voit que ses propres activités
+        if (auth()->user()->hasRole('manager') && !auth()->user()->hasRole('super_admin')) {
+            $query->where('created_by', auth()->id());
+        }
+
+        return $query;
     }
 
     public static function table(Table $table): Table
@@ -150,7 +162,7 @@ class ActivityResource extends Resource
                     ->label('Date de réalisation')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('assignedTo.name')
+                Tables\Columns\TextColumn::make('user.name')
                     ->label('Assigné à')
                     ->searchable(),
             ])

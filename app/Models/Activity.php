@@ -77,14 +77,6 @@ class Activity extends Model
     }
 
     /**
-     * Alias de la relation user pour une meilleure lisibilité
-     */
-    public function assignedTo(): BelongsTo
-    {
-        return $this->user();
-    }
-
-    /**
      * Relation avec le créateur
      */
     public function creator(): BelongsTo

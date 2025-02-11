@@ -23,3 +23,7 @@ Route::get('/system/initialization', [SystemInitializationController::class, 'sh
 
 Route::post('/system/initialize', [SystemInitializationController::class, 'initialize'])
     ->name('system.initialize');
+
+Route::get('/documents/{document}/preview', \App\Http\Controllers\DossierDocumentPreviewController::class)
+    ->name('dossier-documents.preview')
+    ->middleware(['auth']);
