@@ -19,6 +19,7 @@ class Activity extends Model
     public const TYPE_EMAIL = 'email';
     public const TYPE_MEETING = 'reunion';
     public const TYPE_DOCUMENT = 'document';
+    public const TYPE_CONVERSION = 'conversion';
 
     protected $fillable = [
         'user_id',
@@ -47,6 +48,7 @@ class Activity extends Model
             self::TYPE_EMAIL,
             self::TYPE_MEETING,
             self::TYPE_DOCUMENT,
+            self::TYPE_CONVERSION,
         ];
     }
 
@@ -61,6 +63,7 @@ class Activity extends Model
             self::TYPE_EMAIL => 'Email',
             self::TYPE_MEETING => 'Réunion',
             self::TYPE_DOCUMENT => 'Document',
+            self::TYPE_CONVERSION => 'Conversion',
             default => $this->type,
         };
     }
@@ -71,6 +74,14 @@ class Activity extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Alias de la relation user pour une meilleure lisibilité
+     */
+    public function assignedTo(): BelongsTo
+    {
+        return $this->user();
     }
 
     /**

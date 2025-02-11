@@ -13,6 +13,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+        // Vérifie les dossiers en retard tous les jours à 9h
+        $schedule->command('dossiers:check-delays')->dailyAt('09:00');
     }
 
     /**
