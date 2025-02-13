@@ -165,6 +165,9 @@ class ActivityResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Assigné à')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('creator.name')
+                    ->label('Créé par')
+                    ->searchable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')

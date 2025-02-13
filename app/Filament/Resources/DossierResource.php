@@ -425,6 +425,8 @@ class DossierResource extends Resource
                             ->label('Notes')
                             ->rows(3),
                     ]),
+                Forms\Components\Hidden::make('created_by')
+                    ->default(auth()->id()),
             ]);
     }
 

@@ -6,6 +6,7 @@ use App\Filament\Widgets\FinancialMetricsWidget;
 use App\Filament\Widgets\FinancialPerformanceChart;
 use App\Filament\Widgets\MonthlyGoalsWidget;
 use App\Filament\Widgets\ProspectFunnelWidget;
+use App\Filament\Widgets\UserDossiersWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Widgets\AccountWidget;
 
@@ -24,6 +25,9 @@ class Dashboard extends BaseDashboard
 
         // Widget de compte en premier
         $widgets[] = AccountWidget::class;
+
+        // Widget des dossiers de l'utilisateur
+        $widgets[] = UserDossiersWidget::class;
 
         // Widgets communs à tous les rôles
         $widgets[] = ProspectFunnelWidget::class;

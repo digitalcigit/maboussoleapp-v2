@@ -55,6 +55,7 @@ class Dossier extends Model
     protected $fillable = [
         'reference_number',
         'prospect_id',
+        'created_by',
         'status',
         'first_name',
         'last_name',
@@ -81,7 +82,7 @@ class Dossier extends Model
         'agency_payment_amount',
         'tuition_total_amount',
         'tuition_paid_amount',
-        'down_payment_amount',  // Ajout du nouveau champ
+        'down_payment_amount',  
         'last_action_at',
     ];
 
@@ -376,6 +377,14 @@ class Dossier extends Model
     public function assignedTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * Get the user who created the dossier
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
