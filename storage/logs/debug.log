@@ -31016,3 +31016,519 @@ Gate::before called for ability: viewAny
 [2025-02-11 17:53:00] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
 Gate::before called for ability: viewAny
 [2025-02-11 17:53:00] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reorder
+[2025-02-11 18:02:45] local.DEBUG: Gate check {"ability":"reorder","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: deleteAny
+[2025-02-11 18:02:45] local.DEBUG: Gate check {"ability":"deleteAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:02:46] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:02:46] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:02:46] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:02:46] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:02:46] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:02:46] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: create
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"create","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reorder
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"reorder","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: deleteAny
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"deleteAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:04] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:03:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:03:13] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:04:25] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:36] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:04:59] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: create
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"create","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reorder
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"reorder","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: deleteAny
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"deleteAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:02] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:05] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reassign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"reassign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: delete
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"delete","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:27] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: create
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"create","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reorder
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"reorder","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: deleteAny
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"deleteAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: viewAny
+[2025-02-11 18:05:30] local.DEBUG: Gate check {"ability":"viewAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: create
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"create","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reorder
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"reorder","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: deleteAny
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"deleteAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: view
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"view","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: update
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"update","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: create
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"create","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: reorder
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"reorder","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: deleteAny
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"deleteAny","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
+Gate::before called for ability: assign
+[2025-02-11 18:05:33] local.DEBUG: Gate check {"ability":"assign","user_id":1,"roles":{"Illuminate\\Support\\Collection":["super-admin"]}} 
