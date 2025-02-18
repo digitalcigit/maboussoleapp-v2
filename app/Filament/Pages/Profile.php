@@ -28,6 +28,7 @@ class Profile extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill([
+            'name' => auth()->user()->name,
             'email' => auth()->user()->email,
             'avatar' => auth()->user()->avatar,
         ]);
@@ -42,7 +43,7 @@ class Profile extends Page implements HasForms
                     ->schema([
                         TextInput::make('name')
                             ->label('Nom')
-                            ->default(auth()->user()->name)
+                            ->default(fn () => auth()->user()->name)
                             ->disabled()
                             ->dehydrated(false),
                             

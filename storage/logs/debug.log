@@ -34834,3 +34834,92 @@ Gate::before called for ability: viewAny
 [2025-02-18 15:49:19] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
 Gate::before called for ability: viewAny
 [2025-02-18 15:49:19] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:17:11] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:17:11] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:17:11] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:17:11] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:17:11] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:17:11] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+[2025-02-18 16:18:35] local.ERROR: syntax error, unexpected token "-", expecting ";" or "{" {"exception":"[object] (ParseError(code: 0): syntax error, unexpected token \"-\", expecting \";\" or \"{\" at /home/klarou/Documents/maboussoleapp-v2/app/Filament/Resources/UserResource.php:40)
+[stacktrace]
+#0 /home/klarou/Documents/maboussoleapp-v2/vendor/composer/ClassLoader.php(427): Composer\\Autoload\\{closure}()
+#1 [internal function]: Composer\\Autoload\\ClassLoader->loadClass()
+#2 /home/klarou/Documents/maboussoleapp-v2/vendor/filament/filament/src/Panel/Concerns/HasComponents.php(438): class_exists()
+#3 /home/klarou/Documents/maboussoleapp-v2/vendor/filament/filament/src/Panel/Concerns/HasComponents.php(293): Filament\\Panel->discoverComponents()
+#4 /home/klarou/Documents/maboussoleapp-v2/app/Providers/Filament/AdminPanelProvider.php(69): Filament\\Panel->discoverResources()
+#5 /home/klarou/Documents/maboussoleapp-v2/vendor/filament/filament/src/PanelProvider.php(15): App\\Providers\\Filament\\AdminPanelProvider->panel()
+#6 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Collections/helpers.php(224): Filament\\PanelProvider->Filament\\{closure}()
+#7 /home/klarou/Documents/maboussoleapp-v2/vendor/filament/filament/src/Facades/Filament.php(140): value()
+#8 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(1302): Filament\\Facades\\Filament::Filament\\Facades\\{closure}()
+#9 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(1248): Illuminate\\Container\\Container->fireCallbackArray()
+#10 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(813): Illuminate\\Container\\Container->fireResolvingCallbacks()
+#11 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(963): Illuminate\\Container\\Container->resolve()
+#12 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(731): Illuminate\\Foundation\\Application->resolve()
+#13 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(948): Illuminate\\Container\\Container->make()
+#14 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(120): Illuminate\\Foundation\\Application->make()
+#15 /home/klarou/Documents/maboussoleapp-v2/vendor/filament/filament/src/FilamentManager.php(51): app()
+#16 /home/klarou/Documents/maboussoleapp-v2/vendor/filament/filament/src/FilamentServiceProvider.php(48): Filament\\FilamentManager->__construct()
+#17 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(908): Filament\\FilamentServiceProvider->Filament\\{closure}()
+#18 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(795): Illuminate\\Container\\Container->build()
+#19 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(963): Illuminate\\Container\\Container->resolve()
+#20 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(731): Illuminate\\Foundation\\Application->resolve()
+#21 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(948): Illuminate\\Container\\Container->make()
+#22 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(1454): Illuminate\\Foundation\\Application->make()
+#23 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(237): Illuminate\\Container\\Container->offsetGet()
+#24 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(208): Illuminate\\Support\\Facades\\Facade::resolveFacadeInstance()
+#25 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(349): Illuminate\\Support\\Facades\\Facade::getFacadeRoot()
+#26 /home/klarou/Documents/maboussoleapp-v2/vendor/filament/filament/routes/web.php(13): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#27 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Routing/Router.php(509): Illuminate\\Support\\ServiceProvider->{closure}()
+#28 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Routing/Router.php(465): Illuminate\\Routing\\Router->loadRoutes()
+#29 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Routing/RouteRegistrar.php(194): Illuminate\\Routing\\Router->group()
+#30 /home/klarou/Documents/maboussoleapp-v2/vendor/filament/filament/routes/web.php(12): Illuminate\\Routing\\RouteRegistrar->group()
+#31 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Support/ServiceProvider.php(152): require('...')
+#32 /home/klarou/Documents/maboussoleapp-v2/vendor/spatie/laravel-package-tools/src/PackageServiceProvider.php(152): Illuminate\\Support\\ServiceProvider->loadRoutesFrom()
+#33 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Spatie\\LaravelPackageTools\\PackageServiceProvider->boot()
+#34 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#35 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure()
+#36 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#37 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call()
+#38 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1036): Illuminate\\Container\\Container->call()
+#39 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1017): Illuminate\\Foundation\\Application->bootProvider()
+#40 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}()
+#41 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1016): array_walk()
+#42 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#43 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(263): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap()
+#44 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(186): Illuminate\\Foundation\\Application->bootstrapWith()
+#45 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(170): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#46 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter()
+#47 /home/klarou/Documents/maboussoleapp-v2/public/index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle()
+#48 /home/klarou/Documents/maboussoleapp-v2/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(16): require_once('...')
+#49 {main}
+"} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:18:42] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:18:42] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:18:42] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:18:42] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:18:42] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:18:42] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:33:49] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:33:49] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:33:49] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:33:49] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:33:49] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
+Gate::before called for ability: viewAny
+[2025-02-18 16:33:49] local.DEBUG: Gate check {"ability":"viewAny","user_id":9,"roles":{"Illuminate\\Support\\Collection":["conseiller","commercial"]}} 
