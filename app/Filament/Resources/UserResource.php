@@ -67,6 +67,12 @@ class UserResource extends Resource
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
 
+                TextInput::make('avatar')
+                    ->label('URL de l\'avatar')
+                    ->url()
+                    ->maxLength(2048)
+                    ->placeholder('https://example.com/avatar.jpg'),
+
                 TextInput::make('password')
                     ->password()
                     ->required(fn ($context) => $context === 'create')
@@ -145,5 +151,13 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function afterCreate(): void
+    {
+        $admins = \App\Models\User::role(['super-admin', 'manager'])->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\NewUserNotification(auth()->user()));
+        }
     }
 }

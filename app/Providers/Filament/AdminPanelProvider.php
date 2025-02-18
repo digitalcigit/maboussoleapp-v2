@@ -4,9 +4,12 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Profile;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
+use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -67,6 +70,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Dashboard::class,
+                Profile::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -86,8 +90,25 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->databaseNotifications()
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationItems([
+                NavigationItem::make('notifications')
+                    ->icon('heroicon-o-bell')
+                    ->badge(fn () => auth()->user()->unreadNotifications()->count() ?: null)
+                    ->url(fn () => '#')
+                    ->openUrlInNewTab(false)
+                    ->visible(fn () => auth()->user()->hasAnyRole(['super-admin', 'manager'])),
+            ])
             ->maxContentWidth('full')
             ->default()
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Mon profil')
+                    ->url(fn (): string => Profile::getUrl())
+                    ->icon('heroicon-o-user-circle'),
+                'logout' => MenuItem::make()->label('Déconnexion'),
+            ])
             ->renderHook(
                 'panels::scripts.start',
                 fn (): string => '<script>window.filamentData = {};</script>'
