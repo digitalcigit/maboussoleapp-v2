@@ -438,9 +438,21 @@ class DossierResource extends Resource
                     ->label('Référence')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('prospect.full_name')
-                    ->label('Prospect')
-                    ->searchable(['first_name', 'last_name'])
+                TextColumn::make('prospect.first_name')
+                    ->label('Prénom')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('prospect.last_name')
+                    ->label('Nom')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('assignedTo.name')
+                    ->label('Assigné à')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('creator.name')
+                    ->label('Créé par')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('current_step')
                     ->label('Étape')

@@ -89,7 +89,15 @@ class ActivityResource extends Resource
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->default(fn () => auth()->id())
+                    ->disabled(fn () => !auth()->user()->hasAnyRole(['manager', 'super_admin']))
+                    ->dehydrated(fn ($state) => filled($state))
+                    ->afterStateHydrated(function ($component, $state) {
+                        if (!auth()->user()->hasAnyRole(['manager', 'super_admin'])) {
+                            $component->state(auth()->id());
+                        }
+                    }),
                 Forms\Components\Hidden::make('created_by')
                     ->default(auth()->id()),
             ]);
