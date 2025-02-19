@@ -20,6 +20,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\PortailCandidatMiddleware;
 use App\Filament\PortailCandidat\Resources\DossierResource;
 use App\Filament\PortailCandidat\Widgets\DossierProgressWidget;
+use App\Filament\PortailCandidat\Pages\Profile;
 
 class PortailCandidatPanelProvider extends PanelProvider
 {
@@ -27,12 +28,11 @@ class PortailCandidatPanelProvider extends PanelProvider
     {
         return $panel
             ->id('portail-candidat')
-            ->path('portail')
+            ->path('portail-candidat')
             ->login()
             // Retrait de ->registration() pour désactiver l'inscription directe
             ->passwordReset()
             ->emailVerification()
-            ->profile()
             ->colors([
                 'primary' => [
                     50 => '245, 240, 255',  // Très clair
@@ -101,9 +101,9 @@ class PortailCandidatPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->databaseNotifications()
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth('full')
+            ->databaseNotifications(true)
             ->topNavigation()
             ->spa();
     }

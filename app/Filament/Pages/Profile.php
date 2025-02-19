@@ -2,113 +2,103 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Forms\Components\Section;
+use App\Models\User;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Hash;
 use Filament\Notifications\Notification;
-use Filament\Forms\Contracts\HasForms;
+use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Components\FileUpload;
 
-class Profile extends Page implements HasForms
+class Profile extends Page
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
-    protected static ?string $navigationGroup = 'Compte';
-    protected static ?string $title = 'Mon profil';
-    protected static ?string $slug = 'profile';
-    protected static bool $shouldRegisterNavigation = false; // Cacher le lien dans la navigation principale
+    protected static ?string $navigationIcon = 'heroicon-o-user';
     protected static string $view = 'filament.pages.profile';
+    protected static ?string $title = 'Mon profil';
     
     public ?array $data = [];
+    public $avatar;
+    public $email;
+    public $current_password;
+    public $new_password;
+    public $new_password_confirmation;
     
     public function mount(): void
     {
+        $user = auth()->user();
+        $this->email = $user->email;
         $this->form->fill([
-            'name' => auth()->user()->name,
-            'email' => auth()->user()->email,
-            'avatar' => auth()->user()->avatar,
+            'email' => $user->email,
+            'avatar' => $user->avatar,
         ]);
     }
-    
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make('Informations du compte')
-                    ->description('Mettez à jour les informations de votre compte.')
-                    ->schema([
-                        TextInput::make('name')
-                            ->label('Nom')
-                            ->default(fn () => auth()->user()->name)
-                            ->disabled()
-                            ->dehydrated(false),
-                            
-                        TextInput::make('email')
-                            ->label('Email')
-                            ->email()
-                            ->required()
-                            ->unique('users', 'email', ignorable: auth()->user())
-                            ->autocomplete(false),
-                            
-                        TextInput::make('avatar')
-                            ->label('URL de l\'avatar')
-                            ->url()
-                            ->maxLength(2048)
-                            ->placeholder('https://example.com/avatar.jpg'),
-                    ]),
+                TextInput::make('email')
+                    ->email()
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->default(fn () => $this->email),
                     
-                Section::make('Mettre à jour le mot de passe')
-                    ->description('Assurez-vous que votre compte utilise un mot de passe long et aléatoire pour rester sécurisé.')
-                    ->schema([
-                        TextInput::make('current_password')
-                            ->label('Mot de passe actuel')
-                            ->password()
-                            ->dehydrated(false)
-                            ->rules(['required_with:new_password']),
-                            
-                        TextInput::make('new_password')
-                            ->label('Nouveau mot de passe')
-                            ->password()
-                            ->minLength(8)
-                            ->dehydrated(false),
-                            
-                        TextInput::make('new_password_confirmation')
-                            ->label('Confirmer le mot de passe')
-                            ->password()
-                            ->dehydrated(false)
-                            ->rules(['same:new_password']),
-                    ]),
-            ])
-            ->statePath('data');
+                FileUpload::make('avatar')
+                    ->image()
+                    ->disk('avatars')
+                    ->directory('profiles')
+                    ->visibility('public')
+                    ->imageEditor()
+                    ->circleCropper()
+                    ->maxSize(5120),
+                    
+                TextInput::make('current_password')
+                    ->password()
+                    ->label('Mot de passe actuel')
+                    ->dehydrated(false),
+                    
+                TextInput::make('new_password')
+                    ->password()
+                    ->label('Nouveau mot de passe')
+                    ->dehydrated(false)
+                    ->confirmed(),
+                    
+                TextInput::make('new_password_confirmation')
+                    ->password()
+                    ->label('Confirmer le nouveau mot de passe')
+                    ->dehydrated(false)
+                    ->requiredWith('new_password'),
+            ]);
     }
-    
-    public function submit(): void
+
+    public function submit()
     {
-        $this->validate();
+        $data = $this->form->getState();
         
         $user = auth()->user();
         
-        if ($this->data['email'] !== $user->email) {
-            $user->email = $this->data['email'];
-        }
-        
-        if (isset($this->data['avatar'])) {
-            $user->avatar = $this->data['avatar'];
+        if (filled($data['avatar'])) {
+            // Supprimer l'ancien avatar s'il existe et n'est pas une URL externe
+            if ($user->avatar && !str_starts_with($user->avatar, 'http')) {
+                Storage::disk('avatars')->delete($user->avatar);
+            }
+            $user->avatar = $data['avatar'];
         }
         
         if (
-            isset($this->data['current_password']) &&
-            isset($this->data['new_password']) &&
-            Hash::check($this->data['current_password'], $user->password)
+            filled($this->current_password) &&
+            filled($this->new_password) &&
+            Hash::check($this->current_password, $user->password)
         ) {
-            $user->password = Hash::make($this->data['new_password']);
+            $user->password = Hash::make($this->new_password);
         } elseif (
-            isset($this->data['new_password']) &&
-            !Hash::check($this->data['current_password'], $user->password)
+            filled($this->new_password) &&
+            !Hash::check($this->current_password, $user->password)
         ) {
             Notification::make()
                 ->danger()
@@ -121,12 +111,24 @@ class Profile extends Page implements HasForms
         
         $user->save();
         
+        // Réinitialiser les champs de mot de passe
+        $this->current_password = null;
+        $this->new_password = null;
+        $this->new_password_confirmation = null;
+        
         Notification::make()
             ->success()
             ->title('Profil mis à jour')
             ->body('Vos informations ont été mises à jour avec succès.')
             ->send();
-            
-        $this->reset(['data.current_password', 'data.new_password', 'data.new_password_confirmation']);
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('submit')
+                ->label('Sauvegarder les modifications')
+                ->action('submit'),
+        ];
     }
 }
