@@ -29,13 +29,13 @@ class PortailCandidatPanelProvider extends PanelProvider
         return $panel
             ->id('portail-candidat')
             ->path('portail-candidat')
-            ->login()
-            // Retrait de ->registration() pour désactiver l'inscription directe
+            ->login(\App\Filament\PortailCandidat\Auth\Login::class)
             ->passwordReset()
             ->emailVerification()
+            ->brandName('Ma Boussole')
             ->colors([
                 'primary' => [
-                    50 => '245, 240, 255',  // Très clair
+                    50 => '245, 240, 255',
                     100 => '235, 225, 255',
                     200 => '215, 200, 255',
                     300 => '190, 165, 255',
@@ -45,46 +45,13 @@ class PortailCandidatPanelProvider extends PanelProvider
                     700 => '82, 41, 123',
                     800 => '71, 36, 107',
                     900 => '61, 31, 92',
-                    950 => '41, 20, 61',    // Très foncé
+                    950 => '41, 20, 61',
                 ],
-                'gray' => [
-                    50 => '250, 250, 250',
-                    100 => '244, 244, 245',
-                    200 => '228, 228, 231',
-                    300 => '209, 209, 214',
-                    400 => '156, 156, 163',
-                    500 => '102, 102, 102',  // Gris du slogan
-                    600 => '82, 82, 91',
-                    700 => '63, 63, 70',
-                    800 => '39, 39, 42',
-                    900 => '24, 24, 27',
-                    950 => '9, 9, 11',
-                ],
-                'success' => Color::Emerald,
-                'warning' => Color::Amber,
-                'danger' => Color::Rose,
-                'info' => Color::Violet,
             ])
-            ->font('Poppins')
-            ->brandName('Portail Candidat - Ma Boussole')
-            ->favicon(asset('images/favicon.png'))
-            ->viteTheme('resources/css/filament/portail-candidat/theme.css')
             ->discoverResources(in: app_path('Filament/PortailCandidat/Resources'), for: 'App\\Filament\\PortailCandidat\\Resources')
             ->discoverPages(in: app_path('Filament/PortailCandidat/Pages'), for: 'App\\Filament\\PortailCandidat\\Pages')
             ->pages([
-                Pages\Dashboard::class,
-            ])
-            ->discoverWidgets(in: app_path('Filament/PortailCandidat/Widgets'), for: 'App\\Filament\\PortailCandidat\\Widgets')
-            ->widgets([
-                DossierProgressWidget::class,
-                Widgets\AccountWidget::class,
-            ])
-            ->navigationItems([
-                \Filament\Navigation\NavigationItem::make('Mon Dossier')
-                    ->icon('heroicon-o-folder')
-                    ->isActiveWhen(fn (): bool => request()->routeIs('filament.portail-candidat.resources.mon-dossier.*'))
-                    ->url(fn (): string => DossierResource::getUrl('index'))
-                    ->sort(1),
+                \App\Filament\PortailCandidat\Pages\Dashboard::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -96,15 +63,15 @@ class PortailCandidatPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                PortailCandidatMiddleware::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+            ])
+            ->authGuard('web')
             ->sidebarCollapsibleOnDesktop()
-            ->maxContentWidth('full')
-            ->databaseNotifications(true)
-            ->topNavigation()
-            ->spa();
+            ->maxContentWidth('full');
     }
 }

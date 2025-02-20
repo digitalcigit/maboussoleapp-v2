@@ -53,4 +53,11 @@ return [
         ],
     ],
 
+    'panels' => [
+        'providers' => [
+            \App\Providers\Filament\AdminPanelProvider::class,
+            \App\Providers\Filament\PortailCandidatPanelProvider::class,
+        ],
+    ],
+
 ];
