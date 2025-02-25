@@ -25,6 +25,7 @@ return new class extends Migration
 
             $table->index(['current_step', 'current_status']);
             $table->index('last_action_at');
+            $table->enum('dossier_state', ['prospect', 'client', 'client_visa'])->default('prospect');
         });
     }
 

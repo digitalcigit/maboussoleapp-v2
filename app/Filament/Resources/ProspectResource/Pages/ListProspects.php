@@ -13,7 +13,7 @@ class ListProspects extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // Bouton de création retiré
         ];
     }
 }
