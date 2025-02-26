@@ -29,7 +29,7 @@ class ProspectConversionService
         }
 
         // Vérifier que le prospect est approuvé
-        if ($prospect->status !== Prospect::STATUS_ANALYZED) {
+        if ($prospect->current_status !== Prospect::STATUS_ANALYZED) {
             throw new \Exception('Seuls les prospects avec analyse terminée peuvent être convertis en clients.');
         }
 
@@ -50,7 +50,7 @@ class ProspectConversionService
             ]);
 
             // Mettre à jour le statut du prospect
-            $prospect->update(['status' => Prospect::STATUS_CONVERTED]);
+            $prospect->update(['current_status' => Prospect::STATUS_CONVERTI]);
 
             // Créer une activité pour la conversion
             Activity::create([

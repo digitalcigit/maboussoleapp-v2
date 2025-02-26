@@ -87,82 +87,85 @@ class ClientResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informations Personnelles')
+                Forms\Components\Section::make('Informations du client')
                     ->schema([
                         Forms\Components\TextInput::make('client_number')
-                            ->label('Numéro Client')
-                            ->default('CLI-' . random_int(10000, 99999))
+                            ->label('Numéro client')
                             ->disabled()
-                            ->dehydrated()
-                            ->required(),
-                        Forms\Components\TextInput::make('first_name')
+                            ->dehydrated(),
+
+                        Forms\Components\TextInput::make('prospect.first_name')
+                            ->label('Prénom')
                             ->required()
-                            ->maxLength(255)
-                            ->label('Prénom'),
-                        Forms\Components\TextInput::make('last_name')
+                            ->disabled(),
+
+                        Forms\Components\TextInput::make('prospect.last_name')
+                            ->label('Nom')
                             ->required()
-                            ->maxLength(255)
-                            ->label('Nom'),
-                        Forms\Components\TextInput::make('email')
+                            ->disabled(),
+
+                        Forms\Components\TextInput::make('prospect.email')
+                            ->label('Email')
                             ->email()
                             ->required()
-                            ->maxLength(255)
-                            ->unique(ignoreRecord: true)
-                            ->rules(['email']),
-                        Forms\Components\TextInput::make('phone')
-                            ->required()
-                            ->maxLength(255)
+                            ->disabled(),
+
+                        Forms\Components\TextInput::make('prospect.phone')
                             ->label('Téléphone')
                             ->tel()
-                            ->rules(['regex:/^([0-9\s\-\+\(\)]*)$/']),
-                    ])->columns(2),
+                            ->disabled(),
 
-                Forms\Components\Section::make('Suivi')
+                        Forms\Components\TextInput::make('prospect.city')
+                            ->label('Ville')
+                            ->disabled(),
+
+                        Forms\Components\TextInput::make('prospect.country')
+                            ->label('Pays')
+                            ->disabled(),
+                    ]),
+
+                Forms\Components\Section::make('Documents')
                     ->schema([
-                        Forms\Components\Select::make('status')
+                        Forms\Components\TextInput::make('passport_number')
+                            ->label('Numéro de passeport')
+                            ->required(),
+
+                        Forms\Components\DatePicker::make('passport_expiry')
+                            ->label('Date d\'expiration du passeport')
+                            ->required(),
+
+                        Forms\Components\Select::make('visa_status')
+                            ->label('Statut du visa')
                             ->options([
-                                'actif' => 'Actif',
-                                'inactif' => 'Inactif',
-                                'en_attente' => 'En attente',
-                                'archive' => 'Archivé',
+                                Client::VISA_STATUS_NOT_STARTED => 'Non commencé',
+                                Client::VISA_STATUS_IN_PROGRESS => 'En cours',
+                                Client::VISA_STATUS_APPROVED => 'Approuvé',
+                                Client::VISA_STATUS_REJECTED => 'Rejeté',
                             ])
-                            ->required()
-                            ->default('actif')
-                            ->label('Statut')
-                            ->rules(['in:actif,inactif,en_attente,archive']),
-                        Forms\Components\Select::make('assigned_to')
-                            ->relationship('assignedTo', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->label('Assigné à'),
-                        Forms\Components\Select::make('prospect_id')
-                            ->relationship('prospect', 'email')
-                            ->searchable()
-                            ->preload()
-                            ->label('Prospect d\'origine'),
+                            ->required(),
+                    ]),
+
+                Forms\Components\Section::make('Paiement')
+                    ->schema([
                         Forms\Components\TextInput::make('total_amount')
-                            ->numeric()
                             ->label('Montant total')
-                            ->required()
-                            ->suffix('FCFA')
-                            ->rules(['numeric', 'min:0']),
-                        Forms\Components\TextInput::make('paid_amount')
                             ->numeric()
+                            ->required(),
+
+                        Forms\Components\TextInput::make('paid_amount')
                             ->label('Montant payé')
-                            ->required()
-                            ->suffix('FCFA')
-                            ->rules(['numeric', 'min:0'])
-                            ->rules([
-                                function (Forms\Get $get) {
-                                    return function (string $attribute, $value, $fail) use ($get) {
-                                        $totalAmount = (float) $get('total_amount');
-                                        if ((float) $value > $totalAmount) {
-                                            $fail('Le montant payé ne peut pas être supérieur au montant total.');
-                                        }
-                                    };
-                                },
-                            ]),
-                    ])->columns(2),
+                            ->numeric()
+                            ->required(),
+
+                        Forms\Components\Select::make('payment_status')
+                            ->label('Statut du paiement')
+                            ->options([
+                                Client::PAYMENT_STATUS_PENDING => 'En attente',
+                                Client::PAYMENT_STATUS_PARTIAL => 'Partiel',
+                                Client::PAYMENT_STATUS_COMPLETE => 'Complet',
+                            ])
+                            ->required(),
+                    ]),
             ]);
     }
 
@@ -178,46 +181,79 @@ class ClientResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('client_number')
-                    ->searchable()
-                    ->sortable()
-                    ->label('Numéro Client'),
-                Tables\Columns\TextColumn::make('full_name')
-                    ->searchable(['first_name', 'last_name'])
-                    ->sortable()
-                    ->label('Nom Complet'),
-                Tables\Columns\TextColumn::make('email')
+                    ->label('Numéro client')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('phone')
+
+                Tables\Columns\TextColumn::make('prospect.first_name')
+                    ->label('Prénom')
                     ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('prospect.last_name')
+                    ->label('Nom')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('prospect.email')
+                    ->label('Email')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('prospect.phone')
                     ->label('Téléphone'),
-                Tables\Columns\TextColumn::make('status')
+
+                Tables\Columns\TextColumn::make('visa_status')
+                    ->label('Statut visa')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'actif' => 'success',
-                        'inactif' => 'danger',
-                        'en_attente' => 'warning',
-                        'archive' => 'secondary',
-                        default => 'secondary',
+                        Client::VISA_STATUS_APPROVED => 'success',
+                        Client::VISA_STATUS_IN_PROGRESS => 'warning',
+                        Client::VISA_STATUS_REJECTED => 'danger',
+                        default => 'gray',
                     })
-                    ->label('Statut'),
-                Tables\Columns\TextColumn::make('prospect.email')
-                    ->label('Prospect'),
-                Tables\Columns\TextColumn::make('total_amount')
-                    ->money('XAF')
-                    ->label('Montant total'),
-                Tables\Columns\TextColumn::make('paid_amount')
-                    ->money('XAF')
-                    ->label('Montant payé'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->label('Créé le'),
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        Client::VISA_STATUS_NOT_STARTED => 'Non commencé',
+                        Client::VISA_STATUS_IN_PROGRESS => 'En cours',
+                        Client::VISA_STATUS_APPROVED => 'Approuvé',
+                        Client::VISA_STATUS_REJECTED => 'Rejeté',
+                        default => $state,
+                    }),
+
+                Tables\Columns\TextColumn::make('payment_status')
+                    ->label('Statut paiement')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        Client::PAYMENT_STATUS_COMPLETE => 'success',
+                        Client::PAYMENT_STATUS_PARTIAL => 'warning',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        Client::PAYMENT_STATUS_PENDING => 'En attente',
+                        Client::PAYMENT_STATUS_PARTIAL => 'Partiel',
+                        Client::PAYMENT_STATUS_COMPLETE => 'Complet',
+                        default => $state,
+                    }),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('visa_status')
+                    ->label('Statut visa')
+                    ->options([
+                        Client::VISA_STATUS_NOT_STARTED => 'Non commencé',
+                        Client::VISA_STATUS_IN_PROGRESS => 'En cours',
+                        Client::VISA_STATUS_APPROVED => 'Approuvé',
+                        Client::VISA_STATUS_REJECTED => 'Rejeté',
+                    ]),
+
+                Tables\Filters\SelectFilter::make('payment_status')
+                    ->label('Statut paiement')
+                    ->options([
+                        Client::PAYMENT_STATUS_PENDING => 'En attente',
+                        Client::PAYMENT_STATUS_PARTIAL => 'Partiel',
+                        Client::PAYMENT_STATUS_COMPLETE => 'Complet',
+                    ]),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

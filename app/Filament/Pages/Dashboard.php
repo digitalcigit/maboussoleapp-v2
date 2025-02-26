@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\ConseillerStatsWidget;
 use App\Filament\Widgets\FinancialMetricsWidget;
 use App\Filament\Widgets\FinancialPerformanceChart;
 use App\Filament\Widgets\MonthlyGoalsWidget;
@@ -26,14 +27,19 @@ class Dashboard extends BaseDashboard
         // Widget de compte en premier
         $widgets[] = AccountWidget::class;
 
+        // Widget des statistiques du conseiller
+        if ($user && $user->hasRole('conseiller')) {
+            $widgets[] = ConseillerStatsWidget::class;
+        }
+
         // Widget des dossiers de l'utilisateur
-        $widgets[] = UserDossiersWidget::class;
+        //$widgets[] = UserDossiersWidget::class;
 
         // Widgets communs à tous les rôles
-        $widgets[] = ProspectFunnelWidget::class;
+        //$widgets[] = ProspectFunnelWidget::class;
 
         // Widgets spécifiques aux rôles super_admin et manager
-        if ($user && ($user->role === 'super_admin' || $user->role === 'manager')) {
+        if ($user && ($user->hasRole('super_admin') || $user->hasRole('manager'))) {
             $widgets[] = FinancialMetricsWidget::class;
         }
 
@@ -46,7 +52,7 @@ class Dashboard extends BaseDashboard
         $widgets = [];
 
         // Widgets spécifiques aux rôles super_admin et manager
-        if ($user && ($user->role === 'super_admin' || $user->role === 'manager')) {
+        if ($user && ($user->hasRole('super_admin') || $user->hasRole('manager'))) {
             $widgets[] = FinancialPerformanceChart::class;
             $widgets[] = MonthlyGoalsWidget::class;
         }

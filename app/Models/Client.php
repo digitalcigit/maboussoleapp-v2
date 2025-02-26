@@ -27,14 +27,14 @@ class Client extends Model
 
     public const PAYMENT_STATUS_PARTIAL = 'partiel';
 
-    public const PAYMENT_STATUS_COMPLETED = 'complete';
+    public const PAYMENT_STATUS_COMPLETE = 'complet';
 
     // Statuts de visa
     public const VISA_STATUS_NOT_STARTED = 'non_demarre';
 
     public const VISA_STATUS_IN_PROGRESS = 'en_cours';
 
-    public const VISA_STATUS_OBTAINED = 'obtenu';
+    public const VISA_STATUS_APPROVED = 'approuve';
 
     public const VISA_STATUS_REJECTED = 'refuse';
 
@@ -84,7 +84,7 @@ class Client extends Model
         return [
             self::PAYMENT_STATUS_PENDING,
             self::PAYMENT_STATUS_PARTIAL,
-            self::PAYMENT_STATUS_COMPLETED,
+            self::PAYMENT_STATUS_COMPLETE,
         ];
     }
 
@@ -96,7 +96,7 @@ class Client extends Model
         return [
             self::VISA_STATUS_NOT_STARTED,
             self::VISA_STATUS_IN_PROGRESS,
-            self::VISA_STATUS_OBTAINED,
+            self::VISA_STATUS_APPROVED,
             self::VISA_STATUS_REJECTED,
         ];
     }
@@ -123,7 +123,7 @@ class Client extends Model
         return match ($this->payment_status) {
             self::PAYMENT_STATUS_PENDING => 'En attente',
             self::PAYMENT_STATUS_PARTIAL => 'Partiel',
-            self::PAYMENT_STATUS_COMPLETED => 'Complété',
+            self::PAYMENT_STATUS_COMPLETE => 'Complet',
             default => $this->payment_status,
         };
     }
@@ -136,7 +136,7 @@ class Client extends Model
         return match ($this->visa_status) {
             self::VISA_STATUS_NOT_STARTED => 'Non démarré',
             self::VISA_STATUS_IN_PROGRESS => 'En cours',
-            self::VISA_STATUS_OBTAINED => 'Obtenu',
+            self::VISA_STATUS_APPROVED => 'Approuvé',
             self::VISA_STATUS_REJECTED => 'Refusé',
             default => $this->visa_status,
         };
