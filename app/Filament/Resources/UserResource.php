@@ -95,9 +95,34 @@ class UserResource extends Resource
                     ->options(function () {
                         // Si c'est un manager, on ne montre pas l'option super-admin
                         if (auth()->user()->hasRole('manager')) {
-                            return Role::where('name', '!=', 'super-admin')->pluck('name', 'id');
+                            return Role::where('name', '!=', 'super-admin')
+                                ->where('name', '!=', 'prospect')
+                                ->where('name', '!=', 'portail_candidat')
+                                ->where('name', '!=', 'manager')
+                                ->pluck('name', 'id');
                         }
-                        return Role::pluck('name', 'id');
+                        else if (auth()->user()->hasRole('super-admin')) {
+                            return Role::where('name', '!=', 'prospect')
+                            ->where('name', '!=', 'portail_candidat')
+                            ->where('name', '!=', 'super-admin')
+                            ->pluck('name', 'id');
+                        }
+                        else if (auth()->user()->hasRole('conseiller')) {
+                            return Role::where('name', '!=', 'prospect')
+                            ->where('name', '!=', 'portail_candidat')
+                            ->where('name', '!=', 'super-admin')
+                            ->where('name', '!=', 'manager')
+                            ->where('name', '!=', 'conseiller')
+                            ->pluck('name', 'id');
+                        } else {
+                            return Role::where('name', '!=', 'prospect')
+                            ->where('name', '!=', 'portail_candidat')
+                            ->where('name', '!=', 'super-admin')
+                            ->where('name', '!=', 'manager')
+                            ->where('name', '!=', 'conseiller')
+                            ->pluck('name', 'id');
+                        }
+
                     })
                     ->visible(fn () => auth()->user()->can('assignRole', auth()->user()))
                     ->required(),

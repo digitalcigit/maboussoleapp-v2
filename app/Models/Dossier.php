@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Dossier extends Model
@@ -55,6 +56,7 @@ class Dossier extends Model
     protected $fillable = [
         'reference_number',
         'prospect_id',
+        'affiliation_id',
         'created_by',
         'status',
         'first_name',
@@ -388,6 +390,14 @@ class Dossier extends Model
     }
 
     /**
+     * Get the user affiliated with the dossier
+     */
+    public function affiliation(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'affiliation_id');
+    }
+
+    /**
      * Calculate tuition payment progress as percentage
      */
     public function getTuitionProgressAttribute(): float
@@ -467,5 +477,13 @@ class Dossier extends Model
     public function getTuitionPaidAmountAttribute($value)
     {
         return $value;
+    }
+
+    /**
+     * Get the activities related to this dossier
+     */
+    public function activities(): MorphMany
+    {
+        return $this->morphMany(Activity::class, 'subject');
     }
 }

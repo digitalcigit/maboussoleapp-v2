@@ -36,10 +36,10 @@ class ProspectConversionService
         try {
             DB::beginTransaction();
 
-            // Créer le client
+            // Créer le client avec la même référence que le prospect
             $client = Client::create([
                 'prospect_id' => $prospect->id,
-                'client_number' => $this->generateClientNumber(),
+                'client_number' => $prospect->reference_number, // Utiliser la même référence
                 'passport_number' => $additionalData['passport_number'] ?? null,
                 'passport_expiry' => $additionalData['passport_expiry'] ?? null,
                 'visa_status' => Client::VISA_STATUS_NOT_STARTED,
@@ -68,7 +68,6 @@ class ProspectConversionService
 
         } catch (\Exception $e) {
             DB::rollBack();
-
             throw $e;
         }
     }

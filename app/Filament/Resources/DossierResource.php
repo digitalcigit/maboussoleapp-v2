@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Services\ReferenceGeneratorService;
+use App\Filament\Resources\DossierResource\RelationManagers\ActivitiesRelationManager;
 
 class DossierResource extends Resource
 {
@@ -38,6 +39,20 @@ class DossierResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::where('current_step', '<=', 4)->count();
+    }
+
+    protected static function getAffiliationUsers(): Collection
+    {
+        return User::role(['partenaire', 'apporteur-affaire'])
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'role' => $user->roles->first()->name,
+                    'label' => "{$user->name} (" . ucfirst($user->roles->first()->name) . ")"
+                ];
+            });
     }
 
     public static function form(Form $form): Form
@@ -59,11 +74,13 @@ class DossierResource extends Resource
                             ->unique(ignorable: fn ($record) => $record)
                             ->disabled(),
 
-                        Forms\Components\Select::make('prospect_id')
-                            ->label('Prospect')
-                            ->relationship('prospect', 'first_name')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->last_name}")
-                            ->searchable(['first_name', 'last_name', 'email'])
+                        Forms\Components\Select::make('affiliation_id')
+                            ->label('Affiliation')
+                            ->options(function () {
+                                return static::getAffiliationUsers()
+                                    ->pluck('label', 'id');
+                            })
+                            ->searchable()
                             ->preload()
                             ->live()
                             ->afterStateUpdated(function ($state, Forms\Set $set) {
@@ -71,38 +88,18 @@ class DossierResource extends Resource
                                     $set('prospect_info', null);
                                     return;
                                 }
-
-                                $prospect = Prospect::find($state);
-                                if (!$prospect) return;
-
-                                // Informations de base
-                                $set('prospect_info.first_name', $prospect->first_name);
-                                $set('prospect_info.last_name', $prospect->last_name);
-                                $set('prospect_info.email', $prospect->email);
-                                $set('prospect_info.phone', $prospect->phone);
-                                $set('prospect_info.birth_date', $prospect->birth_date?->format('Y-m-d'));
-                                $set('prospect_info.profession', $prospect->profession);
-                                $set('prospect_info.education_level', $prospect->education_level);
-                                $set('prospect_info.desired_field', $prospect->desired_field);
-                                $set('prospect_info.desired_destination', $prospect->desired_destination);
-
-                                // Contact d'urgence
-                                if ($prospect->emergency_contact) {
-                                    $set('prospect_info.emergency_contact', $prospect->emergency_contact);
-                                }
-
-                                // Documents
-                                if (!empty($prospect->documents)) {
-                                    $formattedDocuments = collect($prospect->documents)->map(function ($doc) {
-                                        return [
-                                            'type' => $doc['type'] ?? 'autre',
-                                            'description' => $doc['description'] ?? '',
-                                            'file' => $doc['file'] ?? null
-                                        ];
-                                    })->toArray();
-                                    
-                                    $set('prospect_info.documents', $formattedDocuments);
-                                }
+                                
+                                // Réinitialiser les champs du prospect pour un nouveau dossier
+                                $set('prospect_info.first_name', null);
+                                $set('prospect_info.last_name', null);
+                                $set('prospect_info.email', null);
+                                $set('prospect_info.phone', null);
+                                $set('prospect_info.birth_date', null);
+                                $set('prospect_info.profession', null);
+                                $set('prospect_info.education_level', null);
+                                $set('prospect_info.desired_field', null);
+                                $set('prospect_info.desired_destination', null);
+                                $set('prospect_info.emergency_contact', null);
                             }),
 
                         Forms\Components\Select::make('assigned_to')
@@ -599,7 +596,7 @@ class DossierResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ActivitiesRelationManager::class,
         ];
     }
 

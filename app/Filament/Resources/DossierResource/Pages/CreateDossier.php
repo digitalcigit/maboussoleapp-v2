@@ -23,10 +23,13 @@ class CreateDossier extends CreateRecord
             $data['assigned_to'] = auth()->id();
         }
 
+        // Générer un numéro de référence unique pour le dossier/prospect/client
+        $referenceGenerator = app(ReferenceGeneratorService::class);
+        $unifiedReference = $referenceGenerator->generateUnifiedReference();
+        
         // Si un prospect est sélectionné, on utilise ses informations
         if (!empty($data['prospect_id'])) {
-            $referenceGenerator = app(ReferenceGeneratorService::class);
-            $data['reference_number'] = $referenceGenerator->generateReference('dossier');
+            $data['reference_number'] = $unifiedReference;
             $data['last_action_at'] = now();
             $data['current_step'] = Dossier::STEP_ANALYSIS;
             $data['current_status'] = Dossier::STATUS_WAITING_DOCS;
@@ -34,9 +37,8 @@ class CreateDossier extends CreateRecord
         }
 
         // Sinon, on crée un nouveau prospect avec les informations fournies
-        $referenceGenerator = app(ReferenceGeneratorService::class);
         $prospect = Prospect::create([
-            'reference_number' => 'PROS-' . $referenceGenerator->generateReference('prospect'),
+            'reference_number' => $unifiedReference, // Utiliser la même référence
             'first_name' => $data['prospect_info']['first_name'],
             'last_name' => $data['prospect_info']['last_name'],
             'email' => $data['prospect_info']['email'],
@@ -54,7 +56,7 @@ class CreateDossier extends CreateRecord
         // On lie le nouveau prospect au dossier
         $data['prospect_id'] = $prospect->id;
 
-        $data['reference_number'] = $referenceGenerator->generateReference('dossier');
+        $data['reference_number'] = $unifiedReference; // Utiliser la même référence
         $data['last_action_at'] = now();
         $data['current_step'] = Dossier::STEP_ANALYSIS;
         $data['current_status'] = Dossier::STATUS_WAITING_DOCS;
@@ -82,7 +84,7 @@ class CreateDossier extends CreateRecord
             // Copier les données du prospect vers le dossier
             $dossier->copyFromProspect($prospect);
             
-            // Marquer le prospect comme converti
+            // Marquer le prospect comme converti en utilisant la même référence
             $prospect->markAsConverted($dossier->reference_number);
         }
     }

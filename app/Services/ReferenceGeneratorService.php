@@ -8,30 +8,28 @@ use RuntimeException;
 class ReferenceGeneratorService
 {
     /**
-     * Génère une nouvelle référence séquentielle pour un type donné
+     * Génère une nouvelle référence séquentielle unique pour un dossier
+     * Cette référence sera utilisée pour le dossier, le prospect et le client
      *
-     * @param string $type Le type de référence (ex: 'dossier')
-     * @param string $prefix Le préfixe de la référence (ex: 'DOS')
-     * @param int $padding Le nombre de chiffres pour le padding (ex: 3 pour 001)
-     * @return string La référence générée (ex: DOS-001)
+     * @return string La référence générée (ex: MB-001)
      */
-    public function generateReference(string $type, string $prefix = 'DOS', int $padding = 3): string
+    public function generateUnifiedReference(): string
     {
         try {
-            $result = DB::transaction(function () use ($type) {
+            $result = DB::transaction(function () {
                 $counter = DB::table('reference_counters')
-                    ->where('type', $type)
+                    ->where('type', 'dossier')
                     ->lockForUpdate()
                     ->first();
 
                 if (!$counter) {
-                    throw new RuntimeException("Compteur non trouvé pour le type: {$type}");
+                    throw new RuntimeException("Compteur non trouvé pour le type: dossier");
                 }
 
                 $newValue = $counter->current_value + 1;
 
                 DB::table('reference_counters')
-                    ->where('type', $type)
+                    ->where('type', 'dossier')
                     ->update([
                         'current_value' => $newValue,
                         'updated_at' => now(),
@@ -40,14 +38,22 @@ class ReferenceGeneratorService
                 return $newValue;
             });
 
-            return sprintf("%s-%s", $prefix, str_pad($result, $padding, '0', STR_PAD_LEFT));
+            // MB pour MaBoussole
+            return sprintf("MB-DOS-%s", str_pad($result, 6, '0', STR_PAD_LEFT));
         } catch (\Exception $e) {
-            \Log::error("Erreur lors de la génération de référence", [
-                'type' => $type,
+            \Log::error("Erreur lors de la génération de référence unifiée", [
                 'error' => $e->getMessage()
             ]);
             throw $e;
         }
+    }
+
+    /**
+     * @deprecated Utiliser generateUnifiedReference() à la place
+     */
+    public function generateReference(string $type, string $prefix = 'DOS', int $padding = 3): string
+    {
+        return $this->generateUnifiedReference();
     }
 
     /**

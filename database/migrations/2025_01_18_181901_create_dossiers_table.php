@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('dossiers', function (Blueprint $table) {
             $table->id();
             $table->string('reference_number')->unique();
-            $table->foreignId('prospect_id')->constrained('prospects')->onDelete('cascade');
             $table->unsignedTinyInteger('current_step')->default(1); // 1,2,3,4
             $table->string('current_status', 50)->default('en_attente');
             $table->text('notes')->nullable();
