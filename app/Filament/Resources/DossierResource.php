@@ -6,6 +6,7 @@ use App\Models\Dossier;
 use App\Models\Prospect;
 use App\Models\User;
 use App\Filament\Resources\DossierResource\Pages;
+use App\Filament\Resources\DossierResource\RelationManagers;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -22,7 +23,6 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Services\ReferenceGeneratorService;
-use App\Filament\Resources\DossierResource\RelationManagers\ActivitiesRelationManager;
 
 class DossierResource extends Resource
 {

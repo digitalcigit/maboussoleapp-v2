@@ -17,7 +17,7 @@ class Activity extends Model
     public const TYPE_NOTE = 'note';
     public const TYPE_CALL = 'appel';
     public const TYPE_EMAIL = 'email';
-    public const TYPE_MEETING = 'reunion';
+    public const TYPE_MEETING = 'rendez-vous';
     public const TYPE_DOCUMENT = 'document';
     public const TYPE_CONVERSION = 'conversion';
 
@@ -61,7 +61,7 @@ class Activity extends Model
             self::TYPE_NOTE => 'Note',
             self::TYPE_CALL => 'Appel',
             self::TYPE_EMAIL => 'Email',
-            self::TYPE_MEETING => 'Réunion',
+            self::TYPE_MEETING => 'Rendez-vous',
             self::TYPE_DOCUMENT => 'Document',
             self::TYPE_CONVERSION => 'Conversion',
             default => $this->type,
