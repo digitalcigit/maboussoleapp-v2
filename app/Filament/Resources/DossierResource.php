@@ -109,25 +109,10 @@ class DossierResource extends Resource
                             ->label('Assigné à')
                             ->relationship('assignedTo', 'name')
                             ->options(function () {
-                                // Si super-admin, montrer tous les utilisateurs
-                                if (auth()->user()->hasRole('super-admin')) {
-                                    return User::all()->pluck('name', 'id');
-                                }
-                                
-                                // Si manager, montrer les conseillers et soi-même
-                                if (auth()->user()->hasRole('manager')) {
-                                    return User::role(['conseiller', 'manager'])
-                                        ->where(function ($query) {
-                                            $query->role('conseiller')
-                                                ->orWhere('id', auth()->id());
-                                        })
-                                        ->pluck('name', 'id');
-                                }
-                                
-                                // Pour les conseillers, uniquement eux-mêmes
-                                return User::where('id', auth()->id())->pluck('name', 'id');
+                                return User::role('conseiller')->pluck('name', 'id');
                             })
-                            ->default(fn () => auth()->id())
+                            ->searchable()
+                            ->preload()
                             ->required()
                             ->visible(fn () => auth()->user()->can('assign', Dossier::class))
                             ->disabled(fn (string $operation, ?Model $record) => 

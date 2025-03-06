@@ -15,7 +15,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect('/admin/login');
+    if (auth()->check()) {
+        if (auth()->user()->hasRole('portail_candidat')) {
+            return redirect('/portail-candidat');
+        }
+        return redirect('/admin');
+    }
+    return redirect('/portail-candidat/login');
 });
 
 Route::get('/system/initialization', [SystemInitializationController::class, 'showInitializationForm'])

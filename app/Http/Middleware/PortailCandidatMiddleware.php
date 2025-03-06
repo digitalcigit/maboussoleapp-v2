@@ -12,7 +12,7 @@ class PortailCandidatMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check() || !auth()->user()->hasRole('portail_candidat')) {
-            if ($request->is('portail/login') || $request->is('portail/register')) {
+            if ($request->is('portail-candidat/login') || $request->is('portail-candidat/password-reset')) {
                 return $next($request);
             }
 
@@ -22,7 +22,7 @@ class PortailCandidatMiddleware
                 ->danger()
                 ->send();
 
-            return redirect()->route('filament.portail-candidat.auth.login');
+            return redirect('/portail-candidat/login');
         }
 
         return $next($request);

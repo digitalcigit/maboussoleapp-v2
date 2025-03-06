@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ClientResource\Pages;
 use App\Filament\Resources\ClientResource\RelationManagers;
 use App\Models\Client;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;
@@ -132,6 +133,28 @@ class ClientResource extends Resource
                             ->rules(['in:actif,inactif,en_attente,archive']),
                         Forms\Components\Select::make('assigned_to')
                             ->relationship('assignedTo', 'name')
+                            ->options(function () {
+                                $user = auth()->user();
+                                
+                                // Si conseiller, assignation automatique
+                                if ($user->hasRole('conseiller')) {
+                                    return [$user->id => $user->name];
+                                }
+                                
+                                // Si manager, montrer uniquement les conseillers
+                                if ($user->hasRole('manager')) {
+                                    return User::role('conseiller')->pluck('name', 'id');
+                                }
+                                
+                                // Si super-admin, montrer managers et conseillers
+                                return User::role(['manager', 'conseiller'])->pluck('name', 'id');
+                            })
+                            ->default(function() {
+                                $user = auth()->user();
+                                return $user->hasRole('conseiller') ? $user->id : null;
+                            })
+                            ->disabled(fn() => auth()->user()->hasRole('conseiller'))
+                            ->required()
                             ->searchable()
                             ->preload()
                             ->label('Assigné à'),
